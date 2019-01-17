@@ -1,0 +1,30 @@
+Notes from the chat on GL/call reports (plus TODO's):
+
+generate example call report PDF from template
+ - fake values just to proof out PDF generation
+   - Projects
+     - https://github.com/signintech/pdft
+     - https://github.com/jung-kurt/gofpdf / https://godoc.org/github.com/jung-kurt/gofpdf#DeserializeTemplate
+     - https://github.com/unidoc/unidoc
+
+store GL codes in QLedger, submit transactions
+ - Codes: https://ofm.wa.gov/sites/default/files/public/legacy/policy/75.40.htm
+ - account id: (example: 0111) as QLedger id: "$ABA-0111" ($ABA is FI routing number)
+ - GL codes are the suffix (example: RCON2365 -> 2365)
+   - Always numeric? Always N=4 characters long?
+
+query QLedger for call report fields
+
+take Bob's examples and impl paygate -> qledger interaction
+ - we won't expose QLedger to the public
+ - reports are off another API service we write
+ - "GL rules" are applied to debit/credit each GL account
+   - How custom does this get for each FI?
+
+PDF template and guidelines: http://www.ffiec.gov/forms051.htm
+
+Call Report Search: https://cdr.ffiec.gov/public/ManageFacsimiles.aspx (try Wells or Chase)
+
+Could we sell something off parsing Call Reports? Graphs?
+
+Codegen for GL codes -> Go const: https://ofm.wa.gov/sites/default/files/public/legacy/policy/75.40.htm
