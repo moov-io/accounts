@@ -2,7 +2,7 @@
 // Use of this source code is governed by an Apache License
 // license that can be found in the LICENSE file.
 
-// Generated on 2019-01-21T12:28:38Z by adam, any modifications will be overwritten
+// Generated on 2019-01-21T01:29:19Z by adam, any modifications will be overwritten
 package glcode
 
 var glCodes = map[string]string{

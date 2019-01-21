@@ -114,25 +114,8 @@ package glcode
 						// Grab if inside <p>..</p>
 						data = strings.TrimSpace(n.NextSibling.NextSibling.FirstChild.FirstChild.Data)
 					}
-
-					// Remove extra UTF-8 characters that Go source rejects
-					// From: https://stackoverflow.com/a/20403220
-					if !utf8.ValidString(data) {
-						v := make([]rune, 0, len(data))
-						for i, r := range data {
-							if r == utf8.RuneError {
-								_, size := utf8.DecodeRuneInString(data[i:])
-								if size == 1 {
-									continue
-								}
-							}
-							v = append(v, r)
-						}
-						data = string(v)
-					}
-
 					// Cleanup code description
-					data = strings.NewReplacer("\n", "", "  ", "").Replace(data)
+					data = strings.NewReplacer("\n", "", "  ", "").Replace(cleanUTF8Runes(data))
 					if data == "" || data == "u" || data == "strong" || data == "table" {
 						continue
 					}
@@ -181,4 +164,23 @@ package glcode
 	if err != nil {
 		log.Fatalf("error writing file, err=%v", err)
 	}
+}
+
+func cleanUTF8Runes(data string) string {
+	// Remove extra UTF-8 characters that Go source rejects
+	// From: https://stackoverflow.com/a/20403220
+	if !utf8.ValidString(data) {
+		v := make([]rune, 0, len(data))
+		for i, r := range data {
+			if r == utf8.RuneError {
+				_, size := utf8.DecodeRuneInString(data[i:])
+				if size == 1 {
+					continue
+				}
+			}
+			v = append(v, r)
+		}
+		data = string(v)
+	}
+	return data
 }
