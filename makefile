@@ -6,6 +6,19 @@ build:
 	go fmt ./...
 	@mkdir -p ./bin/
 	go build github.com/moov-io/gl
+	CGO_ENABLED=0 go build -o ./bin/server github.com/moov-io/gl/cmd/server
+
+docker:
+	docker build --pull -t moov/gl:$(VERSION) -f Dockerfile .
+	docker tag moov/gl:$(VERSION) moov/gl:latest
+
+release: docker AUTHORS
+	go vet ./...
+	go test -coverprofile=cover-$(VERSION).out ./...
+	git tag -f $(VERSION)
+
+release-push:
+	docker push moov/gl:$(VERSION)
 
 generate: clean
 	@go run pkg/glcode/generate.go
