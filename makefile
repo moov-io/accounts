@@ -1,3 +1,4 @@
+PLATFORM=$(shell uname -s | tr '[:upper:]' '[:lower:]')
 VERSION := $(shell grep -Eo '(v[0-9]+[\.][0-9]+[\.][0-9]+([-a-zA-Z0-9]*)?)' version.go)
 
 .PHONY: build generate
@@ -12,6 +13,16 @@ docker:
 	docker build --pull -t moov/gl:$(VERSION) -f Dockerfile .
 	docker tag moov/gl:$(VERSION) moov/gl:latest
 
+clean:
+	@rm -rf tmp/
+
+dist: clean generate build
+ifeq ($(OS),Windows_NT)
+	CGO_ENABLED=1 GOOS=windows go build -o bin/gl-windows-amd64.exe github.com/moov-io/gl/cmd/server
+else
+	CGO_ENABLED=1 GOOS=$(PLATFORM) go build -o bin/gl-$(PLATFORM)-amd64 github.com/moov-io/gl/cmd/server
+endif
+
 release: docker AUTHORS
 	go vet ./...
 	go test -coverprofile=cover-$(VERSION).out ./...
@@ -22,9 +33,6 @@ release-push:
 
 generate: clean
 	@go run pkg/glcode/generate.go
-
-clean:
-	@rm -rf tmp/
 
 # From https://github.com/genuinetools/img
 .PHONY: AUTHORS

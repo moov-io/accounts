@@ -38,3 +38,20 @@ script:
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - make docker
+before_deploy:
+- make dist
+deploy:
+  provider: releases
+  api_key:
+    secure: lSTzVBNKgqNfJSGAZXqY7XItya1+yr5aImtJ9P2WLrELvpsk7hcRNAcf9wa3jQocuUvru30nyafyqo9WSxN+KawqM3HKEwyczw+tlccY+pB2NPwlbxGaauu+/XSQXe5EQKXDCr7uMehJQl1+QqSyEhSt8xkgXsm5CgVV/1VBmBzzvfvWNo0gid8skCmCiVcatK7WKTo1uMd3FiNY7ri1TUnFaF1V/Vh0iaq9NWPAc6YJ4YzjfUYkxQpn6E0TXnI6tVtkWXTsun4RMdhmyyP1qpaCWpAKGBwYr0aF1s7FKOl5b1F2Ws+Mb+BIXcxvy6HSD4AgvqsrDxR4a4uHwXcUqOQabG/W7Dy6cK1STHtf44WGuOnD3sqCjTHzeA7y2EKsA9X1A3diKnbJMrV9lEHzVz6PkmThenxw4yiYgbridYF2BMVoswmL32jlpLLMOgYSmNN2V0I9IZXYd2nctXUQdW5e9ref0AN3qmwcw5zQLeAR9SaY7hOD5bqq18s+MbQV326JAgi3+siSLIRJOYf5DhFeMNHLCdp+EvwnwaMd+hDHn0ALBKA/smO2cQPhz0YzDHVPc9hHlJSodOnH24mnY7Dab0UU/5rePrdTaY6SEjlsWfyZ0/KiW4slbVmhyPL2HNGaxbHvX3HbPG+Ac4eGnlXoh2X7BCMGT9g11rNu3jE=
+  file_glob: true
+  file:
+    - bin/gl-*
+  on:
+    repo: moov-io/gl
+    tags: true
+    go: 1.12.x
+  skip_cleanup: true
+after_deploy:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - make release-push
