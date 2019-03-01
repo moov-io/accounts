@@ -1,14 +1,13 @@
 openapi: 3.0.2
-# Added by API Auto Mocking Plugin
 servers:
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/moov/core/1.0.0
+  - description: Local development
+    url: http://localhost:8085
 info:
-  description: This is a simple API
-  version: "1.0.0"
+  description: Moov GL is an HTTP service which represents both a general ledger and chart of accounts for customers. The service is designed to abstract over various core systems and provide a uniform API for developers.
+  version: 1.0.0
   title: Simple Core System API
   contact:
-    email: you@your-company.com
+    url: "https://groups.google.com/forum/#!forum/moov-users"
   license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
@@ -16,8 +15,8 @@ tags:
   - name: Account
     description: An account is financial institution account associated with a single customer
   - name: Customer
-    description: A customer is a single individual who can own account's. Customers need to be verified via KYC before they can make transactions or own accounts. 
-  
+    description: A customer is a single individual who can own account's. Customers need to be verified via KYC before they can make transactions or own accounts.
+
 paths:
   /accounts/:
     post:
