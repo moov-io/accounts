@@ -14,7 +14,7 @@ import (
 
 func TestAccounts__CreateAccount(t *testing.T) {
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/accounts", nil)
+	req := httptest.NewRequest("POST", "/customers/foo/accounts", nil)
 	req.Header.Set("x-user-id", "test")
 
 	router := mux.NewRouter()

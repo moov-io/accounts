@@ -12,12 +12,11 @@ import (
 )
 
 func addAccountRoutes(logger log.Logger, r *mux.Router) {
-	r.Methods("POST").Path("/accounts").HandlerFunc(createAccount(logger))
-
 	r.Methods("GET").Path("/customers/{customerId}/accounts").HandlerFunc(getCustomerAccounts(logger))
+	r.Methods("POST").Path("/customers/{customerId}/accounts").HandlerFunc(createCustomerAccount(logger))
 }
 
-func createAccount(logger log.Logger) http.HandlerFunc {
+func createCustomerAccount(logger log.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w, err := wrapResponseWriter(logger, w, r)
 		if err != nil {
