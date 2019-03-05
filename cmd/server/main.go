@@ -51,6 +51,8 @@ func main() {
 	router := mux.NewRouter()
 	moovhttp.AddCORSHandler(router)
 	addPingRoute(router)
+	addAccountRoutes(logger, router)
+	addCustomerRoutes(logger, router)
 
 	// Start business HTTP server
 	readTimeout, _ := time.ParseDuration("30s")
