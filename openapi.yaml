@@ -231,7 +231,7 @@ components:
           example: Smith
         nickName:
           type: string
-          description: Name Customer is prefered to be called
+          description: Name Customer is preferred to be called
           example: Bob
         suffix:
           type: string

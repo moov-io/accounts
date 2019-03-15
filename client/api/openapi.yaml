@@ -286,7 +286,7 @@ components:
           example: Smith
           type: string
         nickName:
-          description: Name Customer is prefered to be called
+          description: Name Customer is preferred to be called
           example: Bob
           type: string
         suffix:

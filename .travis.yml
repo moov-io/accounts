@@ -26,7 +26,7 @@ before_install:
   - go get -u honnef.co/go/tools/cmd/staticcheck
   - go get golang.org/x/tools/cmd/cover
 before_script:
-  - GOFILES=$(find . -type f -name '*.go' | grep -v vendor)
+  - GOFILES=$(find . -type f -name '*.go' | grep -v vendor | grep -v client)
 script:
   # Just check gofmt on linux, it's the fastest builder
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then test -z $(gofmt -s -l $GOFILES); fi

@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 **FirstName** | **string** | Given Name or First Name | [optional] 
 **MiddleName** | **string** | Middle Name | [optional] 
 **LastName** | **string** | Surname or Last Name | [optional] 
-**NickName** | **string** | Name Customer is prefered to be called | [optional] 
+**NickName** | **string** | Name Customer is preferred to be called | [optional] 
 **Suffix** | **string** | Customers name suffix. \&quot;Jr\&quot;, \&quot;PH.D.\&quot; | [optional] 
 **BirthDate** | [**time.Time**](time.Time.md) | Legal date of birth | [optional] 
 **Gender** | **string** |  | [optional] 

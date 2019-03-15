@@ -22,7 +22,7 @@ type Customer struct {
 	MiddleName string `json:"middleName,omitempty"`
 	// Surname or Last Name
 	LastName string `json:"lastName,omitempty"`
-	// Name Customer is prefered to be called
+	// Name Customer is preferred to be called
 	NickName string `json:"nickName,omitempty"`
 	// Customers name suffix. \"Jr\", \"PH.D.\"
 	Suffix string `json:"suffix,omitempty"`

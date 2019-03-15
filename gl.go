@@ -29,7 +29,7 @@ type Customer struct {
 	Phones    []Phone   `json:"phones"`
 	Addresses []Address `json:"address"`
 
-	CreatedAt  time.Time `json:"createdAt"`
+	CreatedAt    time.Time `json:"createdAt"`
 	LastModified time.Time `json:"lastModified"`
 }
 
@@ -70,7 +70,7 @@ type Account struct {
 	// Type is the account type: Checking, Savings, FBO
 	Type string `json:"type"`
 
-	CreatedAt  time.Time `json:"createdAt"`
+	CreatedAt    time.Time `json:"createdAt"`
 	ClosedAt     time.Time `json:"closedAt"`
 	LastModified time.Time `json:"lastModified"`
 
