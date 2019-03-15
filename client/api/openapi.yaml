@@ -1,0 +1,422 @@
+openapi: 3.0.2
+info:
+  contact:
+    url: https://groups.google.com/forum/#!forum/moov-users
+  description: Moov GL is an HTTP service which represents both a general ledger and chart of accounts for customers. The service is designed to abstract over various core systems and provide a uniform API for developers.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Simple Core System API
+  version: 1.0.0
+servers:
+- description: Local development
+  url: http://localhost:8085
+tags:
+- description: An account is financial institution account associated with a single customer
+  name: Account
+- description: A customer is a single individual who can own account's. Customers need to be verified via KYC before they can make transactions or own accounts.
+  name: Customer
+paths:
+  /customers/{customer_id}:
+    get:
+      operationId: getCustomer
+      parameters:
+      - description: Customer Id
+        explode: false
+        in: path
+        name: customer_id
+        required: true
+        schema:
+          example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+          description: A customer objects for the supplied customer ID
+        404:
+          description: A resource with the specified ID was not found
+      summary: Retrieves a Customer object associated with the customer ID.
+      tags:
+      - Customer
+  /customers/{customer_id}/accounts:
+    get:
+      operationId: getAccountsByCustomerID
+      parameters:
+      - description: Customer Id
+        explode: false
+        in: path
+        name: customer_id
+        required: true
+        schema:
+          example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Accounts'
+          description: An array of account objects for the supplied customer ID
+        404:
+          description: A resource with the specified ID was not found
+      summary: Retrieves a list of accounts associated with the customer ID.
+      tags:
+      - Account
+    post:
+      operationId: createAccount
+      parameters:
+      - description: Customer Id
+        explode: false
+        in: path
+        name: customer_id
+        required: true
+        schema:
+          example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccount'
+        required: true
+      responses:
+        200:
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+          description: Account ID
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Invalid user information, check error(s).
+        500:
+          description: Internal error, check error(s) and report the issue.
+      summary: Create a new account for a Customer
+      tags:
+      - Account
+components:
+  schemas:
+    CreateAccount:
+      example:
+        customerId: e210a9d6-d755-4455-9bd2-9577ea7e1081
+        name: Super Checking
+        type: Checking
+      properties:
+        customerId:
+          description: The unique identifier for the customer who owns the account
+          example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+          format: uuid
+          type: string
+        name:
+          description: Caller defined label for this account.
+          example: Super Checking
+          type: string
+        type:
+          description: Product type of the account
+          enum:
+          - Checking
+          - Savings
+          - FBO
+          type: string
+      required:
+      - customerId
+      - name
+      - type
+      type: object
+    Account:
+      example:
+        accountNumberMasked: "4321"
+        balanceAvailable: 850
+        accountNumber: "987654321"
+        type: Checking
+        balancePending: 100
+        accountId: d290f1ee-6c54-4b01-90e6-d701748f0851
+        routingNumber: "073000176"
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        balance: 1000
+        customerId: e210a9d6-d755-4455-9bd2-9577ea7e1081
+        name: Super Checking
+        lastModified: 2000-01-23T04:56:07.000+00:00
+        closedAt: 2000-01-23T04:56:07.000+00:00
+        status: Open
+      properties:
+        accountId:
+          description: The unique identifier for an account
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+          format: uuid
+          type: string
+        customerId:
+          description: The unique identifier for the customer who owns the account
+          example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+          format: uuid
+          type: string
+        name:
+          description: Caller defined label for this account.
+          example: Super Checking
+          type: string
+        accountNumber:
+          description: A unique Account number at the bank.
+          example: "987654321"
+          maximum: 17
+          minimum: 8
+          type: string
+        accountNumberMasked:
+          description: Last four digits of an account number
+          example: "4321"
+          maximum: 4
+          minimum: 4
+          type: string
+        routingNumber:
+          description: Routing Transit Number is a nine-digit number assigned by the ABA
+          example: "073000176"
+          maximum: 9
+          minimum: 9
+          type: string
+        status:
+          description: Status of the account being created.
+          enum:
+          - Open
+          - Closed
+          type: string
+        type:
+          description: Product type of the account
+          enum:
+          - Checking
+          - Savings
+          - FBO
+          type: string
+        createdAt:
+          format: date-time
+          type: string
+        closedAt:
+          format: date-time
+          type: string
+        lastModified:
+          description: Last time the object was modified except balances
+          format: date-time
+          type: string
+        balance:
+          description: Total balance of account in USD cents.
+          example: 1000
+          format: int32
+          type: integer
+        balanceAvailable:
+          description: Balance available in USD cents to be drawn
+          example: 850
+          format: int32
+          type: integer
+        balancePending:
+          description: Balance of pending transactions in USD cents
+          example: 100
+          format: int32
+          type: integer
+      type: object
+    Accounts:
+      items:
+        $ref: '#/components/schemas/Account'
+      type: array
+    Customer:
+      example:
+        lastName: Smith
+        addresses:
+        - country: US
+          validated: true
+          address2: address2
+          city: city
+          address1: address1
+          postalCode: postalCode
+          active: true
+          state: state
+          type: Primary
+        - country: US
+          validated: true
+          address2: address2
+          city: city
+          address1: address1
+          postalCode: postalCode
+          active: true
+          state: state
+          type: Primary
+        gender: Male
+        nickName: Bob
+        phones:
+        - valid: true
+          number: +1.818.555.1212
+          type: Home
+        - valid: true
+          number: +1.818.555.1212
+          type: Home
+        suffix: suffix
+        birthDate: 2000-01-23T04:56:07.000+00:00
+        firstName: Robert
+        createdDate: 2000-01-23T04:56:07.000+00:00
+        culture: en-US
+        customerId: e210a9d6-d755-4455-9bd2-9577ea7e1081
+        middleName: Flex
+        lastModified: 2000-01-23T04:56:07.000+00:00
+        email: email
+        status: Applied
+      properties:
+        customerId:
+          description: The unique identifier for the customer who owns the account
+          example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+          format: uuid
+          type: string
+        firstName:
+          description: Given Name or First Name
+          example: Robert
+          maximum: 64
+          type: string
+        middleName:
+          description: Middle Name
+          example: Flex
+          maximum: 64
+          type: string
+        lastName:
+          description: Surname or Last Name
+          example: Smith
+          type: string
+        nickName:
+          description: Name Customer is prefered to be called
+          example: Bob
+          type: string
+        suffix:
+          description: Customers name suffix. "Jr", "PH.D."
+          type: string
+        birthDate:
+          description: Legal date of birth
+          format: date-time
+          type: string
+        gender:
+          enum:
+          - Male
+          - Female
+          - Unknown
+          type: string
+        culture:
+          description: Used for localization of documents
+          enum:
+          - en-US
+          - es-US
+          type: string
+        status:
+          description: State of the customer
+          enum:
+          - Applied
+          - Verified
+          - Denied
+          - Archieved
+          - Deceased
+          type: string
+        email:
+          description: Primary email address of customer name@domain.com
+          maximum: 255
+          type: string
+        phones:
+          items:
+            $ref: '#/components/schemas/Phone'
+          type: array
+        addresses:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+        createdDate:
+          format: date-time
+          type: string
+        lastModified:
+          description: Last time the object was modified
+          format: date-time
+          type: string
+      type: object
+    Customers:
+      items:
+        $ref: '#/components/schemas/Customer'
+      type: array
+    Phone:
+      example:
+        valid: true
+        number: +1.818.555.1212
+        type: Home
+      properties:
+        number:
+          description: phone number
+          example: +1.818.555.1212
+          type: string
+        valid:
+          description: phone number has been validated to connect with customer
+          type: boolean
+        type:
+          enum:
+          - Home
+          - Mobile
+          - Work
+          type: string
+    Address:
+      example:
+        country: US
+        validated: true
+        address2: address2
+        city: city
+        address1: address1
+        postalCode: postalCode
+        active: true
+        state: state
+        type: Primary
+      properties:
+        type:
+          enum:
+          - Primary
+          - Secondary
+          type: string
+        address1:
+          description: First line of the address
+          type: string
+        address2:
+          description: Second line of the address
+          type: string
+        city:
+          type: string
+        state:
+          description: two charcer code of US state
+          maximum: 2
+          minimum: 2
+          type: string
+        postalCode:
+          type: string
+        country:
+          enum:
+          - US
+          type: string
+        validated:
+          description: Address has been validated for customer
+          type: boolean
+        active:
+          description: Address is currently being used for customer
+          type: boolean
+      type: object
+    Error:
+      properties:
+        error:
+          description: An error message describing the problem intended for humans.
+          example: Validation error(s) present.
+          type: string
+      required:
+      - error
+    inline_response_200:
+      example:
+        accountId: d290f1ee-6c54-4b01-90e6-d701748f0851
+      properties:
+        accountId:
+          description: The unique identifier for an account
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+          format: uuid
+          type: string

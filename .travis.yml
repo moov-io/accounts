@@ -37,6 +37,8 @@ script:
   - staticcheck ./...
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - make
+  - make client
   - make docker
 before_deploy:
 - make dist

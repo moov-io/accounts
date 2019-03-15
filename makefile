@@ -13,8 +13,20 @@ docker:
 	docker build --pull -t moov/gl:$(VERSION) -f Dockerfile .
 	docker tag moov/gl:$(VERSION) moov/gl:latest
 
+.PHONY: client
+client:
+# Versions from https://github.com/OpenAPITools/openapi-generator/releases
+	@chmod +x ./openapi-generator
+	@rm -rf ./client
+	OPENAPI_GENERATOR_VERSION=4.0.0-beta2 ./openapi-generator generate -i openapi.yaml -g go -o ./client
+	go fmt ./client
+	go build github.com/moov-io/gl/client
+	go test ./client
+
 clean:
+	@rm -rf client/
 	@rm -rf tmp/
+	@rm -f openapi-generator-cli-*.jar
 
 dist: clean generate build
 ifeq ($(OS),Windows_NT)
