@@ -5,9 +5,12 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/moov-io/gl"
 
 	"github.com/gorilla/mux"
 )
@@ -24,5 +27,13 @@ func TestCustomers__GetCustomer(t *testing.T) {
 
 	if w.Code != http.StatusOK {
 		t.Errorf("bogus status code: %d", w.Code)
+	}
+
+	var cust gl.Customer // TODO(adam): check more of Customer response?
+	if err := json.NewDecoder(w.Body).Decode(&cust); err != nil {
+		t.Fatal(err)
+	}
+	if cust.ID == "" {
+		t.Error("empty Customer.ID")
 	}
 }

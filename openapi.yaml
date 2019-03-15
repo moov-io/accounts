@@ -85,17 +85,11 @@ paths:
               $ref: '#/components/schemas/CreateAccount'
       responses:
         '200':
-          description: Account ID
+          description: The created Account model
           content:
-            text/plain:
+            application/json:
               schema:
-                type: object
-                properties:
-                  accountId:
-                    type: string
-                    format: uuid
-                    description: The unique identifier for an account
-                    example: d290f1ee-6c54-4b01-90e6-d701748f0851
+                $ref: '#/components/schemas/Account'
         '400':
           description: Invalid user information, check error(s).
           content:
