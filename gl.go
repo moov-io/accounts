@@ -18,9 +18,9 @@ type Customer struct {
 	NickName string `json:"nickName"`
 	Suffix   string `json:"suffix"`
 
-	BirthDate string `json:"birthDate"`
-	Gender    string `json:"gender"`
-	Culture   string `json:"culture"`
+	BirthDate time.Time `json:"birthDate"`
+	Gender    string    `json:"gender"`
+	Culture   string    `json:"culture"`
 
 	// Status holds the Customer's status: Applied, Verified, Denied, Archieved, Deceased
 	Status string `json:"status"`
