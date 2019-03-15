@@ -274,7 +274,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Address'
-        createdDate:
+        createdAt:
           type: string
           format: date-time
           example: '2016-08-29T09:12:33.001Z'

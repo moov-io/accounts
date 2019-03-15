@@ -258,7 +258,7 @@ components:
         suffix: suffix
         birthDate: 2000-01-23T04:56:07.000+00:00
         firstName: Robert
-        createdDate: 2000-01-23T04:56:07.000+00:00
+        createdAt: 2000-01-23T04:56:07.000+00:00
         culture: en-US
         customerId: e210a9d6-d755-4455-9bd2-9577ea7e1081
         middleName: Flex
@@ -329,7 +329,7 @@ components:
           items:
             $ref: '#/components/schemas/Address'
           type: array
-        createdDate:
+        createdAt:
           format: date-time
           type: string
         lastModified:
