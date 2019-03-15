@@ -12,16 +12,25 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
-  - name: Account
-    description: An account is financial institution account associated with a single customer
-  - name: Customer
-    description: A customer is a single individual who can own account's. Customers need to be verified via KYC before they can make transactions or own accounts.
-
+  - name: GL
+    description: |
+      GL endpoints cover both Customers and their Accounts at a Financial Instittuion.
+       - A customer is a single individual who can own account's. Customers need to be verified via KYC before they can make transactions or own accounts.
+       - An account is financial institution account associated with a single customer
 paths:
+  /ping:
+    get:
+      tags:
+        - GL
+      summary: Ping the GL service to check if running
+      operationId: ping
+      responses:
+        '200':
+          description: Service is running properly
   /customers/{customer_id}:
     get:
       tags:
-      - Customer
+        - GL
       summary: Retrieves a Customer object associated with the customer ID.
       operationId: getCustomer
       parameters:
@@ -44,7 +53,7 @@ paths:
   /customers/{customer_id}/accounts:
     get:
       tags:
-      - Account
+        - GL
       summary: Retrieves a list of accounts associated with the customer ID.
       operationId: getAccountsByCustomerID
       parameters:
@@ -66,7 +75,7 @@ paths:
           description: A resource with the specified ID was not found
     post:
       tags:
-        - Account
+        - GL
       summary: Create a new account for a Customer
       operationId: createAccount
       parameters:

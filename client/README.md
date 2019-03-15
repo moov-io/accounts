@@ -31,9 +31,10 @@ All URIs are relative to *http://localhost:8085*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*AccountApi* | [**CreateAccount**](docs/AccountApi.md#createaccount) | **Post** /customers/{customer_id}/accounts | Create a new account for a Customer
-*AccountApi* | [**GetAccountsByCustomerID**](docs/AccountApi.md#getaccountsbycustomerid) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
-*CustomerApi* | [**GetCustomer**](docs/CustomerApi.md#getcustomer) | **Get** /customers/{customer_id} | Retrieves a Customer object associated with the customer ID.
+*GLApi* | [**CreateAccount**](docs/GLApi.md#createaccount) | **Post** /customers/{customer_id}/accounts | Create a new account for a Customer
+*GLApi* | [**GetAccountsByCustomerID**](docs/GLApi.md#getaccountsbycustomerid) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
+*GLApi* | [**GetCustomer**](docs/GLApi.md#getcustomer) | **Get** /customers/{customer_id} | Retrieves a Customer object associated with the customer ID.
+*GLApi* | [**Ping**](docs/GLApi.md#ping) | **Get** /ping | Ping the GL service to check if running
 
 
 ## Documentation For Models
@@ -43,7 +44,6 @@ Class | Method | HTTP request | Description
  - [CreateAccount](docs/CreateAccount.md)
  - [Customer](docs/Customer.md)
  - [Error](docs/Error.md)
- - [InlineResponse200](docs/InlineResponse200.md)
  - [Phone](docs/Phone.md)
 
 

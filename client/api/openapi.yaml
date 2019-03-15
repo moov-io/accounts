@@ -12,11 +12,21 @@ servers:
 - description: Local development
   url: http://localhost:8085
 tags:
-- description: An account is financial institution account associated with a single customer
-  name: Account
-- description: A customer is a single individual who can own account's. Customers need to be verified via KYC before they can make transactions or own accounts.
-  name: Customer
+- description: |
+    GL endpoints cover both Customers and their Accounts at a Financial Instittuion.
+     - A customer is a single individual who can own account's. Customers need to be verified via KYC before they can make transactions or own accounts.
+     - An account is financial institution account associated with a single customer
+  name: GL
 paths:
+  /ping:
+    get:
+      operationId: ping
+      responses:
+        200:
+          description: Service is running properly
+      summary: Ping the GL service to check if running
+      tags:
+      - GL
   /customers/{customer_id}:
     get:
       operationId: getCustomer
@@ -41,7 +51,7 @@ paths:
           description: A resource with the specified ID was not found
       summary: Retrieves a Customer object associated with the customer ID.
       tags:
-      - Customer
+      - GL
   /customers/{customer_id}/accounts:
     get:
       operationId: getAccountsByCustomerID
@@ -66,7 +76,7 @@ paths:
           description: A resource with the specified ID was not found
       summary: Retrieves a list of accounts associated with the customer ID.
       tags:
-      - Account
+      - GL
     post:
       operationId: createAccount
       parameters:
@@ -88,10 +98,10 @@ paths:
       responses:
         200:
           content:
-            text/plain:
+            application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200'
-          description: Account ID
+                $ref: '#/components/schemas/Account'
+          description: The created Account model
         400:
           content:
             application/json:
@@ -102,7 +112,7 @@ paths:
           description: Internal error, check error(s) and report the issue.
       summary: Create a new account for a Customer
       tags:
-      - Account
+      - GL
 components:
   schemas:
     CreateAccount:
@@ -411,12 +421,3 @@ components:
           type: string
       required:
       - error
-    inline_response_200:
-      example:
-        accountId: d290f1ee-6c54-4b01-90e6-d701748f0851
-      properties:
-        accountId:
-          description: The unique identifier for an account
-          example: d290f1ee-6c54-4b01-90e6-d701748f0851
-          format: uuid
-          type: string
