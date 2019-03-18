@@ -28,5 +28,5 @@ var (
 
 func wrapResponseWriter(logger log.Logger, w http.ResponseWriter, r *http.Request) (http.ResponseWriter, error) {
 	route := fmt.Sprintf("%s%s", strings.ToLower(r.Method), strings.Replace(r.URL.Path, "/", "-", -1)) // TODO(adam): filter out random ID's later
-	return moovhttp.EnsureHeaders(logger, routeHistogram.With("route", route), inmemIdempotentRecorder, w, r)
+	return moovhttp.Wrap(logger, routeHistogram.With("route", route), w, r), nil // TODO(adam): EnsureHeaders: inmemIdempotentRecorder,
 }
