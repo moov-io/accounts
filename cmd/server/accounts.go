@@ -94,7 +94,7 @@ func getCustomerAccounts(logger log.Logger) http.HandlerFunc {
 				ID:                  base.ID(),
 				CustomerID:          base.ID(),
 				Name:                "Sample Account",
-				AccountNumber:       "123",
+				AccountNumber:       "132",
 				AccountNumberMasked: "",          // TODO(adam): show both in mocks?
 				RoutingNumber:       "121042882", // Wells Fargo for CA
 				Status:              "open",
