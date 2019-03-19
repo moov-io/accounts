@@ -11,7 +11,7 @@ Method | HTTP request | Description
 
 
 # **CreateAccount**
-> Account CreateAccount(ctx, customerId, createAccount)
+> Account CreateAccount(ctx, customerId, xUserId, createAccount)
 Create a new account for a Customer
 
 ### Required Parameters
@@ -20,6 +20,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **customerId** | **string**| Customer Id | 
+  **xUserId** | **string**| Moov User ID header, required in all requests | 
   **createAccount** | [**CreateAccount**](CreateAccount.md)|  | 
 
 ### Return type
@@ -38,7 +39,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetAccountsByCustomerID**
-> []Account GetAccountsByCustomerID(ctx, customerId)
+> []Account GetAccountsByCustomerID(ctx, customerId, xUserId)
 Retrieves a list of accounts associated with the customer ID.
 
 ### Required Parameters
@@ -47,6 +48,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **customerId** | **string**| Customer Id | 
+  **xUserId** | **string**| Moov User ID header, required in all requests | 
 
 ### Return type
 
@@ -64,7 +66,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetCustomer**
-> Customer GetCustomer(ctx, customerId)
+> Customer GetCustomer(ctx, customerId, xUserId)
 Retrieves a Customer object associated with the customer ID.
 
 ### Required Parameters
@@ -73,6 +75,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **customerId** | **string**| Customer Id | 
+  **xUserId** | **string**| Moov User ID header, required in all requests | 
 
 ### Return type
 

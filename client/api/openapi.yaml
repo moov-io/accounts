@@ -40,6 +40,15 @@ paths:
           example: e210a9d6-d755-4455-9bd2-9577ea7e1081
           type: string
         style: simple
+      - description: Moov User ID header, required in all requests
+        example: e3cdf999
+        explode: false
+        in: header
+        name: X-User-Id
+        required: true
+        schema:
+          type: string
+        style: simple
       responses:
         200:
           content:
@@ -65,6 +74,15 @@ paths:
           example: e210a9d6-d755-4455-9bd2-9577ea7e1081
           type: string
         style: simple
+      - description: Moov User ID header, required in all requests
+        example: e3cdf999
+        explode: false
+        in: header
+        name: X-User-Id
+        required: true
+        schema:
+          type: string
+        style: simple
       responses:
         200:
           content:
@@ -87,6 +105,15 @@ paths:
         required: true
         schema:
           example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+          type: string
+        style: simple
+      - description: Moov User ID header, required in all requests
+        example: e3cdf999
+        explode: false
+        in: header
+        name: X-User-Id
+        required: true
+        schema:
           type: string
         style: simple
       requestBody:
@@ -114,6 +141,17 @@ paths:
       tags:
       - GL
 components:
+  parameters:
+    XUserIdHeader:
+      description: Moov User ID header, required in all requests
+      example: e3cdf999
+      explode: false
+      in: header
+      name: X-User-Id
+      required: true
+      schema:
+        type: string
+      style: simple
   schemas:
     CreateAccount:
       example:

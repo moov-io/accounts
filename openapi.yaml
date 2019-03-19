@@ -41,6 +41,7 @@ paths:
           schema:
             type: string
             example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+        - $ref: '#/components/parameters/XUserIdHeader'
       responses:
         '200':
           description: A customer objects for the supplied customer ID
@@ -64,6 +65,7 @@ paths:
           schema:
             type: string
             example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+        - $ref: '#/components/parameters/XUserIdHeader'
       responses:
         '200':
           description: An array of account objects for the supplied customer ID
@@ -86,6 +88,7 @@ paths:
           schema:
             type: string
             example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+        - $ref: '#/components/parameters/XUserIdHeader'
       requestBody:
         required: true
         content:
@@ -347,3 +350,12 @@ components:
           type: string
           description: An error message describing the problem intended for humans.
           example: Validation error(s) present.
+  parameters:
+    XUserIdHeader:
+      in: header
+      name: X-User-Id
+      description: Moov User ID header, required in all requests
+      example: e3cdf999
+      schema:
+        type: string
+      required: true
