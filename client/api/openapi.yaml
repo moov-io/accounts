@@ -359,29 +359,23 @@ components:
         lastName: Smith
         addresses:
         - country: US
-          validated: true
           address2: address2
           city: city
           address1: address1
           postalCode: postalCode
-          active: true
           state: state
           type: Primary
         - country: US
-          validated: true
           address2: address2
           city: city
           address1: address1
           postalCode: postalCode
-          active: true
           state: state
           type: Primary
         phones:
-        - valid: true
-          number: +1.818.555.1212
+        - number: +1.818.555.1212
           type: Home
-        - valid: true
-          number: +1.818.555.1212
+        - number: +1.818.555.1212
           type: Home
         email: email
       properties:
@@ -400,11 +394,11 @@ components:
           type: string
         phones:
           items:
-            $ref: '#/components/schemas/Phone'
+            $ref: '#/components/schemas/CreatePhone'
           type: array
         addresses:
           items:
-            $ref: '#/components/schemas/Address'
+            $ref: '#/components/schemas/CreateAddress'
           type: array
       type: object
     Customer:
@@ -524,6 +518,24 @@ components:
       items:
         $ref: '#/components/schemas/Customer'
       type: array
+    CreatePhone:
+      example:
+        number: +1.818.555.1212
+        type: Home
+      properties:
+        number:
+          description: phone number
+          example: +1.818.555.1212
+          type: string
+        type:
+          enum:
+          - Home
+          - Mobile
+          - Work
+          type: string
+      required:
+      - number
+      - type
     Phone:
       example:
         valid: true
@@ -543,6 +555,49 @@ components:
           - Mobile
           - Work
           type: string
+    CreateAddress:
+      example:
+        country: US
+        address2: address2
+        city: city
+        address1: address1
+        postalCode: postalCode
+        state: state
+        type: Primary
+      properties:
+        type:
+          enum:
+          - Primary
+          - Secondary
+          type: string
+        address1:
+          description: First line of the address
+          type: string
+        address2:
+          description: Second line of the address
+          type: string
+        city:
+          type: string
+        state:
+          description: two charcer code of US state
+          maximum: 2
+          minimum: 2
+          type: string
+        postalCode:
+          type: string
+        country:
+          enum:
+          - US
+          type: string
+      required:
+      - address1
+      - address2
+      - city
+      - country
+      - postalCode
+      - state
+      - type
+      type: object
     Address:
       example:
         country: US

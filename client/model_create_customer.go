@@ -15,7 +15,7 @@ type CreateCustomer struct {
 	// Surname or Last Name
 	LastName string `json:"lastName,omitempty"`
 	// Primary email address of customer name@domain.com
-	Email     string    `json:"email,omitempty"`
-	Phones    []Phone   `json:"phones,omitempty"`
-	Addresses []Address `json:"addresses,omitempty"`
+	Email     string          `json:"email,omitempty"`
+	Phones    []CreatePhone   `json:"phones,omitempty"`
+	Addresses []CreateAddress `json:"addresses,omitempty"`
 }

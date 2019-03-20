@@ -291,11 +291,11 @@ components:
         phones:
           type: array
           items:
-            $ref: '#/components/schemas/Phone'
+            $ref: '#/components/schemas/CreatePhone'
         addresses:
           type: array
           items:
-            $ref: '#/components/schemas/Address'
+            $ref: '#/components/schemas/CreateAddress'
     Customer:
       type: object
       properties:
@@ -376,6 +376,21 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Customer'
+    CreatePhone:
+      properties:
+        number:
+          type: string
+          description: phone number
+          example: "+1.818.555.1212"
+        type:
+          type: string
+          enum:
+            - Home
+            - Mobile
+            - Work
+      required:
+        - number
+        - type
     Phone:
       properties:
         number:
@@ -391,6 +406,41 @@ components:
             - Home
             - Mobile
             - Work
+    CreateAddress:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - Primary
+            - Secondary
+        address1:
+          type: string
+          description: First line of the address
+        address2:
+          type: string
+          description: Second line of the address
+        city:
+          type: string
+        state:
+          type: string
+          minimum: 2
+          maximum: 2
+          description: two charcer code of US state
+        postalCode:
+          type: string
+        country:
+          type: string
+          enum:
+            - US
+      required:
+        - type
+        - address1
+        - address2
+        - city
+        - state
+        - postalCode
+        - country
     Address:
       type: object
       properties:
@@ -424,7 +474,6 @@ components:
         active:
           type: boolean
           description: Address is currently being used for customer
-
     Error:
       required:
         - error
