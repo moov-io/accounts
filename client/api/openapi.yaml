@@ -27,6 +27,58 @@ paths:
       summary: Ping the GL service to check if running
       tags:
       - GL
+  /accounts/search:
+    get:
+      operationId: searchAccounts
+      parameters:
+      - description: Account number
+        explode: true
+        in: query
+        name: number
+        required: true
+        schema:
+          example: "2151"
+          type: string
+        style: form
+      - description: ABA routing number for the Financial Institution
+        explode: true
+        in: query
+        name: routingNumber
+        required: true
+        schema:
+          example: "69100013"
+          type: string
+        style: form
+      - description: Account type
+        explode: true
+        in: query
+        name: type
+        required: true
+        schema:
+          example: Checking
+          type: string
+        style: form
+      - description: Moov User ID header, required in all requests
+        example: e3cdf999
+        explode: false
+        in: header
+        name: X-User-Id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: An Account object that matches all query parameters
+        404:
+          description: No account found for provided query parameters
+      summary: Search for account which matches all query parameters
+      tags:
+      - GL
   /customers/{customer_id}:
     get:
       operationId: getCustomer

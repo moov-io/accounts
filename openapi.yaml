@@ -27,6 +27,44 @@ paths:
       responses:
         '200':
           description: Service is running properly
+  /accounts/search:
+    get:
+      tags:
+        - GL
+      summary: Search for account which matches all query parameters
+      operationId: searchAccounts
+      parameters:
+        - name: number
+          in: query
+          description: Account number
+          required: true
+          schema:
+            type: string
+            example: 2151
+        - name: routingNumber
+          in: query
+          description: ABA routing number for the Financial Institution
+          required: true
+          schema:
+            type: string
+            example: "69100013"
+        - name: type
+          in: query
+          description: Account type
+          required: true
+          schema:
+            type: string
+            example: Checking
+        - $ref: '#/components/parameters/XUserIdHeader'
+      responses:
+        '200':
+          description: An Account object that matches all query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '404':
+          description: No account found for provided query parameters
   /customers/{customer_id}:
     get:
       tags:

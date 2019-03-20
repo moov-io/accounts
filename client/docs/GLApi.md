@@ -8,6 +8,7 @@ Method | HTTP request | Description
 [**GetAccountsByCustomerID**](GLApi.md#GetAccountsByCustomerID) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
 [**GetCustomer**](GLApi.md#GetCustomer) | **Get** /customers/{customer_id} | Retrieves a Customer object associated with the customer ID.
 [**Ping**](GLApi.md#Ping) | **Get** /ping | Ping the GL service to check if running
+[**SearchAccounts**](GLApi.md#SearchAccounts) | **Get** /accounts/search | Search for account which matches all query parameters
 
 
 # **CreateAccount**
@@ -111,6 +112,35 @@ No authorization required
 
  - **Content-Type**: Not defined
  - **Accept**: Not defined
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **SearchAccounts**
+> Account SearchAccounts(ctx, number, routingNumber, type_, xUserId)
+Search for account which matches all query parameters
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+  **number** | **string**| Account number | 
+  **routingNumber** | **string**| ABA routing number for the Financial Institution | 
+  **type_** | **string**| Account type | 
+  **xUserId** | **string**| Moov User ID header, required in all requests | 
+
+### Return type
+
+[**Account**](Account.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
