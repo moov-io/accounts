@@ -7,6 +7,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -19,8 +20,48 @@ import (
 )
 
 func addAccountRoutes(logger log.Logger, r *mux.Router) {
+	r.Methods("GET").Path("/accounts/search").HandlerFunc(searchAccounts(logger))
+
 	r.Methods("GET").Path("/customers/{customerId}/accounts").HandlerFunc(getCustomerAccounts(logger))
 	r.Methods("POST").Path("/customers/{customerId}/accounts").HandlerFunc(createCustomerAccount(logger))
+}
+
+// searchAccounts will attempt to find an Account which matches all query parameters and if all match return
+// the account. Otherwise a 404 will be returned. '400 Bad Request' will be returned if query parameters are missing.
+func searchAccounts(logger log.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w, err := wrapResponseWriter(logger, w, r)
+		if err != nil {
+			return
+		}
+
+		q := r.URL.Query()
+		reqAcctNumber, reqRoutingNumber := q.Get("number"), q.Get("routingNumber")
+		reqAcctType := q.Get("type")
+		if reqAcctNumber == "" || reqRoutingNumber == "" || reqAcctType == "" {
+			moovhttp.Problem(w, fmt.Errorf("missing query parameters: number=%q, routingNumber=%q, type=%q", reqAcctNumber, reqRoutingNumber, reqAcctType))
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(&gl.Account{
+			ID:                  base.ID(),
+			CustomerID:          "customerId",
+			Name:                "Example account",
+			AccountNumber:       reqAcctNumber,
+			AccountNumberMasked: "",               // TODO(adam): show both in mocks?
+			RoutingNumber:       reqRoutingNumber, // Wells Fargo for CA
+			Status:              "open",
+			Type:                reqAcctType,
+			CreatedAt:           time.Now(),
+			// ClosedAt: time.Time{},
+			LastModified:     time.Now(),
+			Balance:          0,
+			BalanceAvailable: 0,
+			BalancePending:   0,
+		})
+	}
 }
 
 type createAccountRequest struct {
