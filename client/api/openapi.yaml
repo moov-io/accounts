@@ -79,6 +79,35 @@ paths:
       summary: Search for account which matches all query parameters
       tags:
       - GL
+  /customers:
+    post:
+      operationId: createCustomer
+      parameters:
+      - description: Moov User ID header, required in all requests
+        example: e3cdf999
+        explode: false
+        in: header
+        name: X-User-Id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCustomer'
+          description: Customer was successfully created
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Customer was not created, see error(s)
+      summary: Create a new customer
+      tags:
+      - GL
   /customers/{customer_id}:
     get:
       operationId: getCustomer
@@ -324,6 +353,60 @@ components:
       items:
         $ref: '#/components/schemas/Account'
       type: array
+    CreateCustomer:
+      example:
+        firstName: Robert
+        lastName: Smith
+        addresses:
+        - country: US
+          validated: true
+          address2: address2
+          city: city
+          address1: address1
+          postalCode: postalCode
+          active: true
+          state: state
+          type: Primary
+        - country: US
+          validated: true
+          address2: address2
+          city: city
+          address1: address1
+          postalCode: postalCode
+          active: true
+          state: state
+          type: Primary
+        phones:
+        - valid: true
+          number: +1.818.555.1212
+          type: Home
+        - valid: true
+          number: +1.818.555.1212
+          type: Home
+        email: email
+      properties:
+        firstName:
+          description: Given Name or First Name
+          example: Robert
+          maximum: 64
+          type: string
+        lastName:
+          description: Surname or Last Name
+          example: Smith
+          type: string
+        email:
+          description: Primary email address of customer name@domain.com
+          maximum: 255
+          type: string
+        phones:
+          items:
+            $ref: '#/components/schemas/Phone'
+          type: array
+        addresses:
+          items:
+            $ref: '#/components/schemas/Address'
+          type: array
+      type: object
     Customer:
       example:
         lastName: Smith

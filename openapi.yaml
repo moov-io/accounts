@@ -65,6 +65,27 @@ paths:
                 $ref: '#/components/schemas/Account'
         '404':
           description: No account found for provided query parameters
+  /customers:
+    post:
+      tags:
+        - GL
+      summary: Create a new customer
+      operationId: createCustomer
+      parameters:
+        - $ref: '#/components/parameters/XUserIdHeader'
+      responses:
+        '200':
+          description: Customer was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCustomer'
+        '400':
+          description: Customer was not created, see error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /customers/{customer_id}:
     get:
       tags:
@@ -251,6 +272,30 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Account'
+    CreateCustomer:
+      type: object
+      properties:
+        firstName:
+          type: string
+          maximum: 64
+          description: Given Name or First Name
+          example: Robert
+        lastName:
+          type: string
+          description: Surname or Last Name
+          example: Smith
+        email:
+          type: string
+          maximum: 255
+          description: Primary email address of customer name@domain.com
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Phone'
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
     Customer:
       type: object
       properties:

@@ -32,6 +32,7 @@ All URIs are relative to *http://localhost:8085*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *GLApi* | [**CreateAccount**](docs/GLApi.md#createaccount) | **Post** /customers/{customer_id}/accounts | Create a new account for a Customer
+*GLApi* | [**CreateCustomer**](docs/GLApi.md#createcustomer) | **Post** /customers | Create a new customer
 *GLApi* | [**GetAccountsByCustomerID**](docs/GLApi.md#getaccountsbycustomerid) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
 *GLApi* | [**GetCustomer**](docs/GLApi.md#getcustomer) | **Get** /customers/{customer_id} | Retrieves a Customer object associated with the customer ID.
 *GLApi* | [**Ping**](docs/GLApi.md#ping) | **Get** /ping | Ping the GL service to check if running
@@ -43,6 +44,7 @@ Class | Method | HTTP request | Description
  - [Account](docs/Account.md)
  - [Address](docs/Address.md)
  - [CreateAccount](docs/CreateAccount.md)
+ - [CreateCustomer](docs/CreateCustomer.md)
  - [Customer](docs/Customer.md)
  - [Error](docs/Error.md)
  - [Phone](docs/Phone.md)
