@@ -43,9 +43,6 @@ release: docker AUTHORS
 release-push:
 	docker push moov/gl:$(VERSION)
 
-generate: clean
-	@go run pkg/glcode/generate.go
-
 # From https://github.com/genuinetools/img
 .PHONY: AUTHORS
 AUTHORS:
