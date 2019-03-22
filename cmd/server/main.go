@@ -20,6 +20,7 @@ import (
 	moovhttp "github.com/moov-io/base/http"
 	"github.com/moov-io/base/http/bind"
 	"github.com/moov-io/gl"
+	"github.com/moov-io/gl/cmd/server/storage"
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
@@ -75,6 +76,25 @@ func main() {
 		}
 	}()
 
+	// Start Admin server (with Prometheus metrics)
+	adminServer := admin.NewServer(*adminAddr)
+	go func() {
+		logger.Log("admin", fmt.Sprintf("listening on %s", adminServer.BindAddr()))
+		if err := adminServer.Listen(); err != nil {
+			err = fmt.Errorf("problem starting admin http: %v", err)
+			logger.Log("admin", err)
+			errs <- err
+		}
+	}()
+	defer adminServer.Shutdown()
+
+	// Setup our storage database(s)
+	if storage, err := storage.InitAccountStorage("qledger"); err != nil {
+		panic(err)
+	} else {
+		adminServer.AddLivenessCheck("qledger", storage.Ping)
+	}
+
 	// Setup business HTTP routes
 	router := mux.NewRouter()
 	moovhttp.AddCORSHandler(router)
@@ -104,18 +124,6 @@ func main() {
 			logger.Log("shutdown", err)
 		}
 	}
-
-	// Start Admin server (with Prometheus metrics)
-	adminServer := admin.NewServer(*adminAddr)
-	go func() {
-		logger.Log("admin", fmt.Sprintf("listening on %s", adminServer.BindAddr()))
-		if err := adminServer.Listen(); err != nil {
-			err = fmt.Errorf("problem starting admin http: %v", err)
-			logger.Log("admin", err)
-			errs <- err
-		}
-	}()
-	defer adminServer.Shutdown()
 
 	// Start business logic HTTP server
 	go func() {
