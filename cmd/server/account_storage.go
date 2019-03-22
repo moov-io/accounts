@@ -15,7 +15,7 @@ type accountRepository interface {
 	Ping() error
 
 	GetCustomerAccounts(customerId string) ([]gl.Account, error)
-	CreateAccount(customerId string, name string, acctType string) (*gl.Account, error) // TOOD(adam): acctType needs strong type
+	CreateAccount(customerId string, name string, acctType string) (*gl.Account, error) // TODO(adam): acctType needs strong type
 	SearchAccounts(accountNumber, routingNumber, acctType string) (*gl.Account, error)
 }
 

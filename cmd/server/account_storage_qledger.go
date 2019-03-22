@@ -23,7 +23,7 @@ func (r *qledgerAccountRepository) GetCustomerAccounts(customerId string) ([]gl.
 	return nil, nil
 }
 
-func (r *qledgerAccountRepository) CreateAccount(customerId string, name string, acctType string) (*gl.Account, error) { // TOOD(adam): acctType needs strong type
+func (r *qledgerAccountRepository) CreateAccount(customerId string, name string, acctType string) (*gl.Account, error) { // TODO(adam): acctType needs strong type
 	return nil, nil
 }
 
