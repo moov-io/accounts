@@ -166,6 +166,21 @@ func TestCustomers__repository(t *testing.T) {
 		FirstName: "Jane",
 		LastName:  "Doe",
 		Email:     "jane@example.com",
+		Phones: []phone{
+			{
+				Number: "123.456.7890",
+				Type:   "Checking",
+			},
+		},
+		Addresses: []address{
+			{
+				Address1:   "123 1st st",
+				City:       "fake city",
+				State:      "CA",
+				PostalCode: "90210",
+				Country:    "US",
+			},
+		},
 	}
 	cust, err = repo.createCustomer(req)
 	if err != nil {
@@ -174,6 +189,10 @@ func TestCustomers__repository(t *testing.T) {
 	if cust == nil {
 		t.Fatal("nil Customer")
 	}
+	if len(cust.Phones) != 1 || len(cust.Addresses) != 1 {
+		t.Errorf("len(cust.Phones)=%d and len(cust.Addresses)=%d", len(cust.Phones), len(cust.Addresses))
+	}
+
 	// read
 	cust, err = repo.getCustomer(cust.ID)
 	if err != nil {
@@ -181,5 +200,8 @@ func TestCustomers__repository(t *testing.T) {
 	}
 	if cust == nil {
 		t.Fatal("nil Customer")
+	}
+	if len(cust.Phones) != 1 || len(cust.Addresses) != 1 {
+		t.Errorf("len(cust.Phones)=%d and len(cust.Addresses)=%d", len(cust.Phones), len(cust.Addresses))
 	}
 }
