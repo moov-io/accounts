@@ -5,9 +5,12 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/moov-io/base"
@@ -19,59 +22,39 @@ import (
 )
 
 var (
-	mockCustomer = &gl.Customer{
-		ID:         base.ID(),
-		FirstName:  "Jane",
-		MiddleName: "",
-		LastName:   "Doe",
-		NickName:   "",
-		Suffix:     "",
-		BirthDate:  time.Date(1990, time.January, 1, 6, 19, 0, 0, time.UTC),
-		Gender:     "female",
-		Culture:    "en-US",
-		Status:     "Applied",
-		Email:      "jane.doe@example.com",
-		Phones: []gl.Phone{
-			{
-				Number: "+15555555555",
-				Valid:  false,
-				Type:   "Mobile",
-			},
-		},
-		Addresses: []gl.Address{
-			{
-				Type:       "Primary",
-				Address1:   "123 4th St",
-				Address2:   "",
-				City:       "Los Angeles",
-				State:      "CA",
-				PostalCode: "90210",
-				Country:    "USA",
-				Validated:  true,
-				Active:     true,
-			},
-		},
-		// two arbitrary time.Time values in the past
-		CreatedAt:    time.Now().Add(-1500 * time.Hour),
-		LastModified: time.Now().Add(-365 * time.Hour),
-	}
+	errNoCustomerId = errors.New("no Customer ID found")
 )
 
-func addCustomerRoutes(logger log.Logger, r *mux.Router) {
-	r.Methods("GET").Path("/customers/{customerId}").HandlerFunc(getCustomer(logger))
-	r.Methods("POST").Path("/customers").HandlerFunc(createCustomer(logger))
+func addCustomerRoutes(logger log.Logger, r *mux.Router, repo customerRepository) {
+	r.Methods("GET").Path("/customers/{customerId}").HandlerFunc(getCustomer(logger, repo))
+	r.Methods("POST").Path("/customers").HandlerFunc(createCustomer(logger, repo))
 }
 
-func getCustomer(logger log.Logger) http.HandlerFunc {
+func getCustomerId(w http.ResponseWriter, r *http.Request) string {
+	v, ok := mux.Vars(r)["customerId"]
+	if !ok || v == "" {
+		moovhttp.Problem(w, errNoCustomerId)
+		return ""
+	}
+	return v
+}
+
+func getCustomer(logger log.Logger, repo customerRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w, err := wrapResponseWriter(logger, w, r)
 		if err != nil {
 			return
 		}
 
+		cust, err := repo.getCustomer(getCustomerId(w, r))
+		if err != nil {
+			moovhttp.Problem(w, err)
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(mockCustomer)
+		json.NewEncoder(w).Encode(cust)
 	}
 }
 
@@ -113,7 +96,35 @@ func (req customerRequest) validate() error {
 	return nil
 }
 
-func createCustomer(logger log.Logger) http.HandlerFunc {
+func (req customerRequest) asCustomer() gl.Customer {
+	customer := gl.Customer{
+		ID:        base.ID(),
+		FirstName: req.FirstName,
+		LastName:  req.LastName,
+		Email:     req.Email,
+		Status:    "Applied",
+	}
+	for i := range req.Phones {
+		customer.Phones = append(customer.Phones, gl.Phone{
+			Number: req.Phones[i].Number,
+			Type:   req.Phones[i].Type,
+		})
+	}
+	for i := range req.Addresses {
+		customer.Addresses = append(customer.Addresses, gl.Address{
+			Address1:   req.Addresses[i].Address1,
+			Address2:   req.Addresses[i].Address2,
+			City:       req.Addresses[i].City,
+			State:      req.Addresses[i].State,
+			PostalCode: req.Addresses[i].PostalCode,
+			Country:    req.Addresses[i].Country,
+			Active:     true,
+		})
+	}
+	return customer
+}
+
+func createCustomer(logger log.Logger, repo customerRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w, err := wrapResponseWriter(logger, w, r)
 		if err != nil {
@@ -130,9 +141,66 @@ func createCustomer(logger log.Logger) http.HandlerFunc {
 			return
 		}
 
+		cust, err := repo.createCustomer(req)
+		if err != nil {
+			moovhttp.Problem(w, err)
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(mockCustomer)
-
+		json.NewEncoder(w).Encode(cust)
 	}
+}
+
+type customerRepository interface {
+	createCustomer(req customerRequest) (*gl.Customer, error)
+	getCustomer(customerId string) (*gl.Customer, error)
+}
+
+type sqliteCustomerRepository struct {
+	db *sql.DB
+}
+
+func (r *sqliteCustomerRepository) close() error {
+	return r.db.Close()
+}
+
+func (r *sqliteCustomerRepository) createCustomer(req customerRequest) (*gl.Customer, error) {
+	customer := req.asCustomer()
+
+	// TODO(adam): write all DB fields once we handle all in the request
+	query := `insert into customers (customer_id, first_name, last_name, status, email, created_at, last_modified) values (?, ?, ?, ?, ?, ?, ?);`
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	now := time.Now()
+	_, err = stmt.Exec(customer.ID, customer.FirstName, customer.LastName, customer.Status, customer.Email, now, now)
+	return &customer, err
+}
+
+func (r *sqliteCustomerRepository) getCustomer(customerId string) (*gl.Customer, error) {
+	// TODO(adam): read all DB fields once we handle all in the request
+	query := `select first_name, last_name, status, email, created_at, last_modified from customers where customer_id = ? and deleted_at is null limit 1;`
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRow(customerId)
+
+	var cust gl.Customer
+	cust.ID = customerId
+	err = row.Scan(&cust.FirstName, &cust.LastName, &cust.Status, &cust.Email, &cust.CreatedAt, &cust.LastModified)
+	if err != nil && !strings.Contains(err.Error(), "no rows in result set") {
+		return nil, fmt.Errorf("getCustomer: %v", err)
+	}
+	if cust.FirstName == "" {
+		return nil, nil // not found
+	}
+	return &cust, nil
 }

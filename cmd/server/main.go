@@ -94,12 +94,14 @@ func main() {
 		adminServer.AddLivenessCheck("qledger", storage.Ping)
 	}
 
+	customerRepo := &sqliteCustomerRepository{db}
+
 	// Setup business HTTP routes
 	router := mux.NewRouter()
 	moovhttp.AddCORSHandler(router)
 	addPingRoute(router)
 	addAccountRoutes(logger, router)
-	addCustomerRoutes(logger, router)
+	addCustomerRoutes(logger, router, customerRepo)
 
 	// Start business HTTP server
 	readTimeout, _ := time.ParseDuration("30s")

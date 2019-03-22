@@ -12,18 +12,30 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/moov-io/base"
 	"github.com/moov-io/gl"
 
 	"github.com/gorilla/mux"
 )
 
 func TestCustomers__GetCustomer(t *testing.T) {
+	repo := createTestCustomerRepository(t)
+	defer repo.close()
+	cust, err := repo.createCustomer(customerRequest{
+		FirstName: "Jane",
+		LastName:  "Doe",
+		Email:     "jane@example.com",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/customers/foo", nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("/customers/%s", cust.ID), nil)
 	req.Header.Set("x-user-id", "test")
 
 	router := mux.NewRouter()
-	addCustomerRoutes(nil, router)
+	addCustomerRoutes(nil, router, repo)
 	router.ServeHTTP(w, req)
 	w.Flush()
 
@@ -31,11 +43,11 @@ func TestCustomers__GetCustomer(t *testing.T) {
 		t.Errorf("bogus status code: %d", w.Code)
 	}
 
-	var cust gl.Customer // TODO(adam): check more of Customer response?
-	if err := json.NewDecoder(w.Body).Decode(&cust); err != nil {
+	var customer gl.Customer // TODO(adam): check more of Customer response?
+	if err := json.NewDecoder(w.Body).Decode(&customer); err != nil {
 		t.Fatal(err)
 	}
-	if cust.ID == "" {
+	if customer.ID == "" {
 		t.Error("empty Customer.ID")
 	}
 }
@@ -71,6 +83,18 @@ func TestCustomers__customerRequest(t *testing.T) {
 	if err := req.validate(); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
+
+	// asCustomer
+	cust := req.asCustomer()
+	if cust.ID == "" {
+		t.Errorf("empty Customer: %#v", cust)
+	}
+	if len(cust.Phones) != 1 {
+		t.Errorf("cust.Phones: %#v", cust.Phones)
+	}
+	if len(cust.Addresses) != 1 {
+		t.Errorf("cust.Addresses: %#v", cust.Addresses)
+	}
 }
 
 func TestCustomers__createCustomer(t *testing.T) {
@@ -81,8 +105,11 @@ func TestCustomers__createCustomer(t *testing.T) {
 	req := httptest.NewRequest("POST", "/customers", strings.NewReader(body))
 	req.Header.Set("x-user-id", "test")
 
+	repo := createTestCustomerRepository(t)
+	defer repo.close()
+
 	router := mux.NewRouter()
-	addCustomerRoutes(nil, router)
+	addCustomerRoutes(nil, router, repo)
 	router.ServeHTTP(w, req)
 	w.Flush()
 
@@ -107,5 +134,52 @@ func TestCustomers__createCustomer(t *testing.T) {
 
 	if w.Code != http.StatusBadRequest {
 		t.Fatalf("bogus HTTP status code: %d", w.Code)
+	}
+}
+
+func createTestCustomerRepository(t *testing.T) *sqliteCustomerRepository {
+	t.Helper()
+	db, err := createTestSqliteDB()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := migrate(nil, db.db); err != nil {
+		t.Fatal(err)
+	}
+	return &sqliteCustomerRepository{db.db}
+}
+
+func TestCustomers__repository(t *testing.T) {
+	repo := createTestCustomerRepository(t)
+	defer repo.close()
+
+	cust, err := repo.getCustomer(base.ID())
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if cust != nil {
+		t.Error("expected no Customer")
+	}
+
+	// write
+	req := customerRequest{
+		FirstName: "Jane",
+		LastName:  "Doe",
+		Email:     "jane@example.com",
+	}
+	cust, err = repo.createCustomer(req)
+	if err != nil {
+		t.Error(err)
+	}
+	if cust == nil {
+		t.Fatal("nil Customer")
+	}
+	// read
+	cust, err = repo.getCustomer(cust.ID)
+	if err != nil {
+		t.Error(err)
+	}
+	if cust == nil {
+		t.Fatal("nil Customer")
 	}
 }
