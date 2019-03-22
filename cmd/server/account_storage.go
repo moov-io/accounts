@@ -2,7 +2,7 @@
 // Use of this source code is governed by an Apache License
 // license that can be found in the LICENSE file.
 
-package storage
+package main
 
 import (
 	"os"
@@ -11,7 +11,7 @@ import (
 	"github.com/moov-io/gl"
 )
 
-type AccountRepository interface {
+type accountRepository interface {
 	Ping() error
 
 	GetCustomerAccounts(customerId string) ([]gl.Account, error)
@@ -19,7 +19,7 @@ type AccountRepository interface {
 	SearchAccounts(accountNumber, routingNumber, acctType string) (*gl.Account, error)
 }
 
-func InitAccountStorage(name string) (AccountRepository, error) {
+func initAccountStorage(name string) (accountRepository, error) {
 	switch strings.ToLower(name) {
 	case "qledger":
 		return setupQLedgerStorage(os.Getenv("LEDGER_ENDPOINT"), os.Getenv("LEDGER_AUTH_TOKEN"))

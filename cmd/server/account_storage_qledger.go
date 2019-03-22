@@ -2,7 +2,7 @@
 // Use of this source code is governed by an Apache License
 // license that can be found in the LICENSE file.
 
-package storage
+package main
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ func (r *qledgerAccountRepository) SearchAccounts(accountNumber, routingNumber, 
 	return nil, nil
 }
 
-func setupQLedgerStorage(endpoint, apiToken string) (AccountRepository, error) {
+func setupQLedgerStorage(endpoint, apiToken string) (accountRepository, error) {
 	if endpoint == "" || apiToken == "" {
 		return nil, fmt.Errorf("qledger: empty endpoint=%q and/or apiToken", endpoint)
 	}

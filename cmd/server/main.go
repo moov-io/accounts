@@ -20,7 +20,6 @@ import (
 	moovhttp "github.com/moov-io/base/http"
 	"github.com/moov-io/base/http/bind"
 	"github.com/moov-io/gl"
-	"github.com/moov-io/gl/cmd/server/storage"
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
@@ -89,7 +88,7 @@ func main() {
 	defer adminServer.Shutdown()
 
 	// Setup our storage database(s)
-	if storage, err := storage.InitAccountStorage("qledger"); err != nil {
+	if storage, err := initAccountStorage("qledger"); err != nil {
 		panic(err)
 	} else {
 		adminServer.AddLivenessCheck("qledger", storage.Ping)
