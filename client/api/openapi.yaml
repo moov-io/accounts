@@ -79,6 +79,35 @@ paths:
       summary: Search for account which matches all query parameters
       tags:
       - GL
+  /customers:
+    post:
+      operationId: createCustomer
+      parameters:
+      - description: Moov User ID header, required in all requests
+        example: e3cdf999
+        explode: false
+        in: header
+        name: X-User-Id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCustomer'
+          description: Customer was successfully created
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Customer was not created, see error(s)
+      summary: Create a new customer
+      tags:
+      - GL
   /customers/{customer_id}:
     get:
       operationId: getCustomer
@@ -324,6 +353,54 @@ components:
       items:
         $ref: '#/components/schemas/Account'
       type: array
+    CreateCustomer:
+      example:
+        firstName: Robert
+        lastName: Smith
+        addresses:
+        - country: US
+          address2: address2
+          city: city
+          address1: address1
+          postalCode: postalCode
+          state: state
+          type: Primary
+        - country: US
+          address2: address2
+          city: city
+          address1: address1
+          postalCode: postalCode
+          state: state
+          type: Primary
+        phones:
+        - number: +1.818.555.1212
+          type: Home
+        - number: +1.818.555.1212
+          type: Home
+        email: email
+      properties:
+        firstName:
+          description: Given Name or First Name
+          example: Robert
+          maximum: 64
+          type: string
+        lastName:
+          description: Surname or Last Name
+          example: Smith
+          type: string
+        email:
+          description: Primary email address of customer name@domain.com
+          maximum: 255
+          type: string
+        phones:
+          items:
+            $ref: '#/components/schemas/CreatePhone'
+          type: array
+        addresses:
+          items:
+            $ref: '#/components/schemas/CreateAddress'
+          type: array
+      type: object
     Customer:
       example:
         lastName: Smith
@@ -441,6 +518,24 @@ components:
       items:
         $ref: '#/components/schemas/Customer'
       type: array
+    CreatePhone:
+      example:
+        number: +1.818.555.1212
+        type: Home
+      properties:
+        number:
+          description: phone number
+          example: +1.818.555.1212
+          type: string
+        type:
+          enum:
+          - Home
+          - Mobile
+          - Work
+          type: string
+      required:
+      - number
+      - type
     Phone:
       example:
         valid: true
@@ -460,6 +555,49 @@ components:
           - Mobile
           - Work
           type: string
+    CreateAddress:
+      example:
+        country: US
+        address2: address2
+        city: city
+        address1: address1
+        postalCode: postalCode
+        state: state
+        type: Primary
+      properties:
+        type:
+          enum:
+          - Primary
+          - Secondary
+          type: string
+        address1:
+          description: First line of the address
+          type: string
+        address2:
+          description: Second line of the address
+          type: string
+        city:
+          type: string
+        state:
+          description: two charcer code of US state
+          maximum: 2
+          minimum: 2
+          type: string
+        postalCode:
+          type: string
+        country:
+          enum:
+          - US
+          type: string
+      required:
+      - address1
+      - address2
+      - city
+      - country
+      - postalCode
+      - state
+      - type
+      type: object
     Address:
       example:
         country: US

@@ -65,6 +65,27 @@ paths:
                 $ref: '#/components/schemas/Account'
         '404':
           description: No account found for provided query parameters
+  /customers:
+    post:
+      tags:
+        - GL
+      summary: Create a new customer
+      operationId: createCustomer
+      parameters:
+        - $ref: '#/components/parameters/XUserIdHeader'
+      responses:
+        '200':
+          description: Customer was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCustomer'
+        '400':
+          description: Customer was not created, see error(s)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /customers/{customer_id}:
     get:
       tags:
@@ -251,6 +272,30 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Account'
+    CreateCustomer:
+      type: object
+      properties:
+        firstName:
+          type: string
+          maximum: 64
+          description: Given Name or First Name
+          example: Robert
+        lastName:
+          type: string
+          description: Surname or Last Name
+          example: Smith
+        email:
+          type: string
+          maximum: 255
+          description: Primary email address of customer name@domain.com
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreatePhone'
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateAddress'
     Customer:
       type: object
       properties:
@@ -331,6 +376,21 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Customer'
+    CreatePhone:
+      properties:
+        number:
+          type: string
+          description: phone number
+          example: "+1.818.555.1212"
+        type:
+          type: string
+          enum:
+            - Home
+            - Mobile
+            - Work
+      required:
+        - number
+        - type
     Phone:
       properties:
         number:
@@ -346,6 +406,41 @@ components:
             - Home
             - Mobile
             - Work
+    CreateAddress:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - Primary
+            - Secondary
+        address1:
+          type: string
+          description: First line of the address
+        address2:
+          type: string
+          description: Second line of the address
+        city:
+          type: string
+        state:
+          type: string
+          minimum: 2
+          maximum: 2
+          description: two charcer code of US state
+        postalCode:
+          type: string
+        country:
+          type: string
+          enum:
+            - US
+      required:
+        - type
+        - address1
+        - address2
+        - city
+        - state
+        - postalCode
+        - country
     Address:
       type: object
       properties:
@@ -379,7 +474,6 @@ components:
         active:
           type: boolean
           description: Address is currently being used for customer
-
     Error:
       required:
         - error
