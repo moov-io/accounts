@@ -12,6 +12,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/moov-io/base"
@@ -71,8 +72,11 @@ func (r createAccountRequest) validate() error {
 	if r.Name == "" {
 		return errors.New("createAccountRequest: missing Name")
 	}
-	if r.Type == "" {
-		return errors.New("createAccountRequest: missing Type")
+	r.Type = strings.ToLower(r.Type)
+	switch r.Type {
+	case "checking", "savings":
+	default:
+		return fmt.Errorf("createAccountRequest: unknown Type: %q", r.Type)
 	}
 	return nil
 }

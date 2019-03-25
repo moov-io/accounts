@@ -32,6 +32,23 @@ var (
 	}
 )
 
+func TestAccounts__createAccountRequest(t *testing.T) {
+	req := createAccountRequest{"example acct", "checking"}
+	if err := req.validate(); err != nil {
+		t.Error(err)
+	}
+
+	req.Type = "SavInGs" // valid
+	if err := req.validate(); err != nil {
+		t.Error(err)
+	}
+
+	req.Type = "other" // invalid
+	if err := req.validate(); err == nil {
+		t.Error("expected error")
+	}
+}
+
 func TestAccounts__CreateAccount(t *testing.T) {
 	w := httptest.NewRecorder()
 	body := strings.NewReader(`{"customerId": "foo", "name": "Money", "type": "Savings"}`)
