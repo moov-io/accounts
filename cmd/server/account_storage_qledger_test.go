@@ -7,6 +7,7 @@ package main
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/moov-io/base"
 	"github.com/moov-io/gl"
@@ -50,13 +51,17 @@ func TestQLedger__Accounts(t *testing.T) {
 
 	customerId := base.ID()
 	account := &gl.Account{
-		ID:            base.ID(),
-		CustomerID:    customerId,
-		Name:          "example account",
-		AccountNumber: createAccountNumber(),
-		RoutingNumber: "121042882",
-		Status:        "Active",
-		Type:          "Checking",
+		ID:               base.ID(),
+		CustomerID:       customerId,
+		Name:             "example account",
+		AccountNumber:    createAccountNumber(),
+		RoutingNumber:    "121042882",
+		Status:           "Active",
+		Type:             "Checking",
+		Balance:          100,
+		BalancePending:   123,
+		BalanceAvailable: 412,
+		CreatedAt:        time.Now(),
 	}
 	if err := repo.CreateAccount(customerId, account); err != nil {
 		t.Error(err)
@@ -72,6 +77,12 @@ func TestQLedger__Accounts(t *testing.T) {
 	}
 	if account.ID != accounts[0].ID {
 		t.Errorf("expected account %q, but found %#v", account.ID, accounts[0].ID)
+	}
+	if account.Balance != 100 || account.BalancePending != 123 || account.BalanceAvailable != 412 {
+		t.Errorf("Balance=%d BalancePending=%d BalanceAvailable=%d", account.Balance, account.BalancePending, account.BalanceAvailable)
+	}
+	if account.CreatedAt.IsZero() {
+		t.Error("zero time for CreatedAt")
 	}
 
 	// Search for account

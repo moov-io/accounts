@@ -6,9 +6,15 @@ package main
 
 import (
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/moov-io/gl"
 	mledge "github.com/moov-io/qledger-sdk-go"
+)
+
+var (
+	qledgerTimeFormat = time.RFC3339
 )
 
 type qledgerAccountRepository struct {
@@ -41,13 +47,18 @@ func (r *qledgerAccountRepository) CreateAccount(customerId string, account *gl.
 		ID:      account.ID,
 		Balance: int(account.Balance),
 		Data: map[string]interface{}{
-			"customerId":    account.CustomerID,
-			"name":          account.Name,
-			"accountNumber": account.AccountNumber,
-			"routingNumber": account.RoutingNumber,
-			"status":        account.Status,
-			"type":          account.Type,
-			// TODO(adam): BalanceAvailable and BalancePending
+			"customerId":       account.CustomerID,
+			"name":             account.Name,
+			"accountNumber":    account.AccountNumber,
+			"routingNumber":    account.RoutingNumber,
+			"status":           account.Status,
+			"type":             account.Type,
+			"balance":          fmt.Sprintf("%d", account.Balance),
+			"balanceAvailable": fmt.Sprintf("%d", account.BalanceAvailable),
+			"balancePending":   fmt.Sprintf("%d", account.BalancePending),
+			"createdAt":        account.CreatedAt.Format(qledgerTimeFormat),
+			"closedAt":         account.ClosedAt.Format(qledgerTimeFormat),
+			"lastModified":     account.LastModified.Format(qledgerTimeFormat),
 		},
 	})
 }
@@ -89,16 +100,30 @@ func convertAccounts(accts []*mledge.Account) []*gl.Account {
 	var accounts []*gl.Account
 	for i := range accts {
 		accounts = append(accounts, &gl.Account{
-			ID:            accts[i].ID,
-			Balance:       int64(accts[i].Balance),
-			CustomerID:    accts[i].Data["customerId"].(string),
-			AccountNumber: accts[i].Data["accountNumber"].(string),
-			RoutingNumber: accts[i].Data["routingNumber"].(string),
-			Name:          accts[i].Data["name"].(string),
-			Status:        accts[i].Data["status"].(string),
-			Type:          accts[i].Data["type"].(string),
-			// TODO(adam): need to read other fields
+			ID:               accts[i].ID,
+			CustomerID:       accts[i].Data["customerId"].(string),
+			Name:             accts[i].Data["name"].(string),
+			AccountNumber:    accts[i].Data["accountNumber"].(string),
+			RoutingNumber:    accts[i].Data["routingNumber"].(string),
+			Status:           accts[i].Data["status"].(string),
+			Type:             accts[i].Data["type"].(string),
+			Balance:          int64(accts[i].Balance),
+			BalanceAvailable: readBalance(accts[i].Data["balanceAvailable"].(string)),
+			BalancePending:   readBalance(accts[i].Data["balancePending"].(string)),
+			CreatedAt:        readTime(accts[i].Data["createdAt"].(string)),
+			ClosedAt:         readTime(accts[i].Data["closedAt"].(string)),
+			LastModified:     readTime(accts[i].Data["lastModified"].(string)),
 		})
 	}
 	return accounts
+}
+
+func readBalance(str string) int64 {
+	n, _ := strconv.Atoi(str)
+	return int64(n)
+}
+
+func readTime(str string) time.Time {
+	t, _ := time.Parse(qledgerTimeFormat, str)
+	return t
 }
