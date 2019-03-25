@@ -23,6 +23,7 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
+	"github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -55,12 +56,58 @@ func main() {
 		errs <- fmt.Errorf("%s", <-c)
 	}()
 
+	// Setup SQLite database
+	if sqliteVersion, _, _ := sqlite3.Version(); sqliteVersion != "" {
+		logger.Log("main", fmt.Sprintf("sqlite version %s", sqliteVersion))
+	}
+	db, err := createSqliteConnection(logger, getSqlitePath())
+	if err != nil {
+		logger.Log("main", err)
+		os.Exit(1)
+	}
+	if err := migrate(logger, db); err != nil {
+		logger.Log("main", err)
+		os.Exit(1)
+	}
+	defer func() {
+		if err := db.Close(); err != nil {
+			logger.Log("main", err)
+		}
+	}()
+
+	// Start Admin server (with Prometheus metrics)
+	adminServer := admin.NewServer(*adminAddr)
+	go func() {
+		logger.Log("admin", fmt.Sprintf("listening on %s", adminServer.BindAddr()))
+		if err := adminServer.Listen(); err != nil {
+			err = fmt.Errorf("problem starting admin http: %v", err)
+			logger.Log("admin", err)
+			errs <- err
+		}
+	}()
+	defer adminServer.Shutdown()
+
+	// Setup our storage database(s)
+	accountStorageType := os.Getenv("ACCOUNT_STORAGE_TYPE")
+	if accountStorageType == "" {
+		accountStorageType = "qledger"
+	}
+	accountRepo, err := initAccountStorage(accountStorageType)
+	if err != nil {
+		panic(fmt.Sprintf("account storage: %v", err))
+	}
+	adminServer.AddLivenessCheck("qledger", accountRepo.Ping)
+
+	// setup databases
+	customerRepo := &sqliteCustomerRepository{db}
+	defer customerRepo.close()
+
 	// Setup business HTTP routes
 	router := mux.NewRouter()
 	moovhttp.AddCORSHandler(router)
 	addPingRoute(router)
-	addAccountRoutes(logger, router)
-	addCustomerRoutes(logger, router)
+	addAccountRoutes(logger, router, accountRepo)
+	addCustomerRoutes(logger, router, customerRepo)
 
 	// Start business HTTP server
 	readTimeout, _ := time.ParseDuration("30s")
@@ -84,18 +131,6 @@ func main() {
 			logger.Log("shutdown", err)
 		}
 	}
-
-	// Start Admin server (with Prometheus metrics)
-	adminServer := admin.NewServer(*adminAddr)
-	go func() {
-		logger.Log("admin", fmt.Sprintf("listening on %s", adminServer.BindAddr()))
-		if err := adminServer.Listen(); err != nil {
-			err = fmt.Errorf("problem starting admin http: %v", err)
-			logger.Log("admin", err)
-			errs <- err
-		}
-	}()
-	defer adminServer.Shutdown()
 
 	// Start business logic HTTP server
 	go func() {

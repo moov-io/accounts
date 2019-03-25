@@ -7,7 +7,7 @@ build:
 	go fmt ./...
 	@mkdir -p ./bin/
 	go build github.com/moov-io/gl
-	CGO_ENABLED=0 go build -o ./bin/server github.com/moov-io/gl/cmd/server
+	CGO_ENABLED=1 go build -o ./bin/server github.com/moov-io/gl/cmd/server
 
 docker:
 	docker build --pull -t moov/gl:$(VERSION) -f Dockerfile .

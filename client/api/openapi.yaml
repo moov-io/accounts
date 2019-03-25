@@ -236,15 +236,9 @@ components:
   schemas:
     CreateAccount:
       example:
-        customerId: e210a9d6-d755-4455-9bd2-9577ea7e1081
         name: Super Checking
         type: Checking
       properties:
-        customerId:
-          description: The unique identifier for the customer who owns the account
-          example: e210a9d6-d755-4455-9bd2-9577ea7e1081
-          format: uuid
-          type: string
         name:
           description: Caller defined label for this account.
           example: Super Checking
@@ -257,7 +251,6 @@ components:
           - FBO
           type: string
       required:
-      - customerId
       - name
       - type
       type: object
