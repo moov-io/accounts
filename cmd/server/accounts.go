@@ -5,10 +5,13 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/big"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/moov-io/base"
@@ -19,16 +22,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func addAccountRoutes(logger log.Logger, r *mux.Router) {
-	r.Methods("GET").Path("/accounts/search").HandlerFunc(searchAccounts(logger))
+var (
+	defaultRoutingNumber = os.Getenv("DEFAULT_ROUTING_NUMBER")
+)
 
-	r.Methods("GET").Path("/customers/{customerId}/accounts").HandlerFunc(getCustomerAccounts(logger))
-	r.Methods("POST").Path("/customers/{customerId}/accounts").HandlerFunc(createCustomerAccount(logger))
+func addAccountRoutes(logger log.Logger, r *mux.Router, repo accountRepository) {
+	r.Methods("GET").Path("/accounts/search").HandlerFunc(searchAccounts(logger, repo))
+
+	r.Methods("GET").Path("/customers/{customerId}/accounts").HandlerFunc(getCustomerAccounts(logger, repo))
+	r.Methods("POST").Path("/customers/{customerId}/accounts").HandlerFunc(createCustomerAccount(logger, repo))
 }
 
 // searchAccounts will attempt to find an Account which matches all query parameters and if all match return
 // the account. Otherwise a 404 will be returned. '400 Bad Request' will be returned if query parameters are missing.
-func searchAccounts(logger log.Logger) http.HandlerFunc {
+func searchAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w, err := wrapResponseWriter(logger, w, r)
 		if err != nil {
@@ -43,37 +50,24 @@ func searchAccounts(logger log.Logger) http.HandlerFunc {
 			return
 		}
 
+		account, err := repo.SearchAccounts(reqAcctNumber, reqRoutingNumber, reqAcctType)
+		if err != nil || account == nil {
+			moovhttp.Problem(w, fmt.Errorf("account not found, err=%v", err))
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&gl.Account{
-			ID:                  base.ID(),
-			CustomerID:          "customerId",
-			Name:                "Example account",
-			AccountNumber:       reqAcctNumber,
-			AccountNumberMasked: "",               // TODO(adam): show both in mocks?
-			RoutingNumber:       reqRoutingNumber, // Wells Fargo for CA
-			Status:              "open",
-			Type:                reqAcctType,
-			CreatedAt:           time.Now(),
-			// ClosedAt: time.Time{},
-			LastModified:     time.Now(),
-			Balance:          0,
-			BalanceAvailable: 0,
-			BalancePending:   0,
-		})
+		json.NewEncoder(w).Encode(account)
 	}
 }
 
 type createAccountRequest struct {
-	CustomerID string `json:"customerId"`
-	Name       string `json:"name"`
-	Type       string `json:"type"`
+	Name string `json:"name"`
+	Type string `json:"type"`
 }
 
 func (r createAccountRequest) validate() error {
-	if r.CustomerID == "" {
-		return errors.New("createAccountRequest: missing CustomerID")
-	}
 	if r.Name == "" {
 		return errors.New("createAccountRequest: missing Name")
 	}
@@ -83,7 +77,12 @@ func (r createAccountRequest) validate() error {
 	return nil
 }
 
-func createCustomerAccount(logger log.Logger) http.HandlerFunc {
+func createAccountNumber() string {
+	n, _ := rand.Int(rand.Reader, big.NewInt(1e9))
+	return fmt.Sprintf("%d", n.Int64())
+}
+
+func createCustomerAccount(logger log.Logger, repo accountRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w, err := wrapResponseWriter(logger, w, r)
 		if err != nil {
@@ -100,53 +99,45 @@ func createCustomerAccount(logger log.Logger) http.HandlerFunc {
 			return
 		}
 
+		customerId := getCustomerId(w, r)
+		account := &gl.Account{
+			ID:            base.ID(),
+			CustomerID:    customerId,
+			Name:          req.Name,
+			AccountNumber: createAccountNumber(),
+			RoutingNumber: defaultRoutingNumber,
+			Status:        "open",
+			Type:          req.Type,
+			CreatedAt:     time.Now(),
+			LastModified:  time.Now(),
+		}
+
+		if err := repo.CreateAccount(customerId, account); err != nil {
+			moovhttp.Problem(w, err)
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(&gl.Account{
-			ID:                  base.ID(),
-			CustomerID:          req.CustomerID,
-			Name:                req.Name,
-			AccountNumber:       "123",
-			AccountNumberMasked: "",          // TODO(adam): show both in mocks?
-			RoutingNumber:       "121042882", // Wells Fargo for CA
-			Status:              "open",
-			Type:                "checking",
-			CreatedAt:           time.Now(),
-			// ClosedAt: time.Time{},
-			LastModified:     time.Now(),
-			Balance:          0,
-			BalanceAvailable: 0,
-			BalancePending:   0,
-		})
+		json.NewEncoder(w).Encode(account)
 	}
 }
 
-func getCustomerAccounts(logger log.Logger) http.HandlerFunc {
+func getCustomerAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w, err := wrapResponseWriter(logger, w, r)
 		if err != nil {
 			return
 		}
 
+		accounts, err := repo.GetCustomerAccounts(getCustomerId(w, r))
+		if err != nil {
+			moovhttp.Problem(w, err)
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode([]*gl.Account{
-			{
-				ID:                  base.ID(),
-				CustomerID:          base.ID(),
-				Name:                "Sample Account",
-				AccountNumber:       "132",
-				AccountNumberMasked: "",          // TODO(adam): show both in mocks?
-				RoutingNumber:       "121042882", // Wells Fargo for CA
-				Status:              "open",
-				Type:                "checking",
-				CreatedAt:           time.Now(),
-				// ClosedAt: time.Time{},
-				LastModified:     time.Now(),
-				Balance:          0,
-				BalanceAvailable: 0,
-				BalancePending:   0,
-			},
-		})
+		json.NewEncoder(w).Encode(accounts)
 	}
 }

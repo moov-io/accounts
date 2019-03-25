@@ -5,9 +5,6 @@
 package main
 
 import (
-	"crypto/rand"
-	"fmt"
-	"math/big"
 	"os"
 	"testing"
 
@@ -52,12 +49,11 @@ func TestQLedger__Accounts(t *testing.T) {
 	repo := qualifyTests(t, qledgerAddress, qledgerAuthToken)
 
 	customerId := base.ID()
-	accountNumber, _ := rand.Int(rand.Reader, big.NewInt(1e7))
 	account := &gl.Account{
 		ID:            base.ID(),
 		CustomerID:    customerId,
 		Name:          "example account",
-		AccountNumber: fmt.Sprintf("%d", accountNumber.Int64()),
+		AccountNumber: createAccountNumber(),
 		RoutingNumber: "121042882",
 		Status:        "Active",
 		Type:          "Checking",

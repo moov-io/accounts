@@ -88,19 +88,25 @@ func main() {
 	defer adminServer.Shutdown()
 
 	// Setup our storage database(s)
-	if storage, err := initAccountStorage("qledger"); err != nil {
-		panic(err)
-	} else {
-		adminServer.AddLivenessCheck("qledger", storage.Ping)
+	accountStorageType := os.Getenv("ACCOUNT_STORAGE_TYPE")
+	if accountStorageType == "" {
+		accountStorageType = "qledger"
 	}
+	accountRepo, err := initAccountStorage(accountStorageType)
+	if err != nil {
+		panic(fmt.Sprintf("account storage: %v", err))
+	}
+	adminServer.AddLivenessCheck("qledger", accountRepo.Ping)
 
+	// setup databases
 	customerRepo := &sqliteCustomerRepository{db}
+	defer customerRepo.close()
 
 	// Setup business HTTP routes
 	router := mux.NewRouter()
 	moovhttp.AddCORSHandler(router)
 	addPingRoute(router)
-	addAccountRoutes(logger, router)
+	addAccountRoutes(logger, router, accountRepo)
 	addCustomerRoutes(logger, router, customerRepo)
 
 	// Start business HTTP server

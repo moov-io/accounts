@@ -11,9 +11,25 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/moov-io/base"
 	"github.com/moov-io/gl"
 
 	"github.com/gorilla/mux"
+)
+
+var (
+	mockAccountRepo = &testAccountRepository{
+		accounts: []*gl.Account{
+			{
+				ID:            base.ID(),
+				CustomerID:    base.ID(),
+				Name:          "example account",
+				AccountNumber: "132",
+				RoutingNumber: "51321",
+				Balance:       21415,
+			},
+		},
+	}
 )
 
 func TestAccounts__CreateAccount(t *testing.T) {
@@ -23,7 +39,7 @@ func TestAccounts__CreateAccount(t *testing.T) {
 	req.Header.Set("x-user-id", "test")
 
 	router := mux.NewRouter()
-	addAccountRoutes(nil, router)
+	addAccountRoutes(nil, router, mockAccountRepo)
 	router.ServeHTTP(w, req)
 	w.Flush()
 
@@ -46,7 +62,7 @@ func TestAccounts__GetCustomerAccounts(t *testing.T) {
 	req.Header.Set("x-user-id", "test")
 
 	router := mux.NewRouter()
-	addAccountRoutes(nil, router)
+	addAccountRoutes(nil, router, mockAccountRepo)
 	router.ServeHTTP(w, req)
 	w.Flush()
 
@@ -72,7 +88,7 @@ func TestAccounts__SearchAccounts(t *testing.T) {
 	req.Header.Set("x-user-id", "test")
 
 	router := mux.NewRouter()
-	addAccountRoutes(nil, router)
+	addAccountRoutes(nil, router, mockAccountRepo)
 	router.ServeHTTP(w, req)
 	w.Flush()
 
