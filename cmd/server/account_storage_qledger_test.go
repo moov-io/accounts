@@ -93,3 +93,16 @@ func TestQLedger__Accounts(t *testing.T) {
 		t.Errorf("acct.ID=%q account.ID=%q", acct.ID, account.ID)
 	}
 }
+
+func TestQLedger__read(t *testing.T) {
+	if v := readBalance("100"); v != 100 {
+		t.Errorf("got %v", v)
+	}
+	if v := readBalance("asas"); v != 0 {
+		t.Errorf("got %v", v)
+	}
+
+	if v := readTime("2019-01-02T15:04:05Z").Format(time.RFC3339); v != "2019-01-02T15:04:05Z" {
+		t.Errorf("got %q", v)
+	}
+}
