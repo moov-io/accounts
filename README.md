@@ -12,3 +12,15 @@ moov-io/gl
 ### Reading
 
 Accounting for Developers [Part 1](https://docs.google.com/document/d/1HDLRa6vKpclO1JtxbGB5NeAYWf8cf1UMGy22o8OZZq4/edit#heading=h.jo5avukxj1q), [Part 2](https://docs.google.com/document/d/1qhtirHUzPu7Od7yX3A4kA424tjFCv5Kbi42xj49tKlw/edit), [Part 3](https://docs.google.com/document/d/1kIwonczHvJLgzcijLtljHc5fccQ6fKI6TodhnGYHCEA/edit).
+
+### Configuration
+
+TODO
+
+| Environmental Variable | Description | Default |
+|-----|-----|-----|
+| `DEFAULT_ROUTING_NUMBER` | ABA routing number used when accounts are created. | Required |
+| `SQLITE_DB_PATH`| Local filepath location for the paygate SQLite database. | `ofac.db` |
+| `ACCOUNT_STORAGE_TYPE` | Storage engine for account and transaction data. | Default: `qledger` |
+| `QLEDGER_ENDPOINT` | HTTP endpoint to access QLedger (if storage type is `qledger`) | Required |
+| `QLEDGER_AUTH_TOKEN` | Auth token to access QLedger (if storage type is `qledger`) | Required |
