@@ -87,7 +87,7 @@ func (r *qledgerAccountRepository) SearchAccounts(accountNumber, routingNumber, 
 	return nil, nil
 }
 
-func setupQLedgerStorage(endpoint, apiToken string) (accountRepository, error) {
+func setupQLedgerStorage(endpoint, apiToken string) (*qledgerAccountRepository, error) {
 	if endpoint == "" || apiToken == "" {
 		return nil, fmt.Errorf("qledger: empty endpoint=%q and/or apiToken", endpoint)
 	}

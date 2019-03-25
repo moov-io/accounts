@@ -32,11 +32,7 @@ func qualifyTests(t *testing.T, address, authToken string) *qledgerAccountReposi
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r, ok := repo.(*qledgerAccountRepository); ok {
-		return r
-	}
-	t.Fatalf("unknown repo returned: %T", repo)
-	return nil
+	return repo
 }
 
 func TestQLedger__ping(t *testing.T) {
