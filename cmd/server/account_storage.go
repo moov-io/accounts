@@ -14,15 +14,15 @@ import (
 type accountRepository interface {
 	Ping() error
 
-	GetCustomerAccounts(customerId string) ([]gl.Account, error)
-	CreateAccount(customerId string, name string, acctType string) (*gl.Account, error) // TODO(adam): acctType needs strong type
+	GetCustomerAccounts(customerId string) ([]*gl.Account, error)
+	CreateAccount(customerId string, account *gl.Account) error // TODO(adam): acctType needs strong type
 	SearchAccounts(accountNumber, routingNumber, acctType string) (*gl.Account, error)
 }
 
 func initAccountStorage(name string) (accountRepository, error) {
 	switch strings.ToLower(name) {
 	case "qledger":
-		return setupQLedgerStorage(os.Getenv("LEDGER_ENDPOINT"), os.Getenv("LEDGER_AUTH_TOKEN"))
+		return setupQLedgerStorage(os.Getenv("QLEDGER_ENDPOINT"), os.Getenv("QLEDGER_AUTH_TOKEN"))
 	}
 	return nil, nil
 }
