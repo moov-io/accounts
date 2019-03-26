@@ -47,6 +47,12 @@ func main() {
 
 	logger.Log("startup", fmt.Sprintf("Starting moov/gl server version %s", gl.Version))
 
+	// Check for default routing number
+	if defaultRoutingNumber == "" { // accounts.go
+		logger.Log("main", "No default routing number specified, please set DEFAULT_ROUTING_NUMBER")
+		os.Exit(1)
+	}
+
 	// Channel for errors
 	errs := make(chan error)
 
