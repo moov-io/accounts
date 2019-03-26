@@ -55,6 +55,7 @@ paths:
           schema:
             type: string
             example: Checking
+        - $ref: '#/components/parameters/requestId'
         - $ref: '#/components/parameters/XUserIdHeader'
       responses:
         '200':
@@ -72,6 +73,7 @@ paths:
       summary: Create a new customer
       operationId: createCustomer
       parameters:
+        - $ref: '#/components/parameters/requestId'
         - $ref: '#/components/parameters/XUserIdHeader'
       responses:
         '200':
@@ -100,6 +102,7 @@ paths:
           schema:
             type: string
             example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+        - $ref: '#/components/parameters/requestId'
         - $ref: '#/components/parameters/XUserIdHeader'
       responses:
         '200':
@@ -124,6 +127,7 @@ paths:
           schema:
             type: string
             example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+        - $ref: '#/components/parameters/requestId'
         - $ref: '#/components/parameters/XUserIdHeader'
       responses:
         '200':
@@ -147,6 +151,7 @@ paths:
           schema:
             type: string
             example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+        - $ref: '#/components/parameters/requestId'
         - $ref: '#/components/parameters/XUserIdHeader'
       requestBody:
         required: true
@@ -485,3 +490,10 @@ components:
       schema:
         type: string
       required: true
+    requestId:
+      in: header
+      name: X-Request-Id
+      description: Optional Request ID allows application developer to trace requests through the systems logs
+      schema:
+        type: string
+        example: 94c825ee

@@ -58,6 +58,15 @@ paths:
           example: Checking
           type: string
         style: form
+      - description: Optional Request ID allows application developer to trace requests through the systems logs
+        explode: false
+        in: header
+        name: X-Request-Id
+        required: false
+        schema:
+          example: 94c825ee
+          type: string
+        style: simple
       - description: Moov User ID header, required in all requests
         example: e3cdf999
         explode: false
@@ -83,6 +92,15 @@ paths:
     post:
       operationId: createCustomer
       parameters:
+      - description: Optional Request ID allows application developer to trace requests through the systems logs
+        explode: false
+        in: header
+        name: X-Request-Id
+        required: false
+        schema:
+          example: 94c825ee
+          type: string
+        style: simple
       - description: Moov User ID header, required in all requests
         example: e3cdf999
         explode: false
@@ -121,6 +139,15 @@ paths:
           example: e210a9d6-d755-4455-9bd2-9577ea7e1081
           type: string
         style: simple
+      - description: Optional Request ID allows application developer to trace requests through the systems logs
+        explode: false
+        in: header
+        name: X-Request-Id
+        required: false
+        schema:
+          example: 94c825ee
+          type: string
+        style: simple
       - description: Moov User ID header, required in all requests
         example: e3cdf999
         explode: false
@@ -155,6 +182,15 @@ paths:
           example: e210a9d6-d755-4455-9bd2-9577ea7e1081
           type: string
         style: simple
+      - description: Optional Request ID allows application developer to trace requests through the systems logs
+        explode: false
+        in: header
+        name: X-Request-Id
+        required: false
+        schema:
+          example: 94c825ee
+          type: string
+        style: simple
       - description: Moov User ID header, required in all requests
         example: e3cdf999
         explode: false
@@ -186,6 +222,15 @@ paths:
         required: true
         schema:
           example: e210a9d6-d755-4455-9bd2-9577ea7e1081
+          type: string
+        style: simple
+      - description: Optional Request ID allows application developer to trace requests through the systems logs
+        explode: false
+        in: header
+        name: X-Request-Id
+        required: false
+        schema:
+          example: 94c825ee
           type: string
         style: simple
       - description: Moov User ID header, required in all requests
@@ -231,6 +276,16 @@ components:
       name: X-User-Id
       required: true
       schema:
+        type: string
+      style: simple
+    requestId:
+      description: Optional Request ID allows application developer to trace requests through the systems logs
+      explode: false
+      in: header
+      name: X-Request-Id
+      required: false
+      schema:
+        example: 94c825ee
         type: string
       style: simple
   schemas:

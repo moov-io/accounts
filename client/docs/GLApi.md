@@ -13,7 +13,7 @@ Method | HTTP request | Description
 
 
 # **CreateAccount**
-> Account CreateAccount(ctx, customerId, xUserId, createAccount)
+> Account CreateAccount(ctx, customerId, xUserId, createAccount, optional)
 Create a new account for a Customer
 
 ### Required Parameters
@@ -24,6 +24,17 @@ Name | Type | Description  | Notes
   **customerId** | **string**| Customer Id | 
   **xUserId** | **string**| Moov User ID header, required in all requests | 
   **createAccount** | [**CreateAccount**](CreateAccount.md)|  | 
+ **optional** | ***CreateAccountOpts** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a pointer to a CreateAccountOpts struct
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+
+ **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
 
 ### Return type
 
@@ -41,7 +52,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **CreateCustomer**
-> CreateCustomer CreateCustomer(ctx, xUserId)
+> CreateCustomer CreateCustomer(ctx, xUserId, optional)
 Create a new customer
 
 ### Required Parameters
@@ -50,6 +61,15 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **xUserId** | **string**| Moov User ID header, required in all requests | 
+ **optional** | ***CreateCustomerOpts** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a pointer to a CreateCustomerOpts struct
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
 
 ### Return type
 
@@ -67,7 +87,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetAccountsByCustomerID**
-> []Account GetAccountsByCustomerID(ctx, customerId, xUserId)
+> []Account GetAccountsByCustomerID(ctx, customerId, xUserId, optional)
 Retrieves a list of accounts associated with the customer ID.
 
 ### Required Parameters
@@ -77,6 +97,16 @@ Name | Type | Description  | Notes
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **customerId** | **string**| Customer Id | 
   **xUserId** | **string**| Moov User ID header, required in all requests | 
+ **optional** | ***GetAccountsByCustomerIDOpts** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a pointer to a GetAccountsByCustomerIDOpts struct
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
 
 ### Return type
 
@@ -94,7 +124,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **GetCustomer**
-> Customer GetCustomer(ctx, customerId, xUserId)
+> Customer GetCustomer(ctx, customerId, xUserId, optional)
 Retrieves a Customer object associated with the customer ID.
 
 ### Required Parameters
@@ -104,6 +134,16 @@ Name | Type | Description  | Notes
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **customerId** | **string**| Customer Id | 
   **xUserId** | **string**| Moov User ID header, required in all requests | 
+ **optional** | ***GetCustomerOpts** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a pointer to a GetCustomerOpts struct
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
 
 ### Return type
 
@@ -143,7 +183,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **SearchAccounts**
-> Account SearchAccounts(ctx, number, routingNumber, type_, xUserId)
+> Account SearchAccounts(ctx, number, routingNumber, type_, xUserId, optional)
 Search for account which matches all query parameters
 
 ### Required Parameters
@@ -155,6 +195,18 @@ Name | Type | Description  | Notes
   **routingNumber** | **string**| ABA routing number for the Financial Institution | 
   **type_** | **string**| Account type | 
   **xUserId** | **string**| Moov User ID header, required in all requests | 
+ **optional** | ***SearchAccountsOpts** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a pointer to a SearchAccountsOpts struct
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+
+
+ **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
 
 ### Return type
 
