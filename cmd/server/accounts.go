@@ -53,6 +53,9 @@ func searchAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc 
 
 		account, err := repo.SearchAccounts(reqAcctNumber, reqRoutingNumber, reqAcctType)
 		if err != nil || account == nil {
+			if requestId := moovhttp.GetRequestId(r); requestId != "" {
+				logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
+			}
 			moovhttp.Problem(w, fmt.Errorf("account not found, err=%v", err))
 			return
 		}
@@ -118,7 +121,7 @@ func createCustomerAccount(logger log.Logger, repo accountRepository) http.Handl
 
 		if err := repo.CreateAccount(customerId, account); err != nil {
 			if requestId := moovhttp.GetRequestId(r); requestId != "" {
-				logger.Log("accounts", err.Error(), "requestId", requestId)
+				logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
 			}
 			moovhttp.Problem(w, err)
 			return
@@ -139,6 +142,9 @@ func getCustomerAccounts(logger log.Logger, repo accountRepository) http.Handler
 
 		accounts, err := repo.GetCustomerAccounts(getCustomerId(w, r))
 		if err != nil {
+			if requestId := moovhttp.GetRequestId(r); requestId != "" {
+				logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
+			}
 			moovhttp.Problem(w, err)
 			return
 		}
