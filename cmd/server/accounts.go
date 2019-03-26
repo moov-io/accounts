@@ -117,6 +117,9 @@ func createCustomerAccount(logger log.Logger, repo accountRepository) http.Handl
 		}
 
 		if err := repo.CreateAccount(customerId, account); err != nil {
+			if requestId := moovhttp.GetRequestId(r); requestId != "" {
+				logger.Log("accounts", err.Error(), "requestId", requestId)
+			}
 			moovhttp.Problem(w, err)
 			return
 		}

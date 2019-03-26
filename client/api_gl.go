@@ -12,6 +12,7 @@ package openapi
 import (
 	"context"
 	"fmt"
+	"github.com/antihax/optional"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -31,9 +32,16 @@ GLApiService Create a new account for a Customer
  * @param customerId Customer Id
  * @param xUserId Moov User ID header, required in all requests
  * @param createAccount
+ * @param optional nil or *CreateAccountOpts - Optional Parameters:
+ * @param "XRequestId" (optional.String) -  Optional Request ID allows application developer to trace requests through the systems logs
 @return Account
 */
-func (a *GLApiService) CreateAccount(ctx context.Context, customerId string, xUserId string, createAccount CreateAccount) (Account, *http.Response, error) {
+
+type CreateAccountOpts struct {
+	XRequestId optional.String
+}
+
+func (a *GLApiService) CreateAccount(ctx context.Context, customerId string, xUserId string, createAccount CreateAccount, localVarOptionals *CreateAccountOpts) (Account, *http.Response, error) {
 	var (
 		localVarHttpMethod   = strings.ToUpper("Post")
 		localVarPostBody     interface{}
@@ -67,6 +75,9 @@ func (a *GLApiService) CreateAccount(ctx context.Context, customerId string, xUs
 	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	if localVarOptionals != nil && localVarOptionals.XRequestId.IsSet() {
+		localVarHeaderParams["X-Request-Id"] = parameterToString(localVarOptionals.XRequestId.Value(), "")
 	}
 	localVarHeaderParams["X-User-Id"] = parameterToString(xUserId, "")
 	// body params
@@ -131,9 +142,16 @@ func (a *GLApiService) CreateAccount(ctx context.Context, customerId string, xUs
 GLApiService Create a new customer
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param xUserId Moov User ID header, required in all requests
+ * @param optional nil or *CreateCustomerOpts - Optional Parameters:
+ * @param "XRequestId" (optional.String) -  Optional Request ID allows application developer to trace requests through the systems logs
 @return CreateCustomer
 */
-func (a *GLApiService) CreateCustomer(ctx context.Context, xUserId string) (CreateCustomer, *http.Response, error) {
+
+type CreateCustomerOpts struct {
+	XRequestId optional.String
+}
+
+func (a *GLApiService) CreateCustomer(ctx context.Context, xUserId string, localVarOptionals *CreateCustomerOpts) (CreateCustomer, *http.Response, error) {
 	var (
 		localVarHttpMethod   = strings.ToUpper("Post")
 		localVarPostBody     interface{}
@@ -166,6 +184,9 @@ func (a *GLApiService) CreateCustomer(ctx context.Context, xUserId string) (Crea
 	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	if localVarOptionals != nil && localVarOptionals.XRequestId.IsSet() {
+		localVarHeaderParams["X-Request-Id"] = parameterToString(localVarOptionals.XRequestId.Value(), "")
 	}
 	localVarHeaderParams["X-User-Id"] = parameterToString(xUserId, "")
 	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFormFileName, localVarFileName, localVarFileBytes)
@@ -229,9 +250,16 @@ GLApiService Retrieves a list of accounts associated with the customer ID.
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param customerId Customer Id
  * @param xUserId Moov User ID header, required in all requests
+ * @param optional nil or *GetAccountsByCustomerIDOpts - Optional Parameters:
+ * @param "XRequestId" (optional.String) -  Optional Request ID allows application developer to trace requests through the systems logs
 @return []Account
 */
-func (a *GLApiService) GetAccountsByCustomerID(ctx context.Context, customerId string, xUserId string) ([]Account, *http.Response, error) {
+
+type GetAccountsByCustomerIDOpts struct {
+	XRequestId optional.String
+}
+
+func (a *GLApiService) GetAccountsByCustomerID(ctx context.Context, customerId string, xUserId string, localVarOptionals *GetAccountsByCustomerIDOpts) ([]Account, *http.Response, error) {
 	var (
 		localVarHttpMethod   = strings.ToUpper("Get")
 		localVarPostBody     interface{}
@@ -265,6 +293,9 @@ func (a *GLApiService) GetAccountsByCustomerID(ctx context.Context, customerId s
 	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	if localVarOptionals != nil && localVarOptionals.XRequestId.IsSet() {
+		localVarHeaderParams["X-Request-Id"] = parameterToString(localVarOptionals.XRequestId.Value(), "")
 	}
 	localVarHeaderParams["X-User-Id"] = parameterToString(xUserId, "")
 	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFormFileName, localVarFileName, localVarFileBytes)
@@ -318,9 +349,16 @@ GLApiService Retrieves a Customer object associated with the customer ID.
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param customerId Customer Id
  * @param xUserId Moov User ID header, required in all requests
+ * @param optional nil or *GetCustomerOpts - Optional Parameters:
+ * @param "XRequestId" (optional.String) -  Optional Request ID allows application developer to trace requests through the systems logs
 @return Customer
 */
-func (a *GLApiService) GetCustomer(ctx context.Context, customerId string, xUserId string) (Customer, *http.Response, error) {
+
+type GetCustomerOpts struct {
+	XRequestId optional.String
+}
+
+func (a *GLApiService) GetCustomer(ctx context.Context, customerId string, xUserId string, localVarOptionals *GetCustomerOpts) (Customer, *http.Response, error) {
 	var (
 		localVarHttpMethod   = strings.ToUpper("Get")
 		localVarPostBody     interface{}
@@ -354,6 +392,9 @@ func (a *GLApiService) GetCustomer(ctx context.Context, customerId string, xUser
 	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	if localVarOptionals != nil && localVarOptionals.XRequestId.IsSet() {
+		localVarHeaderParams["X-Request-Id"] = parameterToString(localVarOptionals.XRequestId.Value(), "")
 	}
 	localVarHeaderParams["X-User-Id"] = parameterToString(xUserId, "")
 	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFormFileName, localVarFileName, localVarFileBytes)
@@ -473,9 +514,16 @@ GLApiService Search for account which matches all query parameters
  * @param routingNumber ABA routing number for the Financial Institution
  * @param type_ Account type
  * @param xUserId Moov User ID header, required in all requests
+ * @param optional nil or *SearchAccountsOpts - Optional Parameters:
+ * @param "XRequestId" (optional.String) -  Optional Request ID allows application developer to trace requests through the systems logs
 @return Account
 */
-func (a *GLApiService) SearchAccounts(ctx context.Context, number string, routingNumber string, type_ string, xUserId string) (Account, *http.Response, error) {
+
+type SearchAccountsOpts struct {
+	XRequestId optional.String
+}
+
+func (a *GLApiService) SearchAccounts(ctx context.Context, number string, routingNumber string, type_ string, xUserId string, localVarOptionals *SearchAccountsOpts) (Account, *http.Response, error) {
 	var (
 		localVarHttpMethod   = strings.ToUpper("Get")
 		localVarPostBody     interface{}
@@ -511,6 +559,9 @@ func (a *GLApiService) SearchAccounts(ctx context.Context, number string, routin
 	localVarHttpHeaderAccept := selectHeaderAccept(localVarHttpHeaderAccepts)
 	if localVarHttpHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHttpHeaderAccept
+	}
+	if localVarOptionals != nil && localVarOptionals.XRequestId.IsSet() {
+		localVarHeaderParams["X-Request-Id"] = parameterToString(localVarOptionals.XRequestId.Value(), "")
 	}
 	localVarHeaderParams["X-User-Id"] = parameterToString(xUserId, "")
 	r, err := a.client.prepareRequest(ctx, localVarPath, localVarHttpMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, localVarFormFileName, localVarFileName, localVarFileBytes)
