@@ -111,7 +111,7 @@ func main() {
 	// Setup business HTTP routes
 	router := mux.NewRouter()
 	moovhttp.AddCORSHandler(router)
-	addPingRoute(router)
+	addPingRoute(logger, router)
 	addAccountRoutes(logger, router, accountRepo)
 	addCustomerRoutes(logger, router, customerRepo)
 
@@ -153,8 +153,11 @@ func main() {
 	}
 }
 
-func addPingRoute(r *mux.Router) {
+func addPingRoute(logger log.Logger, r *mux.Router) {
 	r.Methods("GET").Path("/ping").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if requestId := moovhttp.GetRequestId(r); requestId != "" {
+			logger.Log("route", "ping", "requestId", requestId)
+		}
 		moovhttp.SetAccessControlAllowHeaders(w, r.Header.Get("Origin"))
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
