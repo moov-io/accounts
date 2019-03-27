@@ -93,7 +93,7 @@ paths:
       tags:
         - GL
       summary: Retrieves a Customer object associated with the customer ID.
-      operationId: getCustomer
+      operationId: getGLCustomer
       parameters:
         - name: customer_id
           in: path

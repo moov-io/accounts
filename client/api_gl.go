@@ -349,16 +349,16 @@ GLApiService Retrieves a Customer object associated with the customer ID.
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param customerId Customer Id
  * @param xUserId Moov User ID header, required in all requests
- * @param optional nil or *GetCustomerOpts - Optional Parameters:
+ * @param optional nil or *GetGLCustomerOpts - Optional Parameters:
  * @param "XRequestId" (optional.String) -  Optional Request ID allows application developer to trace requests through the systems logs
 @return Customer
 */
 
-type GetCustomerOpts struct {
+type GetGLCustomerOpts struct {
 	XRequestId optional.String
 }
 
-func (a *GLApiService) GetCustomer(ctx context.Context, customerId string, xUserId string, localVarOptionals *GetCustomerOpts) (Customer, *http.Response, error) {
+func (a *GLApiService) GetGLCustomer(ctx context.Context, customerId string, xUserId string, localVarOptionals *GetGLCustomerOpts) (Customer, *http.Response, error) {
 	var (
 		localVarHttpMethod   = strings.ToUpper("Get")
 		localVarPostBody     interface{}

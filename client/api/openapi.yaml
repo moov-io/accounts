@@ -128,7 +128,7 @@ paths:
       - GL
   /customers/{customer_id}:
     get:
-      operationId: getCustomer
+      operationId: getGLCustomer
       parameters:
       - description: Customer Id
         explode: false

@@ -7,7 +7,7 @@ Method | HTTP request | Description
 [**CreateAccount**](GLApi.md#CreateAccount) | **Post** /customers/{customer_id}/accounts | Create a new account for a Customer
 [**CreateCustomer**](GLApi.md#CreateCustomer) | **Post** /customers | Create a new customer
 [**GetAccountsByCustomerID**](GLApi.md#GetAccountsByCustomerID) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
-[**GetCustomer**](GLApi.md#GetCustomer) | **Get** /customers/{customer_id} | Retrieves a Customer object associated with the customer ID.
+[**GetGLCustomer**](GLApi.md#GetGLCustomer) | **Get** /customers/{customer_id} | Retrieves a Customer object associated with the customer ID.
 [**Ping**](GLApi.md#Ping) | **Get** /ping | Ping the GL service to check if running
 [**SearchAccounts**](GLApi.md#SearchAccounts) | **Get** /accounts/search | Search for account which matches all query parameters
 
@@ -123,8 +123,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **GetCustomer**
-> Customer GetCustomer(ctx, customerId, xUserId, optional)
+# **GetGLCustomer**
+> Customer GetGLCustomer(ctx, customerId, xUserId, optional)
 Retrieves a Customer object associated with the customer ID.
 
 ### Required Parameters
@@ -134,10 +134,10 @@ Name | Type | Description  | Notes
  **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
   **customerId** | **string**| Customer Id | 
   **xUserId** | **string**| Moov User ID header, required in all requests | 
- **optional** | ***GetCustomerOpts** | optional parameters | nil if no parameters
+ **optional** | ***GetGLCustomerOpts** | optional parameters | nil if no parameters
 
 ### Optional Parameters
-Optional parameters are passed through a pointer to a GetCustomerOpts struct
+Optional parameters are passed through a pointer to a GetGLCustomerOpts struct
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------

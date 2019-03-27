@@ -34,7 +34,7 @@ Class | Method | HTTP request | Description
 *GLApi* | [**CreateAccount**](docs/GLApi.md#createaccount) | **Post** /customers/{customer_id}/accounts | Create a new account for a Customer
 *GLApi* | [**CreateCustomer**](docs/GLApi.md#createcustomer) | **Post** /customers | Create a new customer
 *GLApi* | [**GetAccountsByCustomerID**](docs/GLApi.md#getaccountsbycustomerid) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
-*GLApi* | [**GetCustomer**](docs/GLApi.md#getcustomer) | **Get** /customers/{customer_id} | Retrieves a Customer object associated with the customer ID.
+*GLApi* | [**GetGLCustomer**](docs/GLApi.md#getglcustomer) | **Get** /customers/{customer_id} | Retrieves a Customer object associated with the customer ID.
 *GLApi* | [**Ping**](docs/GLApi.md#ping) | **Get** /ping | Ping the GL service to check if running
 *GLApi* | [**SearchAccounts**](docs/GLApi.md#searchaccounts) | **Get** /accounts/search | Search for account which matches all query parameters
 
