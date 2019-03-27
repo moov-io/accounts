@@ -1,3 +1,9 @@
+## v0.2.1 (Released 2019-03-27)
+
+BREAKING CHANGES
+
+- client: rename getCustomer to getGLCustomer (for larger api and go-client)
+
 ## v0.2.0 (Released 2019-03-26)
 
 ADDITIONS
