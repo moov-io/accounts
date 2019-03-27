@@ -1,3 +1,9 @@
+## v0.2.2 (Released 2019-03-27)
+
+BUG FIXES
+
+- build: Switch to Docker image with CGO (for SQLite)
+
 ## v0.2.1 (Released 2019-03-27)
 
 BREAKING CHANGES
