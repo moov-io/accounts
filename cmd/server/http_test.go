@@ -9,12 +9,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
 )
 
 func TestRouting_ping(t *testing.T) {
 	router := mux.NewRouter()
-	addPingRoute(router)
+	addPingRoute(log.NewNopLogger(), router)
 
 	req := httptest.NewRequest("GET", "/ping", nil)
 	req.Header.Set("Origin", "https://moov.io")
