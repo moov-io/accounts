@@ -35,7 +35,7 @@ script:
   - misspell -error -locale US $GOFILES
   - gocyclo -over 31 $GOFILES
   - golint -set_exit_status $GOFILES
-  - staticcheck ./cmd/*/*.go ./pkg/*/*.go *.go
+  - staticcheck ./cmd/*/*.go *.go
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - make
