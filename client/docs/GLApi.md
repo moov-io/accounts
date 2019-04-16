@@ -6,6 +6,7 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**CreateAccount**](GLApi.md#CreateAccount) | **Post** /customers/{customer_id}/accounts | Create a new account for a Customer
 [**CreateCustomer**](GLApi.md#CreateCustomer) | **Post** /customers | Create a new customer
+[**CreateTransaction**](GLApi.md#CreateTransaction) | **Post** /accounts/{account_id}/transactions | Post a transaction onto accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
 [**GetAccountsByCustomerID**](GLApi.md#GetAccountsByCustomerID) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
 [**GetGLCustomer**](GLApi.md#GetGLCustomer) | **Get** /customers/{customer_id} | Retrieves a Customer object associated with the customer ID.
 [**Ping**](GLApi.md#Ping) | **Get** /ping | Ping the GL service to check if running
@@ -82,6 +83,45 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **CreateTransaction**
+> Transaction CreateTransaction(ctx, accountId, xUserId, createTransaction, optional)
+Post a transaction onto accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
+
+### Required Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+  **accountId** | **string**| Account ID | 
+  **xUserId** | **string**| Moov User ID header, required in all requests | 
+  **createTransaction** | [**CreateTransaction**](CreateTransaction.md)|  | 
+ **optional** | ***CreateTransactionOpts** | optional parameters | nil if no parameters
+
+### Optional Parameters
+Optional parameters are passed through a pointer to a CreateTransactionOpts struct
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+
+ **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
+
+### Return type
+
+[**Transaction**](Transaction.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
  - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

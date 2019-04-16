@@ -585,7 +585,16 @@ components:
           type: string
           description: Account ID
           example: baa835b8
-        delta:
+        purpose:
+          type: string
+          enum:
+            - Transfer
+            - Fee
+            - Interest
+            - Wire
+            - ACHDebit
+            - ACHCredit
+        amount:
           type: number
           description: Change in account balance (in USD cents)
           example: 2500
