@@ -13,3 +13,4 @@
 
 /bin/
 *.db
+openapi-generator-cli-*.jar
