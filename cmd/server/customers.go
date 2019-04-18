@@ -277,6 +277,8 @@ func (r *sqliteCustomerRepository) readPhones(customerId string) ([]gl.Phone, er
 	if err != nil {
 		return nil, fmt.Errorf("getCustomer: query customers_phones: err=%v", err)
 	}
+	defer rows.Close()
+
 	var phones []gl.Phone
 	for rows.Next() {
 		var p gl.Phone
@@ -300,6 +302,8 @@ func (r *sqliteCustomerRepository) readAddresses(customerId string) ([]gl.Addres
 	if err != nil {
 		return nil, fmt.Errorf("readAddresses: query customers_addresses: err=%v", err)
 	}
+	defer rows.Close()
+
 	var adds []gl.Address
 	for rows.Next() {
 		var a gl.Address
