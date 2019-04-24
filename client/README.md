@@ -33,6 +33,7 @@ Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *GLApi* | [**CreateAccount**](docs/GLApi.md#createaccount) | **Post** /customers/{customer_id}/accounts | Create a new account for a Customer
 *GLApi* | [**CreateCustomer**](docs/GLApi.md#createcustomer) | **Post** /customers | Create a new customer
+*GLApi* | [**CreateTransaction**](docs/GLApi.md#createtransaction) | **Post** /accounts/{account_id}/transactions | Post a transaction onto accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
 *GLApi* | [**GetAccountsByCustomerID**](docs/GLApi.md#getaccountsbycustomerid) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
 *GLApi* | [**GetGLCustomer**](docs/GLApi.md#getglcustomer) | **Get** /customers/{customer_id} | Retrieves a Customer object associated with the customer ID.
 *GLApi* | [**Ping**](docs/GLApi.md#ping) | **Get** /ping | Ping the GL service to check if running
@@ -47,9 +48,12 @@ Class | Method | HTTP request | Description
  - [CreateAddress](docs/CreateAddress.md)
  - [CreateCustomer](docs/CreateCustomer.md)
  - [CreatePhone](docs/CreatePhone.md)
+ - [CreateTransaction](docs/CreateTransaction.md)
  - [Customer](docs/Customer.md)
  - [Error](docs/Error.md)
  - [Phone](docs/Phone.md)
+ - [Transaction](docs/Transaction.md)
+ - [TransactionLine](docs/TransactionLine.md)
 
 
 ## Documentation For Authorization

@@ -11,6 +11,7 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-/bin/
-*.db
 openapi-generator-cli-*.jar
+
+/bin/
+*.dbopenapi-generator-cli-*.jar
