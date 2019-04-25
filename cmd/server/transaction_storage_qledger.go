@@ -35,7 +35,7 @@ func (r *qledgerTransactionRepository) Ping() error {
 // We do this to query transactions that have been posted against an account.
 func joinAccountIds(lines []transactionLine) string {
 	out := ""
-	for i := range lines[:1] {
+	for i := range lines {
 		out += lines[i].AccountId + ","
 	}
 	return strings.TrimSuffix(out, ",")

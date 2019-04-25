@@ -34,6 +34,24 @@ func TestQLedgerTransactions__ping(t *testing.T) {
 	}
 }
 
+func TestQLedger__joinAccountIds(t *testing.T) {
+	str := joinAccountIds([]transactionLine{
+		{
+			AccountId: "accountId1",
+			Purpose:   ACHCredit,
+			Amount:    1242,
+		},
+		{
+			AccountId: "accountId2",
+			Purpose:   ACHDebit,
+			Amount:    -1242,
+		},
+	})
+	if str != "accountId1,accountId2" {
+		t.Errorf("got %q", str)
+	}
+}
+
 func TestQLedgerTransactions(t *testing.T) {
 	accountId := base.ID()
 	transactionRepo := qualifyQLedgerTransactionTest(t)
