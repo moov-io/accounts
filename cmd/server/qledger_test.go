@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/moov-io/base/docker"
+
 	_ "github.com/lib/pq"
 	"github.com/ory/dockertest"
 )
@@ -34,6 +36,9 @@ func spawnQLedger(t *testing.T) *qledgerDeployment {
 
 	if testing.Short() {
 		t.Skip("-short flag enabled")
+	}
+	if !docker.Enabled() {
+		t.Skip("Docker not enabled")
 	}
 
 	pool, err := dockertest.NewPool("")
