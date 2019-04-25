@@ -105,7 +105,7 @@ func main() {
 	adminServer.AddLivenessCheck(fmt.Sprintf("%s-accounts", accountStorageType), accountRepo.Ping)
 
 	// Setup Transaction storage
-	transactionStorageType := os.Getenv("ACCOUNT_STORAGE_TYPE")
+	transactionStorageType := os.Getenv("TRANSACTION_STORAGE_TYPE")
 	if transactionStorageType == "" {
 		transactionStorageType = "qledger"
 	}
