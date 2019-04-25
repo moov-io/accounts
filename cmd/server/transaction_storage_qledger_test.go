@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/moov-io/base"
-	"github.com/moov-io/gl"
 )
 
 // qualifyQLedgerTransactionTest will skip tests if Go's test -short flag is specified or if
@@ -36,27 +35,14 @@ func TestQLedgerTransactions__ping(t *testing.T) {
 }
 
 func TestQLedgerTransactions(t *testing.T) {
-	accountRepo := qualifyQLedgerAccountTest(t)
+	accountId := base.ID()
 	transactionRepo := qualifyQLedgerTransactionTest(t)
-
-	customerId := base.ID()
-	account := &gl.Account{
-		ID:            base.ID(),
-		CustomerID:    base.ID(),
-		Name:          "example account",
-		AccountNumber: "132",
-		RoutingNumber: "51321",
-		Balance:       21415,
-	}
-	if err := accountRepo.CreateAccount(customerId, account); err != nil {
-		t.Error(err)
-	}
 
 	// Create a transaction
 	tx := (&createTransactionRequest{
 		Lines: []transactionLine{
 			{
-				AccountId: account.ID,
+				AccountId: accountId,
 				Purpose:   ACHCredit,
 				Amount:    1242,
 			},
@@ -68,11 +54,11 @@ func TestQLedgerTransactions(t *testing.T) {
 		},
 	}).asTransaction(base.ID())
 
-	if err := transactionRepo.createTransaction(account, tx); err != nil {
+	if err := transactionRepo.createTransaction(tx); err != nil {
 		t.Fatal(err)
 	}
 
-	transactions, err := transactionRepo.getAccountTransactions(account.ID)
+	transactions, err := transactionRepo.getAccountTransactions(accountId)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,10 +69,8 @@ func TestQLedgerTransactions(t *testing.T) {
 		t.Errorf("len(transactions[0].Lines)=%d", len(transactions[0].Lines))
 	}
 
-	// TODO(adam): fix tests (and data/terms write)
-
 	for i := range transactions[0].Lines {
-		if transactions[0].Lines[i].AccountId == account.ID {
+		if transactions[0].Lines[i].AccountId == accountId {
 			if transactions[0].Lines[i].Purpose != ACHCredit || transactions[0].Lines[i].Amount != 1242 {
 				t.Errorf("purpose=%q amount=%d", transactions[0].Lines[i].Purpose, transactions[0].Lines[i].Amount)
 			}

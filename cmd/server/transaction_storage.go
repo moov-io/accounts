@@ -7,14 +7,12 @@ package main
 import (
 	"os"
 	"strings"
-
-	"github.com/moov-io/gl"
 )
 
 type transactionRepository interface {
 	Ping() error
 
-	createTransaction(account *gl.Account, tx transaction) error
+	createTransaction(tx transaction) error
 	getAccountTransactions(accountID string) ([]transaction, error)
 }
 

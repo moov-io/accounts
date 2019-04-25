@@ -5,11 +5,20 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
+	"github.com/moov-io/base"
+	moovhttp "github.com/moov-io/base/http"
+
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
+)
+
+var (
+	errNoAccountId = errors.New("no accountId found")
 )
 
 type TransactionPurpose string
@@ -48,8 +57,17 @@ type transaction struct {
 }
 
 func addTransactionRoutes(logger log.Logger, router *mux.Router, transactionRepo transactionRepository) {
-	// router.Methods("GET").Path("/accounts/{account_id}/transactions").HandlerFunc(getAccountTransactions(logger, transactionRepo))
-	router.Methods("POST").Path("/accounts/{account_id}/transactions").HandlerFunc(createTransaction(logger, transactionRepo))
+	// router.Methods("GET").Path("/accounts/{account_id}/transactions").HandlerFunc(getAccountTransactions(logger, transactionRepo)) // TODO(adam): need to add to OpenAPI routes
+	router.Methods("POST").Path("/accounts/{accountId}/transactions").HandlerFunc(createTransaction(logger, transactionRepo))
+}
+
+func getAccountId(w http.ResponseWriter, r *http.Request) string {
+	v, ok := mux.Vars(r)["accountId"]
+	if !ok || v == "" {
+		moovhttp.Problem(w, errNoAccountId)
+		return ""
+	}
+	return v
 }
 
 func createTransaction(logger log.Logger, transactionRepo transactionRepository) http.HandlerFunc {
@@ -59,6 +77,22 @@ func createTransaction(logger log.Logger, transactionRepo transactionRepository)
 			return
 		}
 
+		var req createTransactionRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			moovhttp.Problem(w, err)
+			return
+		}
+
+		tx := req.asTransaction(base.ID())
+		if err := transactionRepo.createTransaction(tx); err != nil {
+			moovhttp.Problem(w, err)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(tx)
 	}
 }
+
+// getAccountTransactions(accountID string) ([]transaction, error)

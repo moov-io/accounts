@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/moov-io/gl"
 	mledge "github.com/moov-io/qledger-sdk-go"
 
 	"github.com/RealImage/QLedger/models"
@@ -42,7 +41,7 @@ func joinAccountIds(lines []transactionLine) string {
 	return strings.TrimSuffix(out, ",")
 }
 
-func (r *qledgerTransactionRepository) createTransaction(account *gl.Account, tx transaction) error {
+func (r *qledgerTransactionRepository) createTransaction(tx transaction) error {
 	var lines []*mledge.TransactionLine
 	data := make(map[string]interface{})
 	data["accountIds"] = joinAccountIds(tx.Lines)
@@ -93,11 +92,15 @@ func (r *qledgerTransactionRepository) getAccountTransactions(accountId string) 
 			if xfers[i].Lines[j].Delta < 0 {
 				p = "achdebit" // TODO(adam): mocked for tests, see commented '%s_purpose' above
 			}
-			lines = append(lines, transactionLine{
+			tx := transactionLine{
 				AccountId: xfers[i].Lines[j].AccountID,
 				Amount:    xfers[i].Lines[j].Delta,
 				Purpose:   TransactionPurpose(p),
-			})
+			}
+			// if err := tx.Purpose.validate(); err != nil {
+			// 	// TODO(adam): what do?
+			// }
+			lines = append(lines, tx)
 		}
 		t, _ := time.Parse(models.LedgerTimestampLayout, xfers[i].Timestamp)
 		transactions = append(transactions, transaction{
