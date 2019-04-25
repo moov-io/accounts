@@ -22,7 +22,7 @@ type accountRepository interface {
 func initAccountStorage(name string) (accountRepository, error) {
 	switch strings.ToLower(name) {
 	case "qledger":
-		return setupQLedgerStorage(os.Getenv("QLEDGER_ENDPOINT"), os.Getenv("QLEDGER_AUTH_TOKEN"))
+		return setupQLedgerAccountStorage(os.Getenv("QLEDGER_ENDPOINT"), os.Getenv("QLEDGER_AUTH_TOKEN"))
 	}
 	return nil, nil
 }

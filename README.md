@@ -21,6 +21,7 @@ TODO
 |-----|-----|-----|
 | `DEFAULT_ROUTING_NUMBER` | ABA routing number used when accounts are created. | Required |
 | `SQLITE_DB_PATH`| Local filepath location for the paygate SQLite database. | `ofac.db` |
-| `ACCOUNT_STORAGE_TYPE` | Storage engine for account and transaction data. | Default: `qledger` |
+| `ACCOUNT_STORAGE_TYPE` | Storage engine for account data. | Default: `qledger` |
+| `TRANSACTION_STORAGE_TYPE` | Storage engine for transaction data. | Default: `qledger` |
 | `QLEDGER_ENDPOINT` | HTTP endpoint to access QLedger (if storage type is `qledger`) | Required |
 | `QLEDGER_AUTH_TOKEN` | Auth token to access QLedger (if storage type is `qledger`) | Required |
