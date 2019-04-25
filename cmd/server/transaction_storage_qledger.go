@@ -6,7 +6,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	mledge "github.com/moov-io/qledger-sdk-go"
@@ -31,20 +30,20 @@ func (r *qledgerTransactionRepository) Ping() error {
 	return r.api.Ping()
 }
 
-// joinAccountIds returns a comma separated list of accountIDs from an array of transactionLines.
+// accountIds returns an []string of each accountId from an array of transactionLines.
 // We do this to query transactions that have been posted against an account.
-func joinAccountIds(lines []transactionLine) string {
-	out := ""
+func accountIds(lines []transactionLine) []string {
+	var out []string
 	for i := range lines {
-		out += lines[i].AccountId + ","
+		out = append(out, lines[i].AccountId)
 	}
-	return strings.TrimSuffix(out, ",")
+	return out
 }
 
 func (r *qledgerTransactionRepository) createTransaction(tx transaction) error {
 	var lines []*mledge.TransactionLine
 	data := make(map[string]interface{})
-	data["accountIds"] = joinAccountIds(tx.Lines)
+	data["accountIds"] = accountIds(tx.Lines)
 
 	for i := range tx.Lines {
 		lines = append(lines, &mledge.TransactionLine{
@@ -67,16 +66,15 @@ func (r *qledgerTransactionRepository) getAccountTransactions(accountId string) 
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
 			"must": map[string]interface{}{
-				"ranges": []map[string]interface{}{
+				"terms": []map[string]interface{}{
 					{
-						"accountIds": map[string]interface{}{
-							"like": accountId,
-						},
+						"accountIds": []string{accountId},
 					},
 				},
 			},
 		},
 	}
+
 	xfers, err := r.api.SearchTransactions(query)
 	if err != nil {
 		return nil, fmt.Errorf("qledger: getAccountTransactions: %v", err)

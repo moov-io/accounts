@@ -5,37 +5,57 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/moov-io/base"
 )
 
+type testQLedgerTransactionRepository struct {
+	*qledgerTransactionRepository
+
+	deployment *qledgerDeployment
+}
+
+func (q *testQLedgerTransactionRepository) close() {
+	if q.deployment != nil {
+		q.deployment.close()
+	}
+}
+
 // qualifyQLedgerTransactionTest will skip tests if Go's test -short flag is specified or if
 // the needed env variables aren't set. See above for the env variables.
-//
-// Returned will be a qledgerAccountRepository
-func qualifyQLedgerTransactionTest(t *testing.T) *qledgerTransactionRepository {
+func qualifyQLedgerTransactionTest(t *testing.T) *testQLedgerTransactionRepository {
 	t.Helper()
-	// qledgerEndpoint and qledgerAuthToken are from account_storage_qledger_test.go
-	if qledgerEndpoint == "" || qledgerAuthToken == "" || testing.Short() {
-		t.Skip()
+
+	if testing.Short() {
+		t.Skip("-short flag enabled")
 	}
-	repo, err := setupQLedgerTransactionStorage(qledgerEndpoint, qledgerAuthToken)
+
+	deployment := spawnQLedger(t)
+	if deployment == nil {
+		t.Fatal("nil QLedger docker deployment")
+	}
+
+	// repo, err := setupQLedgerTransactionStorage("https://api.moov.io/v1/qledger", "moov") // Test against Production
+	repo, err := setupQLedgerTransactionStorage(fmt.Sprintf("http://localhost:%s", deployment.qledger.GetPort("7000/tcp")), "moov")
 	if err != nil {
 		t.Fatal(err)
 	}
-	return repo
+	return &testQLedgerTransactionRepository{repo, deployment}
 }
 
 func TestQLedgerTransactions__ping(t *testing.T) {
 	repo := qualifyQLedgerTransactionTest(t)
+	defer repo.close()
+
 	if err := repo.Ping(); err != nil {
 		t.Error(err)
 	}
 }
 
-func TestQLedger__joinAccountIds(t *testing.T) {
-	str := joinAccountIds([]transactionLine{
+func TestQLedger__accountIds(t *testing.T) {
+	ids := accountIds([]transactionLine{
 		{
 			AccountId: "accountId1",
 			Purpose:   ACHCredit,
@@ -47,8 +67,11 @@ func TestQLedger__joinAccountIds(t *testing.T) {
 			Amount:    -1242,
 		},
 	})
-	if str != "accountId1,accountId2" {
-		t.Errorf("got %q", str)
+	if len(ids) != 2 {
+		t.Fatalf("got %d ids: %v", len(ids), ids)
+	}
+	if ids[0] != "accountId1" || ids[1] != "accountId2" {
+		t.Errorf("got %v", ids)
 	}
 }
 
@@ -98,4 +121,7 @@ func TestQLedgerTransactions(t *testing.T) {
 			}
 		}
 	}
+
+	// Only cleanup if every test was successful, otherwise keep the containers around for debugging
+	transactionRepo.close()
 }
