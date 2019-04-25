@@ -14,36 +14,36 @@ import (
 )
 
 var (
-	// qledgerAddress and qledgerAuthToken are the same env variables as account_stroage.go
-	qledgerAddress   = os.Getenv("QLEDGER_ENDPOINT")
+	// qledgerEndpoint and qledgerAuthToken are the same env variables as account_stroage.go
+	qledgerEndpoint  = os.Getenv("QLEDGER_ENDPOINT")
 	qledgerAuthToken = os.Getenv("QLEDGER_AUTH_TOKEN")
 )
 
-// qualifyTests will skip tests if Go's test -short flag is specified or if
+// qualifyQLedgerAccountTest will skip tests if Go's test -short flag is specified or if
 // the needed env variables aren't set. See above for the env variables.
 //
 // Returned will be a qledgerAccountRepository
-func qualifyTests(t *testing.T, address, authToken string) *qledgerAccountRepository {
+func qualifyQLedgerAccountTest(t *testing.T) *qledgerAccountRepository {
 	t.Helper()
-	if qledgerAddress == "" || qledgerAuthToken == "" || testing.Short() {
+	if qledgerEndpoint == "" || qledgerAuthToken == "" || testing.Short() {
 		t.Skip()
 	}
-	repo, err := setupQLedgerStorage(address, authToken)
+	repo, err := setupQLedgerAccountStorage(qledgerEndpoint, qledgerAuthToken)
 	if err != nil {
 		t.Fatal(err)
 	}
 	return repo
 }
 
-func TestQLedger__ping(t *testing.T) {
-	repo := qualifyTests(t, qledgerAddress, qledgerAuthToken)
+func TestQLedgerAccounts__ping(t *testing.T) {
+	repo := qualifyQLedgerAccountTest(t)
 	if err := repo.Ping(); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestQLedger__Accounts(t *testing.T) {
-	repo := qualifyTests(t, qledgerAddress, qledgerAuthToken)
+	repo := qualifyQLedgerAccountTest(t)
 
 	customerId := base.ID()
 	account := &gl.Account{

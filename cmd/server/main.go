@@ -93,7 +93,7 @@ func main() {
 	}()
 	defer adminServer.Shutdown()
 
-	// Setup our storage database(s)
+	// Setup Account storage
 	accountStorageType := os.Getenv("ACCOUNT_STORAGE_TYPE")
 	if accountStorageType == "" {
 		accountStorageType = "qledger"
@@ -102,7 +102,18 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("account storage: %v", err))
 	}
-	adminServer.AddLivenessCheck("qledger", accountRepo.Ping)
+	adminServer.AddLivenessCheck(fmt.Sprintf("%s-accounts", accountStorageType), accountRepo.Ping)
+
+	// Setup Transaction storage
+	transactionStorageType := os.Getenv("ACCOUNT_STORAGE_TYPE")
+	if transactionStorageType == "" {
+		transactionStorageType = "qledger"
+	}
+	transactionRepo, err := initTransactionStorage(transactionStorageType)
+	if err != nil {
+		panic(fmt.Sprintf("transaction storage: %v", err))
+	}
+	adminServer.AddLivenessCheck(fmt.Sprintf("%s-transactions", transactionStorageType), transactionRepo.Ping)
 
 	// setup databases
 	customerRepo := &sqliteCustomerRepository{db}
@@ -114,6 +125,7 @@ func main() {
 	addPingRoute(logger, router)
 	addAccountRoutes(logger, router, accountRepo)
 	addCustomerRoutes(logger, router, customerRepo)
+	addTransactionRoutes(logger, router, transactionRepo)
 
 	// Start business HTTP server
 	readTimeout, _ := time.ParseDuration("30s")
