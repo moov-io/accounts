@@ -1,6 +1,7 @@
 module github.com/moov-io/gl
 
 require (
+	github.com/RealImage/QLedger v1.4.0
 	github.com/VividCortex/gohistogram v1.0.0 // indirect
 	github.com/antihax/optional v0.0.0-20180407024304-ca021399b1a6
 	github.com/go-kit/kit v0.8.0
@@ -8,6 +9,7 @@ require (
 	github.com/golang/protobuf v1.3.1 // indirect
 	github.com/gorilla/mux v1.7.0
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
+	github.com/lib/pq v1.1.0 // indirect
 	github.com/mattn/go-sqlite3 v1.10.0
 	github.com/moov-io/base v0.9.1-0.20190424164501-1ddbcc0a2ab8
 	github.com/moov-io/qledger-sdk-go v0.0.0-20190326214039-0a6a09453b62
