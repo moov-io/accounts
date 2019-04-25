@@ -39,6 +39,36 @@ func (r *mockTransactionRepository) getAccountTransactions(accountID string) ([]
 	return r.transactions, nil
 }
 
+func TestTransactions_getAccountId(t *testing.T) {
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/foo", nil)
+
+	if accountId := getAccountId(w, req); accountId != "" {
+		t.Errorf("expected no accountId, got %q", accountId)
+	}
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("got %d", w.Code)
+	}
+
+	w = httptest.NewRecorder()
+
+	// successful extraction
+	var accountId string
+	router := mux.NewRouter()
+	router.Methods("GET").Path("/accounts/{accountId}").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		accountId = getAccountId(w, req)
+	})
+	router.ServeHTTP(w, httptest.NewRequest("GET", "/accounts/bar", nil))
+	w.Flush()
+
+	if w.Code != http.StatusOK {
+		t.Errorf("got %d", w.Code)
+	}
+	if accountId != "bar" {
+		t.Errorf("got %q", accountId)
+	}
+}
+
 func TestTransactions_Create(t *testing.T) {
 	repo := &mockTransactionRepository{}
 
