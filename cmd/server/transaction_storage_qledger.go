@@ -95,9 +95,9 @@ func (r *qledgerTransactionRepository) getAccountTransactions(accountId string) 
 				Amount:    xfers[i].Lines[j].Delta,
 				Purpose:   TransactionPurpose(p),
 			}
-			// if err := tx.Purpose.validate(); err != nil {
-			// 	// TODO(adam): what do?
-			// }
+			if err := tx.Purpose.validate(); err != nil {
+				continue
+			}
 			lines = append(lines, tx)
 		}
 		t, _ := time.Parse(models.LedgerTimestampLayout, xfers[i].Timestamp)

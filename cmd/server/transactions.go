@@ -7,6 +7,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -31,6 +32,15 @@ var (
 	Transfer  TransactionPurpose = "transfer"
 	Wire      TransactionPurpose = "wire"
 )
+
+func (p TransactionPurpose) validate() error {
+	switch p {
+	case ACHCredit, ACHDebit, Fee, Interest, Transfer, Wire:
+		return nil
+	default:
+		return fmt.Errorf("unknown TransactionPurpose %q", p)
+	}
+}
 
 type transactionLine struct {
 	AccountId string             `json:"accountId"`

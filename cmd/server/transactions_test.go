@@ -39,6 +39,23 @@ func (r *mockTransactionRepository) getAccountTransactions(accountID string) ([]
 	return r.transactions, nil
 }
 
+func TestTransactionPurpose(t *testing.T) {
+	if err := TransactionPurpose("").validate(); err == nil {
+		t.Error("expected error")
+	}
+	if err := TransactionPurpose("other").validate(); err == nil {
+		t.Error("expected error")
+	}
+
+	// valid cases
+	cases := []string{"achcredit", "achdebit", "fee", "interest", "transfer", "wire"}
+	for i := range cases {
+		if err := TransactionPurpose(cases[i]).validate(); err != nil {
+			t.Errorf("expected no error on %q: %v", cases[i], err)
+		}
+	}
+}
+
 func TestTransactions_getAccountId(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/foo", nil)
