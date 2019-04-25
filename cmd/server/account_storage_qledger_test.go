@@ -5,7 +5,7 @@
 package main
 
 import (
-	"os"
+	"fmt"
 	"testing"
 	"time"
 
@@ -13,30 +13,46 @@ import (
 	"github.com/moov-io/gl"
 )
 
-var (
-	// qledgerEndpoint and qledgerAuthToken are the same env variables as account_stroage.go
-	qledgerEndpoint  = os.Getenv("QLEDGER_ENDPOINT")
-	qledgerAuthToken = os.Getenv("QLEDGER_AUTH_TOKEN")
-)
+type testQLedgerAccountRepository struct {
+	*qledgerAccountRepository
+
+	deployment *qledgerDeployment
+}
+
+func (q *testQLedgerAccountRepository) close() {
+	if q.deployment != nil {
+		q.deployment.close()
+	}
+}
 
 // qualifyQLedgerAccountTest will skip tests if Go's test -short flag is specified or if
 // the needed env variables aren't set. See above for the env variables.
 //
 // Returned will be a qledgerAccountRepository
-func qualifyQLedgerAccountTest(t *testing.T) *qledgerAccountRepository {
+func qualifyQLedgerAccountTest(t *testing.T) *testQLedgerAccountRepository {
 	t.Helper()
-	if qledgerEndpoint == "" || qledgerAuthToken == "" || testing.Short() {
-		t.Skip()
+
+	if testing.Short() {
+		t.Skip("-short flag enabled")
 	}
-	repo, err := setupQLedgerAccountStorage(qledgerEndpoint, qledgerAuthToken)
+
+	deployment := spawnQLedger(t)
+	if deployment == nil {
+		t.Fatal("nil QLedger docker deployment")
+	}
+
+	// repo, err := setupQLedgerAccountStorage("https://api.moov.io/v1/qledger", "moov") // Test against Production
+	repo, err := setupQLedgerAccountStorage(fmt.Sprintf("http://localhost:%s", deployment.qledger.GetPort("7000/tcp")), "moov")
 	if err != nil {
 		t.Fatal(err)
 	}
-	return repo
+	return &testQLedgerAccountRepository{repo, deployment}
 }
 
 func TestQLedgerAccounts__ping(t *testing.T) {
 	repo := qualifyQLedgerAccountTest(t)
+	defer repo.close()
+
 	if err := repo.Ping(); err != nil {
 		t.Error(err)
 	}
@@ -92,6 +108,8 @@ func TestQLedger__Accounts(t *testing.T) {
 	if acct.ID != account.ID {
 		t.Errorf("acct.ID=%q account.ID=%q", acct.ID, account.ID)
 	}
+
+	repo.close()
 }
 
 func TestQLedger__read(t *testing.T) {
