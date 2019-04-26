@@ -1,6 +1,7 @@
 # CreatePhone
 
 ## Properties
+
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **Number** | **string** | phone number | 

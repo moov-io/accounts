@@ -1,6 +1,7 @@
 # TransactionLine
 
 ## Properties
+
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **AccountId** | **string** | Account ID | [optional] 

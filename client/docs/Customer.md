@@ -1,6 +1,7 @@
 # Customer
 
 ## Properties
+
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **CustomerId** | **string** | The unique identifier for the customer who owns the account | [optional] 

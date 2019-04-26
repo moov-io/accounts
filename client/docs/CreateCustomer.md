@@ -1,6 +1,7 @@
 # CreateCustomer
 
 ## Properties
+
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **FirstName** | **string** | Given Name or First Name | [optional] 
