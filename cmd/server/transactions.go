@@ -66,8 +66,10 @@ type transaction struct {
 	Lines     []transactionLine `json:"lines"`
 }
 
+// TODO(adam): When submitting a transaction we should check if it'll put an account into the red and reject if so
+
 func addTransactionRoutes(logger log.Logger, router *mux.Router, transactionRepo transactionRepository) {
-	// router.Methods("GET").Path("/accounts/{account_id}/transactions").HandlerFunc(getAccountTransactions(logger, transactionRepo)) // TODO(adam): need to add to OpenAPI routes
+	router.Methods("GET").Path("/accounts/{accountId}/transactions").HandlerFunc(getAccountTransactions(logger, transactionRepo))
 	router.Methods("POST").Path("/accounts/{accountId}/transactions").HandlerFunc(createTransaction(logger, transactionRepo))
 }
 
@@ -78,6 +80,32 @@ func getAccountId(w http.ResponseWriter, r *http.Request) string {
 		return ""
 	}
 	return v
+}
+
+func getAccountTransactions(logger log.Logger, transactionRepo transactionRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w, err := wrapResponseWriter(logger, w, r)
+		if err != nil {
+			return
+		}
+
+		accountId := getAccountId(w, r)
+		if accountId == "" {
+			moovhttp.Problem(w, errNoAccountId)
+			return
+		}
+
+		transactions, err := transactionRepo.getAccountTransactions(accountId)
+		if err != nil {
+			moovhttp.Problem(w, err)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(transactions)
+
+	}
 }
 
 func createTransaction(logger log.Logger, transactionRepo transactionRepository) http.HandlerFunc {
@@ -104,5 +132,3 @@ func createTransaction(logger log.Logger, transactionRepo transactionRepository)
 		json.NewEncoder(w).Encode(tx)
 	}
 }
-
-// getAccountTransactions(accountID string) ([]transaction, error)

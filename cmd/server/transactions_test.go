@@ -8,9 +8,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/moov-io/base"
 
@@ -83,6 +85,68 @@ func TestTransactions_getAccountId(t *testing.T) {
 	}
 	if accountId != "bar" {
 		t.Errorf("got %q", accountId)
+	}
+}
+
+func TestTransactions_Get(t *testing.T) {
+	accountId := base.ID()
+	repo := &mockTransactionRepository{
+		transactions: []transaction{
+			{
+				ID:        base.ID(),
+				Timestamp: time.Now().Add(-24 * time.Hour),
+				Lines: []transactionLine{
+					{
+						AccountId: accountId,
+						Purpose:   Transfer,
+						Amount:    13412,
+					},
+				},
+			},
+			{
+				ID:        base.ID(),
+				Timestamp: time.Now().Add(-24 * 2 * time.Hour),
+				Lines: []transactionLine{
+					{
+						AccountId: accountId,
+						Purpose:   Transfer,
+						Amount:    5331,
+					},
+				},
+			},
+		},
+	}
+
+	router := mux.NewRouter()
+	addTransactionRoutes(log.NewNopLogger(), router, repo)
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("/accounts/%s/transactions", accountId), nil)
+	req.Header.Set("x-user-id", base.ID())
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	w.Flush()
+
+	if w.Code != http.StatusOK {
+		t.Errorf("got %d", w.Code)
+	}
+	var resp []transaction
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+	if len(resp) != 2 {
+		t.Errorf("got %d transactions: %#v", len(resp), resp)
+	}
+
+	// set an error and make sure we respond as such
+	repo.err = errors.New("bad thing")
+
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	w.Flush()
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("got %d", w.Code)
 	}
 }
 
