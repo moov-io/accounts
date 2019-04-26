@@ -2,7 +2,9 @@ openapi: 3.0.2
 info:
   contact:
     url: https://groups.google.com/forum/#!forum/moov-users
-  description: Moov GL is an HTTP service which represents both a general ledger and chart of accounts for customers. The service is designed to abstract over various core systems and provide a uniform API for developers.
+  description: Moov GL is an HTTP service which represents both a general ledger and
+    chart of accounts for customers. The service is designed to abstract over various
+    core systems and provide a uniform API for developers.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -58,13 +60,14 @@ paths:
           example: Checking
           type: string
         style: form
-      - description: Optional Request ID allows application developer to trace requests through the systems logs
+      - description: Optional Request ID allows application developer to trace requests
+          through the systems logs
+        example: rs4f9915
         explode: false
         in: header
         name: X-Request-Id
         required: false
         schema:
-          example: 94c825ee
           type: string
         style: simple
       - description: Moov User ID header, required in all requests
@@ -89,6 +92,57 @@ paths:
       tags:
       - GL
   /accounts/{account_id}/transactions:
+    get:
+      operationId: getAccountTransactions
+      parameters:
+      - description: Account ID
+        explode: false
+        in: path
+        name: account_id
+        required: true
+        schema:
+          example: 098f3653-1dcb-4358-903e-4c7576f957f6
+          type: string
+        style: simple
+      - description: Maximum number of transactions to return
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          example: 25
+          type: number
+        style: form
+      - description: Optional Request ID allows application developer to trace requests
+          through the systems logs
+        example: rs4f9915
+        explode: false
+        in: header
+        name: X-Request-Id
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: Moov User ID header, required in all requests
+        example: e3cdf999
+        explode: false
+        in: header
+        name: X-User-Id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transactions'
+          description: List of transactions
+      summary: Get transactions for an account. Ordered descending from their posted
+        date.
+      tags:
+      - GL
     post:
       operationId: createTransaction
       parameters:
@@ -101,13 +155,14 @@ paths:
           example: 098f3653-1dcb-4358-903e-4c7576f957f6
           type: string
         style: simple
-      - description: Optional Request ID allows application developer to trace requests through the systems logs
+      - description: Optional Request ID allows application developer to trace requests
+          through the systems logs
+        example: rs4f9915
         explode: false
         in: header
         name: X-Request-Id
         required: false
         schema:
-          example: 94c825ee
           type: string
         style: simple
       - description: Moov User ID header, required in all requests
@@ -138,20 +193,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Transaction was not created, see error(s)
-      summary: Post a transaction onto accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
+      summary: Post a transaction onto an account. All transaction lines must sum
+        to zero. No money is created or destroyed in a transaction - only moved from
+        account to account. Accounts can be referred to in a Transaction without creating
+        them first.
       tags:
       - GL
   /customers:
     post:
       operationId: createCustomer
       parameters:
-      - description: Optional Request ID allows application developer to trace requests through the systems logs
+      - description: Optional Request ID allows application developer to trace requests
+          through the systems logs
+        example: rs4f9915
         explode: false
         in: header
         name: X-Request-Id
         required: false
         schema:
-          example: 94c825ee
           type: string
         style: simple
       - description: Moov User ID header, required in all requests
@@ -192,13 +251,14 @@ paths:
           example: e210a9d6-d755-4455-9bd2-9577ea7e1081
           type: string
         style: simple
-      - description: Optional Request ID allows application developer to trace requests through the systems logs
+      - description: Optional Request ID allows application developer to trace requests
+          through the systems logs
+        example: rs4f9915
         explode: false
         in: header
         name: X-Request-Id
         required: false
         schema:
-          example: 94c825ee
           type: string
         style: simple
       - description: Moov User ID header, required in all requests
@@ -235,13 +295,14 @@ paths:
           example: e210a9d6-d755-4455-9bd2-9577ea7e1081
           type: string
         style: simple
-      - description: Optional Request ID allows application developer to trace requests through the systems logs
+      - description: Optional Request ID allows application developer to trace requests
+          through the systems logs
+        example: rs4f9915
         explode: false
         in: header
         name: X-Request-Id
         required: false
         schema:
-          example: 94c825ee
           type: string
         style: simple
       - description: Moov User ID header, required in all requests
@@ -277,13 +338,14 @@ paths:
           example: e210a9d6-d755-4455-9bd2-9577ea7e1081
           type: string
         style: simple
-      - description: Optional Request ID allows application developer to trace requests through the systems logs
+      - description: Optional Request ID allows application developer to trace requests
+          through the systems logs
+        example: rs4f9915
         explode: false
         in: header
         name: X-Request-Id
         required: false
         schema:
-          example: 94c825ee
           type: string
         style: simple
       - description: Moov User ID header, required in all requests
@@ -320,27 +382,6 @@ paths:
       tags:
       - GL
 components:
-  parameters:
-    XUserIdHeader:
-      description: Moov User ID header, required in all requests
-      example: e3cdf999
-      explode: false
-      in: header
-      name: X-User-Id
-      required: true
-      schema:
-        type: string
-      style: simple
-    requestId:
-      description: Optional Request ID allows application developer to trace requests through the systems logs
-      explode: false
-      in: header
-      name: X-Request-Id
-      required: false
-      schema:
-        example: 94c825ee
-        type: string
-      style: simple
   schemas:
     CreateAccount:
       example:
@@ -406,7 +447,8 @@ components:
           minimum: 4
           type: string
         routingNumber:
-          description: Routing Transit Number is a nine-digit number assigned by the ABA
+          description: Routing Transit Number is a nine-digit number assigned by the
+            ABA
           example: "073000176"
           maximum: 9
           minimum: 9
@@ -437,17 +479,14 @@ components:
         balance:
           description: Total balance of account in USD cents.
           example: 1000
-          format: int32
           type: integer
         balanceAvailable:
           description: Balance available in USD cents to be drawn
           example: 850
-          format: int32
           type: integer
         balancePending:
           description: Balance of pending transactions in USD cents
           example: 100
-          format: int32
           type: integer
       type: object
     Accounts:
@@ -766,15 +805,23 @@ components:
         - accountId: baa835b8
           amount: 2500
           purpose: Transfer
+        timestamp: 2000-01-23T04:56:07.000+00:00
       properties:
         id:
           description: Unique ID of a transaction
           example: 140fa826
           type: string
+        timestamp:
+          format: date-time
+          type: string
         lines:
           items:
             $ref: '#/components/schemas/TransactionLine'
           type: array
+    Transactions:
+      items:
+        $ref: '#/components/schemas/Transaction'
+      type: array
     TransactionLine:
       example:
         accountId: baa835b8

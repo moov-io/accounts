@@ -9,8 +9,13 @@
 
 package openapi
 
+import (
+	"time"
+)
+
 type Transaction struct {
 	// Unique ID of a transaction
-	Id    string            `json:"id,omitempty"`
-	Lines []TransactionLine `json:"lines,omitempty"`
+	Id        string            `json:"id,omitempty"`
+	Timestamp time.Time         `json:"timestamp,omitempty"`
+	Lines     []TransactionLine `json:"lines,omitempty"`
 }
