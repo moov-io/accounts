@@ -54,8 +54,8 @@ func TestQLedgerTransactions__ping(t *testing.T) {
 	}
 }
 
-func TestQLedger__accountIds(t *testing.T) {
-	ids := accountIds([]transactionLine{
+func TestQLedger__grabAccountIds(t *testing.T) {
+	ids := grabAccountIds([]transactionLine{
 		{
 			AccountId: "accountId1",
 			Purpose:   ACHCredit,

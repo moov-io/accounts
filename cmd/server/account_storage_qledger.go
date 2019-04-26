@@ -25,6 +25,27 @@ func (r *qledgerAccountRepository) Ping() error {
 	return r.api.Ping()
 }
 
+func (r *qledgerAccountRepository) GetAccounts(accountIds []string) ([]*gl.Account, error) {
+	var terms []map[string]interface{}
+	for i := range accountIds {
+		m := make(map[string]interface{})
+		m["accountId"] = accountIds[i]
+		terms = append(terms, m)
+	}
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"should": map[string]interface{}{
+				"terms": terms, // OR query to grab what we can for each accountId
+			},
+		},
+	}
+	accts, err := r.api.SearchAccounts(query)
+	if err != nil {
+		return nil, err
+	}
+	return convertAccounts(accts), nil
+}
+
 func (r *qledgerAccountRepository) GetCustomerAccounts(customerId string) ([]*gl.Account, error) {
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
@@ -47,6 +68,7 @@ func (r *qledgerAccountRepository) CreateAccount(customerId string, account *gl.
 		ID:      account.ID,
 		Balance: int(account.Balance),
 		Data: map[string]interface{}{
+			"accountId":        account.ID,
 			"customerId":       account.CustomerID,
 			"name":             account.Name,
 			"accountNumber":    account.AccountNumber,

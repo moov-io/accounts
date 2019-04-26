@@ -90,7 +90,8 @@ func TestTransactions_getAccountId(t *testing.T) {
 
 func TestTransactions_Get(t *testing.T) {
 	accountId := base.ID()
-	repo := &mockTransactionRepository{
+	accountRepo := &testAccountRepository{}
+	transactionRepo := &mockTransactionRepository{
 		transactions: []transaction{
 			{
 				ID:        base.ID(),
@@ -118,7 +119,7 @@ func TestTransactions_Get(t *testing.T) {
 	}
 
 	router := mux.NewRouter()
-	addTransactionRoutes(log.NewNopLogger(), router, repo)
+	addTransactionRoutes(log.NewNopLogger(), router, accountRepo, transactionRepo)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/accounts/%s/transactions", accountId), nil)
 	req.Header.Set("x-user-id", base.ID())
@@ -139,7 +140,7 @@ func TestTransactions_Get(t *testing.T) {
 	}
 
 	// set an error and make sure we respond as such
-	repo.err = errors.New("bad thing")
+	transactionRepo.err = errors.New("bad thing")
 
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -151,10 +152,11 @@ func TestTransactions_Get(t *testing.T) {
 }
 
 func TestTransactions_Create(t *testing.T) {
-	repo := &mockTransactionRepository{}
+	accountRepo := &testAccountRepository{}
+	transactionRepo := &mockTransactionRepository{}
 
 	router := mux.NewRouter()
-	addTransactionRoutes(log.NewNopLogger(), router, repo)
+	addTransactionRoutes(log.NewNopLogger(), router, accountRepo, transactionRepo)
 
 	var body bytes.Buffer
 	json.NewEncoder(&body).Encode(createTransactionRequest{
@@ -175,7 +177,7 @@ func TestTransactions_Create(t *testing.T) {
 	}
 
 	// set an error and make sure we respond as such
-	repo.err = errors.New("bad thing")
+	transactionRepo.err = errors.New("bad thing")
 
 	w = httptest.NewRecorder()
 	router.ServeHTTP(w, req)

@@ -66,11 +66,9 @@ type transaction struct {
 	Lines     []transactionLine `json:"lines"`
 }
 
-// TODO(adam): When submitting a transaction we should check if it'll put an account into the red and reject if so
-
-func addTransactionRoutes(logger log.Logger, router *mux.Router, transactionRepo transactionRepository) {
+func addTransactionRoutes(logger log.Logger, router *mux.Router, accountRepo accountRepository, transactionRepo transactionRepository) {
 	router.Methods("GET").Path("/accounts/{accountId}/transactions").HandlerFunc(getAccountTransactions(logger, transactionRepo))
-	router.Methods("POST").Path("/accounts/{accountId}/transactions").HandlerFunc(createTransaction(logger, transactionRepo))
+	router.Methods("POST").Path("/accounts/{accountId}/transactions").HandlerFunc(createTransaction(logger, accountRepo, transactionRepo))
 }
 
 func getAccountId(w http.ResponseWriter, r *http.Request) string {
@@ -108,7 +106,7 @@ func getAccountTransactions(logger log.Logger, transactionRepo transactionReposi
 	}
 }
 
-func createTransaction(logger log.Logger, transactionRepo transactionRepository) http.HandlerFunc {
+func createTransaction(logger log.Logger, accountRepo accountRepository, transactionRepo transactionRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w, err := wrapResponseWriter(logger, w, r)
 		if err != nil {
@@ -122,6 +120,31 @@ func createTransaction(logger log.Logger, transactionRepo transactionRepository)
 		}
 
 		tx := req.asTransaction(base.ID())
+
+		// Naive balance check on transactions.
+		// TODO(adam): This is a racy compare, we need to attempt a commit with balance checks
+		accounts, err := accountRepo.GetAccounts(grabAccountIds(tx.Lines))
+		if err != nil {
+			moovhttp.Problem(w, err)
+			return
+		}
+		for i := range accounts {
+			if accounts[i].Balance > 0 {
+				for j := range tx.Lines {
+					if accounts[i].ID == tx.Lines[j].AccountId {
+						if accounts[i].Balance < int64(tx.Lines[j].Amount) {
+							moovhttp.Problem(w, fmt.Errorf("account %s has insufficient funds", accounts[i].ID))
+							return
+						}
+					}
+				}
+				// no match, logic bug or database bug
+				moovhttp.Problem(w, fmt.Errorf("no transactionLines found for account %s", accounts[i].ID))
+				return
+			}
+		}
+
+		// Post the transaction
 		if err := transactionRepo.createTransaction(tx); err != nil {
 			moovhttp.Problem(w, err)
 			return

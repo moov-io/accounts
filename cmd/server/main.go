@@ -125,7 +125,7 @@ func main() {
 	addPingRoute(logger, router)
 	addAccountRoutes(logger, router, accountRepo)
 	addCustomerRoutes(logger, router, customerRepo)
-	addTransactionRoutes(logger, router, transactionRepo)
+	addTransactionRoutes(logger, router, accountRepo, transactionRepo)
 
 	// Start business HTTP server
 	readTimeout, _ := time.ParseDuration("30s")

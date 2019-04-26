@@ -14,6 +14,7 @@ import (
 type accountRepository interface {
 	Ping() error
 
+	GetAccounts(accountIds []string) ([]*gl.Account, error)
 	GetCustomerAccounts(customerId string) ([]*gl.Account, error)
 	CreateAccount(customerId string, account *gl.Account) error // TODO(adam): acctType needs strong type
 	SearchAccounts(accountNumber, routingNumber, acctType string) (*gl.Account, error)
