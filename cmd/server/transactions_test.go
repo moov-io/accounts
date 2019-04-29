@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/moov-io/base"
+	"github.com/moov-io/gl"
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
@@ -152,7 +153,18 @@ func TestTransactions_Get(t *testing.T) {
 }
 
 func TestTransactions_Create(t *testing.T) {
-	accountRepo := &testAccountRepository{}
+	accountRepo := &testAccountRepository{
+		accounts: []*gl.Account{
+			{
+				ID:      base.ID(),
+				Balance: 10000,
+			},
+			{
+				ID:      base.ID(),
+				Balance: 1000,
+			},
+		},
+	}
 	transactionRepo := &mockTransactionRepository{}
 
 	router := mux.NewRouter()
@@ -161,8 +173,8 @@ func TestTransactions_Create(t *testing.T) {
 	var body bytes.Buffer
 	json.NewEncoder(&body).Encode(createTransactionRequest{
 		Lines: []transactionLine{
-			{AccountId: base.ID(), Purpose: ACHDebit, Amount: -4121},
-			{AccountId: base.ID(), Purpose: ACHCredit, Amount: -121},
+			{AccountId: accountRepo.accounts[0].ID, Purpose: ACHDebit, Amount: -4121},
+			{AccountId: accountRepo.accounts[1].ID, Purpose: ACHCredit, Amount: -121},
 		},
 	})
 	req := httptest.NewRequest("POST", "/accounts/foo/transactions", &body)
@@ -185,5 +197,84 @@ func TestTransactions_Create(t *testing.T) {
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("got %d", w.Code)
+	}
+}
+
+func TestTransactions_CreateInvalid(t *testing.T) {
+	accountRepo := &testAccountRepository{}
+	transactionRepo := &mockTransactionRepository{}
+
+	router := mux.NewRouter()
+	addTransactionRoutes(log.NewNopLogger(), router, accountRepo, transactionRepo)
+
+	var body bytes.Buffer
+	json.NewEncoder(&body).Encode(createTransactionRequest{
+		Lines: []transactionLine{
+			{AccountId: base.ID(), Purpose: ACHDebit, Amount: -4121},
+			{AccountId: base.ID(), Purpose: ACHCredit, Amount: -121},
+		},
+	})
+	req := httptest.NewRequest("POST", "/accounts/foo/transactions", &body)
+	req.Header.Set("x-user-id", base.ID())
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	w.Flush()
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("got %d", w.Code)
+	}
+}
+
+func TestTransactions__checkBalance(t *testing.T) {
+	accounts := []*gl.Account{
+		{
+			ID:      base.ID(),
+			Balance: 1000, // $10
+		},
+		{
+			ID:      base.ID(),
+			Balance: 10000, // $100
+		},
+	}
+	tx := transaction{
+		ID: base.ID(),
+		Lines: []transactionLine{
+			{
+				AccountId: accounts[0].ID,
+				Purpose:   ACHDebit,
+				Amount:    500,
+			},
+			{
+				AccountId: accounts[1].ID,
+				Purpose:   ACHDebit,
+				Amount:    -500,
+			},
+		},
+	}
+	if err := checkBalance(accounts, tx); err != nil {
+		t.Fatal(err)
+	}
+
+	// invalid inputs
+	if err := checkBalance(nil, tx); err == nil {
+		t.Error("expected error")
+	}
+	if err := checkBalance(accounts, transaction{ID: base.ID()}); err == nil {
+		t.Error("expected error")
+	}
+
+	// Check with some accounts missing
+	acct := *accounts[0]
+	acct.ID = base.ID() // copy our account with sufficient balance, but mixup the ID (so it won't match the tx.Lines)
+	if err := checkBalance([]*gl.Account{&acct, accounts[1]}, tx); err == nil {
+		t.Error("expected error")
+	}
+
+	// Try with insufficient balance
+	tx.Lines[0].Amount = 1100
+	tx.Lines[1].Amount = -1100
+	if err := checkBalance(accounts, tx); err == nil {
+		t.Error("expected error")
 	}
 }

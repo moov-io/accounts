@@ -13,6 +13,7 @@ import (
 
 	"github.com/moov-io/base"
 	moovhttp "github.com/moov-io/base/http"
+	"github.com/moov-io/gl"
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
@@ -122,26 +123,15 @@ func createTransaction(logger log.Logger, accountRepo accountRepository, transac
 		tx := req.asTransaction(base.ID())
 
 		// Naive balance check on transactions.
-		// TODO(adam): This is a racy compare, we need to attempt a commit with balance checks
+		// TODO(adam): This is a bad compare, we need to attempt a commit with balance checks
 		accounts, err := accountRepo.GetAccounts(grabAccountIds(tx.Lines))
 		if err != nil {
 			moovhttp.Problem(w, err)
 			return
 		}
-		for i := range accounts {
-			if accounts[i].Balance > 0 {
-				for j := range tx.Lines {
-					if accounts[i].ID == tx.Lines[j].AccountId {
-						if accounts[i].Balance < int64(tx.Lines[j].Amount) {
-							moovhttp.Problem(w, fmt.Errorf("account %s has insufficient funds", accounts[i].ID))
-							return
-						}
-					}
-				}
-				// no match, logic bug or database bug
-				moovhttp.Problem(w, fmt.Errorf("no transactionLines found for account %s", accounts[i].ID))
-				return
-			}
+		if err := checkBalance(accounts, tx); err != nil {
+			moovhttp.Problem(w, err)
+			return
 		}
 
 		// Post the transaction
@@ -154,4 +144,27 @@ func createTransaction(logger log.Logger, accountRepo accountRepository, transac
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(tx)
 	}
+}
+
+func checkBalance(accounts []*gl.Account, tx transaction) error {
+	if len(accounts) < 2 || len(tx.Lines) == 0 {
+		return fmt.Errorf("checkBalance: invalid input len(accounts)=%d len(tx.Lines)=%d", len(accounts), len(tx.Lines))
+	}
+	for i := range accounts {
+		if accounts[i].Balance > 0 {
+			for j := range tx.Lines {
+				if accounts[i].ID == tx.Lines[j].AccountId {
+					if accounts[i].Balance < int64(tx.Lines[j].Amount) {
+						return fmt.Errorf("checkBalance: account %s has insufficient funds", accounts[i].ID)
+					} else {
+						goto sufficient
+					}
+				}
+			}
+			// no match, logic bug or database bug
+			return fmt.Errorf("checkBalance: no transactionLines found for account %s", accounts[i].ID)
+		}
+	sufficient: // Account had sufficient funds
+	}
+	return nil
 }
