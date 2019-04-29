@@ -188,7 +188,18 @@ func TestTransactions_Create(t *testing.T) {
 		t.Errorf("got %d", w.Code)
 	}
 
+	// set an error
+	accountRepo.err = errors.New("bad thing")
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	w.Flush()
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("got %d", w.Code)
+	}
+
 	// set an error and make sure we respond as such
+	accountRepo.err = nil // wipe error
 	transactionRepo.err = errors.New("bad thing")
 
 	w = httptest.NewRecorder()
