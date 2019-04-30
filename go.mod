@@ -20,7 +20,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/lib/pq v1.1.0
 	github.com/mattn/go-sqlite3 v1.10.0
-	github.com/moov-io/base v0.9.1-0.20190424164501-1ddbcc0a2ab8
+	github.com/moov-io/base v0.9.1-0.20190430163914-76a8e2cca72d
 	github.com/moov-io/qledger-sdk-go v0.0.0-20190326214039-0a6a09453b62
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
