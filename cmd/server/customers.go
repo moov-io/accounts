@@ -287,7 +287,7 @@ func (r *sqliteCustomerRepository) readPhones(customerId string) ([]gl.Phone, er
 		}
 		phones = append(phones, p)
 	}
-	return phones, nil
+	return phones, rows.Err()
 }
 
 func (r *sqliteCustomerRepository) readAddresses(customerId string) ([]gl.Address, error) {
@@ -312,5 +312,5 @@ func (r *sqliteCustomerRepository) readAddresses(customerId string) ([]gl.Addres
 		}
 		adds = append(adds, a)
 	}
-	return adds, nil
+	return adds, rows.Err()
 }
