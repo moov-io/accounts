@@ -9,21 +9,26 @@ import (
 	"strings"
 
 	"github.com/moov-io/gl"
+
+	"github.com/go-kit/kit/log"
 )
 
 type accountRepository interface {
 	Ping() error
+	Close() error
 
 	GetAccounts(accountIds []string) ([]*gl.Account, error)
 	GetCustomerAccounts(customerId string) ([]*gl.Account, error)
-	CreateAccount(customerId string, account *gl.Account) error // TODO(adam): acctType needs strong type
+	CreateAccount(customerId string, account *gl.Account) error // TODO(adam): acctType needs strong type, we can drop customerId as it's on gl.Account
 	SearchAccounts(accountNumber, routingNumber, acctType string) (*gl.Account, error)
 }
 
-func initAccountStorage(name string) (accountRepository, error) {
+func initAccountStorage(logger log.Logger, name string) (accountRepository, error) {
 	switch strings.ToLower(name) {
 	case "qledger":
 		return setupQLedgerAccountStorage(os.Getenv("QLEDGER_ENDPOINT"), os.Getenv("QLEDGER_AUTH_TOKEN"))
+	case "sqlite":
+		return setupSqliteAccountStorage(logger, getSqlitePath())
 	}
 	return nil, nil
 }

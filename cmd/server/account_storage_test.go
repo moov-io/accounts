@@ -20,6 +20,10 @@ func (r *testAccountRepository) Ping() error {
 	return r.err
 }
 
+func (r *testAccountRepository) Close() error {
+	return r.err
+}
+
 func (r *testAccountRepository) GetAccounts(accountIds []string) ([]*gl.Account, error) {
 	if r.err != nil {
 		return nil, r.err

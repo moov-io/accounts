@@ -70,10 +70,11 @@ type Account struct {
 	// Type is the account type: Checking, Savings, FBO
 	Type string `json:"type"`
 
-	CreatedAt    time.Time `json:"createdAt"`
-	ClosedAt     time.Time `json:"closedAt"`
-	LastModified time.Time `json:"lastModified"`
+	CreatedAt    time.Time  `json:"createdAt"`
+	ClosedAt     *time.Time `json:"closedAt"`
+	LastModified *time.Time `json:"lastModified"`
 
+	// Computed fields
 	Balance          int64 `json:"balance"`
 	BalanceAvailable int64 `json:"balanceAvailable"`
 	BalancePending   int64 `json:"balancePending"`

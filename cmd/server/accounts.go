@@ -106,7 +106,7 @@ func createCustomerAccount(logger log.Logger, repo accountRepository) http.Handl
 			return
 		}
 
-		customerId := getCustomerId(w, r)
+		customerId, now := getCustomerId(w, r), time.Now()
 		account := &gl.Account{
 			ID:            base.ID(),
 			CustomerID:    customerId,
@@ -115,8 +115,8 @@ func createCustomerAccount(logger log.Logger, repo accountRepository) http.Handl
 			RoutingNumber: defaultRoutingNumber,
 			Status:        "open",
 			Type:          req.Type,
-			CreatedAt:     time.Now(),
-			LastModified:  time.Now(),
+			CreatedAt:     now,
+			LastModified:  &now,
 		}
 
 		if err := repo.CreateAccount(customerId, account); err != nil {

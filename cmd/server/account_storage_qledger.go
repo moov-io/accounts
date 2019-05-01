@@ -25,6 +25,10 @@ func (r *qledgerAccountRepository) Ping() error {
 	return r.api.Ping()
 }
 
+func (r *qledgerAccountRepository) Close() error {
+	return nil
+}
+
 func (r *qledgerAccountRepository) GetAccounts(accountIds []string) ([]*gl.Account, error) {
 	var terms []map[string]interface{}
 	for i := range accountIds {
@@ -121,6 +125,8 @@ func setupQLedgerAccountStorage(endpoint, apiToken string) (*qledgerAccountRepos
 func convertAccounts(accts []*mledge.Account) []*gl.Account {
 	var accounts []*gl.Account
 	for i := range accts {
+		closedAt := readTime(accts[i].Data["closedAt"].(string))
+		lastModified := readTime(accts[i].Data["lastModified"].(string))
 		accounts = append(accounts, &gl.Account{
 			ID:               accts[i].ID,
 			CustomerID:       accts[i].Data["customerId"].(string),
@@ -133,8 +139,8 @@ func convertAccounts(accts []*mledge.Account) []*gl.Account {
 			BalanceAvailable: readBalance(accts[i].Data["balanceAvailable"].(string)),
 			BalancePending:   readBalance(accts[i].Data["balancePending"].(string)),
 			CreatedAt:        readTime(accts[i].Data["createdAt"].(string)),
-			ClosedAt:         readTime(accts[i].Data["closedAt"].(string)),
-			LastModified:     readTime(accts[i].Data["lastModified"].(string)),
+			ClosedAt:         &closedAt,
+			LastModified:     &lastModified,
 		})
 	}
 	return accounts
