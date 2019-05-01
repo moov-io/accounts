@@ -67,6 +67,17 @@ type transaction struct {
 	Lines     []transactionLine `json:"lines"`
 }
 
+func (t transaction) validate() error {
+	sum := 0
+	for i := range t.Lines {
+		sum += t.Lines[i].Amount
+	}
+	if sum == 0 {
+		return nil
+	}
+	return fmt.Errorf("transaction=%s has %d invalid lines sum=%d", t.ID, len(t.Lines), sum)
+}
+
 func addTransactionRoutes(logger log.Logger, router *mux.Router, accountRepo accountRepository, transactionRepo transactionRepository) {
 	router.Methods("GET").Path("/accounts/{accountId}/transactions").HandlerFunc(getAccountTransactions(logger, transactionRepo))
 	router.Methods("POST").Path("/accounts/{accountId}/transactions").HandlerFunc(createTransaction(logger, accountRepo, transactionRepo))

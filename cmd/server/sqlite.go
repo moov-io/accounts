@@ -24,6 +24,10 @@ var (
 
 		// Account tables
 		`create table if not exists accounts(account_id primary key, customer_id, name, account_number, routing_number, status, type, created_at datetime, closed_at datetime, last_modified datetime, deleted_at datetime, unique(account_number, routing_number));`,
+
+		// Transaction tables
+		`create table if not exists transactions(transaction_id primart key, timestamp datetime, created_at datetime, deleted_at datetime);`,
+		`create table if not exists transaction_lines(transaction_id, account_id, purpose, amount integer, created_at datetime, deleted_at datetime, unique(transaction_id, account_id));`,
 	}
 )
 

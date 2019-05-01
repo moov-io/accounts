@@ -109,12 +109,14 @@ func main() {
 	// Setup Transaction storage
 	transactionStorageType := os.Getenv("TRANSACTION_STORAGE_TYPE")
 	if transactionStorageType == "" {
-		transactionStorageType = "qledger"
+		transactionStorageType = "sqlite"
 	}
-	transactionRepo, err := initTransactionStorage(transactionStorageType)
+	transactionRepo, err := initTransactionStorage(logger, transactionStorageType)
 	if err != nil {
 		panic(fmt.Sprintf("transaction storage: %v", err))
 	}
+	defer transactionRepo.Close()
+	logger.Log("main", fmt.Sprintf("using %T for transaction storage", transactionRepo))
 	adminServer.AddLivenessCheck(fmt.Sprintf("%s-transactions", transactionStorageType), transactionRepo.Ping)
 
 	// setup databases

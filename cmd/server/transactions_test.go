@@ -31,6 +31,10 @@ func (r *mockTransactionRepository) Ping() error {
 	return r.err
 }
 
+func (r *mockTransactionRepository) Close() error {
+	return r.err
+}
+
 func (r *mockTransactionRepository) createTransaction(tx transaction) error {
 	return r.err
 }

@@ -17,6 +17,8 @@ import (
 type sqliteAccountRepository struct {
 	db     *sql.DB
 	logger log.Logger
+
+	transactionRepo *sqliteTransactionRepository
 }
 
 func setupSqliteAccountStorage(logger log.Logger, path string) (*sqliteAccountRepository, error) {
@@ -24,7 +26,11 @@ func setupSqliteAccountStorage(logger log.Logger, path string) (*sqliteAccountRe
 	if err != nil {
 		return nil, err
 	}
-	return &sqliteAccountRepository{db, logger}, nil
+	transactionRepo, err := setupSqliteTransactionStorage(logger, path)
+	if err != nil {
+		return nil, fmt.Errorf("setupSqliteTransactionStorage: transactions: %v", err)
+	}
+	return &sqliteAccountRepository{db, logger, transactionRepo}, nil
 }
 
 func (r *sqliteAccountRepository) Ping() error {
@@ -32,6 +38,7 @@ func (r *sqliteAccountRepository) Ping() error {
 }
 
 func (r *sqliteAccountRepository) Close() error {
+	r.transactionRepo.Close()
 	return r.db.Close()
 }
 
@@ -39,9 +46,15 @@ func (r *sqliteAccountRepository) GetAccounts(accountIds []string) ([]*gl.Accoun
 	if len(accountIds) > 250 {
 		return nil, fmt.Errorf("sqlite.GetAccounts: too many accountIds (%d)", len(accountIds))
 	}
+
+	tx, err := r.db.Begin()
+	if err != nil {
+		return nil, fmt.Errorf("sqlite.GetAccounts: tx.Begin: %v", err)
+	}
+
 	query := fmt.Sprintf(`select account_id, customer_id, name, account_number, routing_number, status, type, created_at, closed_at, last_modified
 from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat(",?", len(accountIds)-1))
-	stmt, err := r.db.Prepare(query)
+	stmt, err := tx.Prepare(query)
 	if err != nil {
 		return nil, err
 	}
@@ -64,10 +77,21 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 		if err != nil {
 			return nil, fmt.Errorf("sqlite.GetAccounts: account=%q: %v", a.ID, err)
 		}
-		// TODO(adam): attach balance computations
+		balance, err := r.transactionRepo.getAccountBalance(tx, a.ID)
+		if err != nil {
+			return nil, fmt.Errorf("sqlite.GetAccounts: getAccountBalance: account=%q: %v", a.ID, err)
+		}
+		// TODO(adam): need Balance, BalanceAvailable, and BalancePending
+		a.Balance = balance
 		accounts = append(accounts, &a)
 	}
-	return accounts, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("sqlite.GetAccounts: scan: %v", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("sqlite.GetAccounts: commit: %v", err)
+	}
+	return accounts, nil
 }
 
 func (r *sqliteAccountRepository) GetCustomerAccounts(customerId string) ([]*gl.Account, error) {

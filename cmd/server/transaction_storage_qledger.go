@@ -30,6 +30,10 @@ func (r *qledgerTransactionRepository) Ping() error {
 	return r.api.Ping()
 }
 
+func (r *qledgerTransactionRepository) Close() error {
+	return nil
+}
+
 // grabAccountIds returns an []string of each accountId from an array of transactionLines.
 // We do this to query transactions that have been posted against an account.
 func grabAccountIds(lines []transactionLine) []string {

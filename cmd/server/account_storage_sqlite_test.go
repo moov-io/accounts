@@ -5,6 +5,7 @@
 package main
 
 import (
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -26,11 +27,26 @@ func (r *testSqliteAccountRepository) Close() error {
 }
 
 func createTestSqliteAccountRepository(t *testing.T) *testSqliteAccountRepository {
+	t.Helper()
+
 	db, err := createTestSqliteDB()
 	if err != nil {
 		t.Fatal(err)
 	}
-	return &testSqliteAccountRepository{&sqliteAccountRepository{db.db, log.NewNopLogger()}, db}
+	repo, err := setupSqliteAccountStorage(log.NewNopLogger(), filepath.Join(db.dir, "gl.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return &testSqliteAccountRepository{repo, db}
+}
+
+func TestSqliteAccountRepository_Ping(t *testing.T) {
+	repo := createTestSqliteAccountRepository(t)
+	defer repo.Close()
+
+	if err := repo.Ping(); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestSqliteAccountRepository(t *testing.T) {
