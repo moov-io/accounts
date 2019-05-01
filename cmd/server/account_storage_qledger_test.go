@@ -97,6 +97,32 @@ func TestQLedger__Accounts(t *testing.T) {
 		t.Error("zero time for CreatedAt")
 	}
 
+	// Grab accounts by their ID's
+	account2 := *account
+	account2.ID = base.ID()
+	account2.Balance += 100
+	account2.RoutingNumber = "231380104" // different value
+	if err := repo.CreateAccount(customerId, &account2); err != nil {
+		t.Fatal(err)
+	}
+
+	accounts, err = repo.GetAccounts([]string{account.ID, account2.ID})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(accounts) != 2 {
+		t.Errorf("got %d accounts", len(accounts))
+	}
+	if accounts[0].ID == account.ID {
+		if accounts[1].ID != account2.ID {
+			t.Errorf("mis-matching accounts")
+		}
+	} else {
+		if accounts[1].ID != account.ID {
+			t.Errorf("mis-matching accounts")
+		}
+	}
+
 	// Search for account
 	acct, err := repo.SearchAccounts(account.AccountNumber, account.RoutingNumber, "Checking")
 	if err != nil {

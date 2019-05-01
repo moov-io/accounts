@@ -30,9 +30,9 @@ func (r *qledgerTransactionRepository) Ping() error {
 	return r.api.Ping()
 }
 
-// accountIds returns an []string of each accountId from an array of transactionLines.
+// grabAccountIds returns an []string of each accountId from an array of transactionLines.
 // We do this to query transactions that have been posted against an account.
-func accountIds(lines []transactionLine) []string {
+func grabAccountIds(lines []transactionLine) []string {
 	var out []string
 	for i := range lines {
 		out = append(out, lines[i].AccountId)
@@ -43,7 +43,7 @@ func accountIds(lines []transactionLine) []string {
 func (r *qledgerTransactionRepository) createTransaction(tx transaction) error {
 	var lines []*mledge.TransactionLine
 	data := make(map[string]interface{})
-	data["accountIds"] = accountIds(tx.Lines)
+	data["accountIds"] = grabAccountIds(tx.Lines)
 
 	for i := range tx.Lines {
 		lines = append(lines, &mledge.TransactionLine{
