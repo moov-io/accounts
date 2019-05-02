@@ -68,24 +68,29 @@ func (r *qledgerAccountRepository) GetCustomerAccounts(customerId string) ([]*gl
 }
 
 func (r *qledgerAccountRepository) CreateAccount(customerId string, account *gl.Account) error {
+	data := map[string]interface{}{
+		"accountId":        account.ID,
+		"customerId":       account.CustomerID,
+		"name":             account.Name,
+		"accountNumber":    account.AccountNumber,
+		"routingNumber":    account.RoutingNumber,
+		"status":           account.Status,
+		"type":             account.Type,
+		"balance":          fmt.Sprintf("%d", account.Balance),
+		"balanceAvailable": fmt.Sprintf("%d", account.BalanceAvailable),
+		"balancePending":   fmt.Sprintf("%d", account.BalancePending),
+		"createdAt":        account.CreatedAt.Format(qledgerTimeFormat),
+	}
+	if account.ClosedAt != nil {
+		data["closedAt"] = account.ClosedAt.Format(qledgerTimeFormat)
+	}
+	if account.LastModified != nil {
+		data["lastModified"] = account.LastModified.Format(qledgerTimeFormat)
+	}
 	return r.api.CreateAccount(&mledge.Account{
 		ID:      account.ID,
 		Balance: int(account.Balance),
-		Data: map[string]interface{}{
-			"accountId":        account.ID,
-			"customerId":       account.CustomerID,
-			"name":             account.Name,
-			"accountNumber":    account.AccountNumber,
-			"routingNumber":    account.RoutingNumber,
-			"status":           account.Status,
-			"type":             account.Type,
-			"balance":          fmt.Sprintf("%d", account.Balance),
-			"balanceAvailable": fmt.Sprintf("%d", account.BalanceAvailable),
-			"balancePending":   fmt.Sprintf("%d", account.BalancePending),
-			"createdAt":        account.CreatedAt.Format(qledgerTimeFormat),
-			"closedAt":         account.ClosedAt.Format(qledgerTimeFormat),
-			"lastModified":     account.LastModified.Format(qledgerTimeFormat),
-		},
+		Data:    data,
 	})
 }
 
@@ -125,8 +130,14 @@ func setupQLedgerAccountStorage(endpoint, apiToken string) (*qledgerAccountRepos
 func convertAccounts(accts []*mledge.Account) []*gl.Account {
 	var accounts []*gl.Account
 	for i := range accts {
-		closedAt := readTime(accts[i].Data["closedAt"].(string))
-		lastModified := readTime(accts[i].Data["lastModified"].(string))
+		var closedAt time.Time
+		if v, exists := accts[i].Data["closedAt"]; exists {
+			closedAt = readTime(v.(string))
+		}
+		var lastModified time.Time
+		if v, exists := accts[i].Data["lastModified"]; exists {
+			lastModified = readTime(v.(string))
+		}
 		accounts = append(accounts, &gl.Account{
 			ID:               accts[i].ID,
 			CustomerID:       accts[i].Data["customerId"].(string),

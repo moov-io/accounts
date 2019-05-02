@@ -43,8 +43,8 @@ func qualifyQLedgerAccountTest(t *testing.T) *testQLedgerAccountRepository {
 
 	// repo, err := setupQLedgerAccountStorage("https://api.moov.io/v1/qledger", "moov") // Test against Production
 	repo, err := setupQLedgerAccountStorage(fmt.Sprintf("http://localhost:%s", deployment.qledger.GetPort("7000/tcp")), "moov")
-	if err != nil {
-		t.Fatal(err)
+	if repo == nil || err != nil {
+		t.Fatalf("repo=%v error=%v", repo, err)
 	}
 	return &testQLedgerAccountRepository{repo, deployment}
 }
