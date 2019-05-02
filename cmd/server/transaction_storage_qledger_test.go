@@ -42,6 +42,9 @@ func qualifyQLedgerTransactionTest(t *testing.T) *testQLedgerTransactionReposito
 	if repo == nil || err != nil {
 		t.Fatalf("repo=%v error=%v", repo, err)
 	}
+	if err := repo.Close(); err != nil { // should do nothing, so call in every test to make sure
+		t.Fatal("QLedger .Close() is a no-op")
+	}
 	return &testQLedgerTransactionRepository{repo, deployment}
 }
 
