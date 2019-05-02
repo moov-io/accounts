@@ -64,7 +64,8 @@ func TestQLedgerAccounts__ping(t *testing.T) {
 func TestQLedger__Accounts(t *testing.T) {
 	repo := qualifyQLedgerAccountTest(t)
 
-	customerId := base.ID()
+	customerId, now := base.ID(), time.Now()
+	future := now.Add(24 * time.Hour)
 	account := &gl.Account{
 		ID:               base.ID(),
 		CustomerID:       customerId,
@@ -76,7 +77,9 @@ func TestQLedger__Accounts(t *testing.T) {
 		Balance:          100,
 		BalancePending:   123,
 		BalanceAvailable: 412,
-		CreatedAt:        time.Now(),
+		CreatedAt:        now,
+		ClosedAt:         &future,
+		LastModified:     &now,
 	}
 	if err := repo.CreateAccount(customerId, account); err != nil {
 		t.Error(err)

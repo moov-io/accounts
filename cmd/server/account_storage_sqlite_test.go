@@ -53,7 +53,8 @@ func TestSqliteAccountRepository(t *testing.T) {
 	repo := createTestSqliteAccountRepository(t)
 	defer repo.Close()
 
-	customerId := base.ID()
+	customerId, now := base.ID(), time.Now()
+	future := now.Add(24 * time.Hour)
 	account := &gl.Account{
 		ID:            base.ID(),
 		CustomerID:    customerId,
@@ -63,6 +64,8 @@ func TestSqliteAccountRepository(t *testing.T) {
 		Status:        "open",
 		Type:          "Savings",
 		CreatedAt:     time.Now(),
+		ClosedAt:      &future,
+		LastModified:  &now,
 	}
 	if err := repo.CreateAccount(customerId, account); err != nil {
 		t.Fatal(err)
