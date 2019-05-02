@@ -68,6 +68,16 @@ type transaction struct {
 }
 
 func (t transaction) validate() error {
+	if t.ID == "" {
+		return errors.New("transaction: empty ID")
+	}
+	if len(t.Lines) == 0 {
+		return fmt.Errorf("transaction=%q has no Lines", t.ID)
+	}
+	if t.Timestamp.IsZero() {
+		return fmt.Errorf("transaction=%q has no Timestamp", t.ID)
+	}
+
 	sum := 0
 	for i := range t.Lines {
 		sum += t.Lines[i].Amount

@@ -63,6 +63,53 @@ func TestTransactionPurpose(t *testing.T) {
 	}
 }
 
+func TestTransaction__validate(t *testing.T) {
+	tx := transaction{
+		ID:        base.ID(),
+		Timestamp: time.Now(),
+		Lines: []transactionLine{
+			{
+				AccountId: base.ID(),
+				Purpose:   ACHDebit,
+				Amount:    -500,
+			},
+			{
+				AccountId: base.ID(),
+				Purpose:   ACHCredit,
+				Amount:    500,
+			},
+		},
+	}
+	if err := tx.validate(); err != nil {
+		t.Error(err)
+	}
+
+	// make invalid
+	tx.ID = ""
+	if err := tx.validate(); err == nil {
+		t.Error("expected error")
+	}
+	tx.ID = base.ID()
+
+	var empty time.Time
+	tx.Timestamp = empty
+	if err := tx.validate(); err == nil {
+		t.Error("expected error")
+	}
+	tx.Timestamp = time.Now()
+
+	tx.Lines[0].Amount = 1
+	if err := tx.validate(); err == nil {
+		t.Error("expected error")
+	}
+	tx.Lines[0].Amount = -500
+
+	tx.Lines = []transactionLine{}
+	if err := tx.validate(); err == nil {
+		t.Error("expected error")
+	}
+}
+
 func TestTransactions_getAccountId(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/foo", nil)
