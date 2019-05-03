@@ -6,6 +6,7 @@ package main
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -116,5 +117,40 @@ func TestSqliteAccountRepository(t *testing.T) {
 	}
 	if acct.ID != otherAccount.ID {
 		t.Errorf("found account %q", acct.ID)
+	}
+}
+
+// TestSqliteAccountRepository_unique will ensure we can't insert multiple accounts
+// with the same account and routing numbers.
+func TestSqliteAccountRepository_unique(t *testing.T) {
+	repo := createTestSqliteAccountRepository(t)
+	defer repo.Close()
+
+	customerId, now := base.ID(), time.Now()
+	future := now.Add(24 * time.Hour)
+	account := &gl.Account{
+		ID:            base.ID(),
+		CustomerID:    customerId,
+		Name:          "test account",
+		AccountNumber: "12411",
+		RoutingNumber: "219871289",
+		Status:        "open",
+		Type:          "Savings",
+		CreatedAt:     time.Now(),
+		ClosedAt:      &future,
+		LastModified:  &now,
+	}
+	if err := repo.CreateAccount(customerId, account); err != nil {
+		t.Fatal(err)
+	}
+
+	// attempt again
+	account.ID = base.ID()
+	if err := repo.CreateAccount(customerId, account); err == nil {
+		t.Error("expected error")
+	} else {
+		if !strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			t.Errorf("unknown error: %v", err)
+		}
 	}
 }

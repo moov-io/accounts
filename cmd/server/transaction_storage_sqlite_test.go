@@ -217,3 +217,31 @@ func TestTransactions__isInteranlDebit(t *testing.T) {
 		t.Errorf("default should assume an internal transfer")
 	}
 }
+
+// TestSqliteTransactions_unique ensures we can't insert a transaction with multiple lines for the same accountId
+func TestSqliteTransactions_unique(t *testing.T) {
+	repo := createTestSqliteTransactionRepository(t)
+	defer repo.Close()
+
+	account1, account2 := base.ID(), base.ID()
+	lines := []transactionLine{
+		// Valid transaction, but has multiple lines for the same accountId
+		{AccountId: account1, Purpose: ACHDebit, Amount: -500},
+		{AccountId: account1, Purpose: ACHDebit, Amount: -100},
+		{AccountId: account2, Purpose: ACHCredit, Amount: 600},
+	}
+	tx := transaction{
+		ID:        base.ID(),
+		Timestamp: time.Now(),
+		Lines:     lines,
+	}
+
+	// Attempt our (invalid) transaction
+	if err := repo.createTransaction(tx, createTransactionOpts{AllowOverdraft: true}); err == nil {
+		t.Fatal("expected error")
+	} else {
+		if !strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			t.Errorf("unknown error: %v", err)
+		}
+	}
+}
