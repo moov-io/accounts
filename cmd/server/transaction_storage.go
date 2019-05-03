@@ -15,8 +15,14 @@ type transactionRepository interface {
 	Ping() error
 	Close() error
 
-	createTransaction(tx transaction) error
+	createTransaction(tx transaction, opts createTransactionOpts) error
 	getAccountTransactions(accountID string) ([]transaction, error) // TODO(adam): limit and/or pagination params
+}
+
+type createTransactionOpts struct {
+	// AllowOverdraft is an option on creating a transaction where GL will let the account 'go negative'
+	// and extend credit from the FI to the customer.
+	AllowOverdraft bool
 }
 
 func initTransactionStorage(logger log.Logger, name string) (transactionRepository, error) {

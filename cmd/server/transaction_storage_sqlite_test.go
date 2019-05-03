@@ -69,7 +69,7 @@ func TestSqliteTransactionRepository(t *testing.T) {
 			},
 		},
 	}
-	if err := repo.createTransaction(tx); err != nil {
+	if err := repo.createTransaction(tx, createTransactionOpts{AllowOverdraft: true}); err != nil {
 		t.Fatal(err)
 	}
 

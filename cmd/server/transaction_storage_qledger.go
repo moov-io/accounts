@@ -44,7 +44,7 @@ func grabAccountIds(lines []transactionLine) []string {
 	return out
 }
 
-func (r *qledgerTransactionRepository) createTransaction(tx transaction) error {
+func (r *qledgerTransactionRepository) createTransaction(tx transaction, opts createTransactionOpts) error {
 	var lines []*mledge.TransactionLine
 	data := make(map[string]interface{})
 	data["accountIds"] = grabAccountIds(tx.Lines)

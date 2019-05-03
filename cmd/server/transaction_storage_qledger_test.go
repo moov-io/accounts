@@ -98,7 +98,7 @@ func TestQLedgerTransactions(t *testing.T) {
 		},
 	}).asTransaction(base.ID())
 
-	if err := transactionRepo.createTransaction(tx); err != nil {
+	if err := transactionRepo.createTransaction(tx, createTransactionOpts{AllowOverdraft: false}); err != nil {
 		t.Fatal(err)
 	}
 

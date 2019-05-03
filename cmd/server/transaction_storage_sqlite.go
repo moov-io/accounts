@@ -33,7 +33,7 @@ func (r *sqliteTransactionRepository) Close() error {
 	return r.db.Close()
 }
 
-func (r *sqliteTransactionRepository) createTransaction(t transaction) error {
+func (r *sqliteTransactionRepository) createTransaction(t transaction, opts createTransactionOpts) error {
 	if err := t.validate(); err != nil {
 		return fmt.Errorf("transaction=%q is invalid: %v", t.ID, err)
 	}
@@ -69,24 +69,24 @@ func (r *sqliteTransactionRepository) createTransaction(t transaction) error {
 		}
 		stmt.Close()
 
-		// // Check account balance, and if we're negative by less than t.Lines[i].Amount then we need to rollback as that account
-		// // didn't have sufficient funds to post the transaction.
-		// //
-		// // TODO(adam): How well does this actually work?
-		// balance, err := r.getAccountBalance(tx, t.Lines[i].AccountId)
-		// if err != nil {
-		// 	return fmt.Errorf("createTransaction: getAccountBalance: transaction=%q account=%q: err=%v rollback=%v", t.ID, t.Lines[i].AccountId, err, tx.Rollback())
-		// }
-		// if balance > 0 {
-		// 	fmt.Printf("account=%q balance=%d\n", t.Lines[i].AccountId, balance)
-		// 	continue // account has sufficient funds
-		// } else {
-		// 	// The current account balance is negative, so if that balance is less negative than the transaction amount that means the
-		// 	// account was overdrawn (i.e. insufficient funds). If the balances are equal then we also ran out of funds.
-		// 	if balance <= int64(t.Lines[i].Amount) {
-		// 		return fmt.Errorf("acocunt=%q has insufficient funds: rollback=%v", t.Lines[i].AccountId, tx.Rollback())
-		// 	}
-		// }
+		// Check account balance, and if we're negative by less than t.Lines[i].Amount then we need to rollback as that account
+		// didn't have sufficient funds to post the transaction.
+		//
+		// From Wade: Allowing overdrafts is similar to offering credit to customers, which requires additional disclosures and would need
+		// to be done on an account-by-account basis.
+		balance, err := r.getAccountBalance(tx, t.Lines[i].AccountId)
+		if err != nil {
+			return fmt.Errorf("createTransaction: getAccountBalance: transaction=%q account=%q: err=%v rollback=%v", t.ID, t.Lines[i].AccountId, err, tx.Rollback())
+		}
+		if balance > 0 {
+			continue // account has sufficient funds
+		} else {
+			// The current account balance is negative, so if that balance is less negative than the transaction amount that means the
+			// account was overdrawn (i.e. insufficient funds). If the balances are equal then we also ran out of funds.
+			if balance <= int64(t.Lines[i].Amount) && !opts.AllowOverdraft {
+				return fmt.Errorf("acocunt=%q has insufficient funds: rollback=%v", t.Lines[i].AccountId, tx.Rollback())
+			}
+		}
 	}
 
 	if err := tx.Commit(); err != nil {
