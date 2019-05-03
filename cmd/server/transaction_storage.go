@@ -34,3 +34,13 @@ func initTransactionStorage(logger log.Logger, name string) (transactionReposito
 	}
 	return nil, nil
 }
+
+// grabAccountIds returns an []string of each accountId from an array of transactionLines.
+// We do this to query transactions that have been posted against an account.
+func grabAccountIds(lines []transactionLine) []string {
+	var out []string
+	for i := range lines {
+		out = append(out, lines[i].AccountId)
+	}
+	return out
+}

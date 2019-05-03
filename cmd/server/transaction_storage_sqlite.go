@@ -9,12 +9,16 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/moov-io/gl"
+
 	"github.com/go-kit/kit/log"
 )
 
 type sqliteTransactionRepository struct {
 	db     *sql.DB
 	logger log.Logger
+
+	accountRepo accountRepository
 }
 
 func setupSqliteTransactionStorage(logger log.Logger, path string) (*sqliteTransactionRepository, error) {
@@ -22,7 +26,11 @@ func setupSqliteTransactionStorage(logger log.Logger, path string) (*sqliteTrans
 	if err != nil {
 		return nil, err
 	}
-	return &sqliteTransactionRepository{db, logger}, nil
+	// Break the cyclic dependency between account and transaction repositories
+	repo := &sqliteTransactionRepository{db: db, logger: logger}
+	accountRepo := &sqliteAccountRepository{db, logger, repo}
+	repo.accountRepo = accountRepo
+	return repo, nil
 }
 
 func (r *sqliteTransactionRepository) Ping() error {
@@ -33,9 +41,31 @@ func (r *sqliteTransactionRepository) Close() error {
 	return r.db.Close()
 }
 
+// isInteranlDebit returns true only when the debited account's routing number matches
+// GL's configured routing number. This means we have to be accountable for choosing
+// to allow an overdraft or not.
+func isInteranlDebit(accounts []*gl.Account, lines []transactionLine, glRoutingNumber string) bool {
+	for i := range accounts {
+		for j := range lines {
+			if accounts[i].ID == lines[j].AccountId {
+				switch lines[j].Purpose {
+				case ACHDebit:
+					return accounts[i].RoutingNumber == glRoutingNumber
+				}
+			}
+		}
+	}
+	return true // default to assuming we need to check/prevent an overdraft
+}
+
 func (r *sqliteTransactionRepository) createTransaction(t transaction, opts createTransactionOpts) error {
 	if err := t.validate(); err != nil {
 		return fmt.Errorf("transaction=%q is invalid: %v", t.ID, err)
+	}
+
+	accounts, err := r.accountRepo.GetAccounts(grabAccountIds(t.Lines))
+	if err != nil {
+		return fmt.Errorf("createTransaction: problem reading accounts for transaction=%q: %v", t.ID, err)
 	}
 
 	tx, err := r.db.Begin()
@@ -83,6 +113,11 @@ func (r *sqliteTransactionRepository) createTransaction(t transaction, opts crea
 		} else {
 			// The current account balance is negative, so if that balance is less negative than the transaction amount that means the
 			// account was overdrawn (i.e. insufficient funds). If the balances are equal then we also ran out of funds.
+			//
+			// If the debited account is external then allow the transfer. (That GL system will send back a returned file on an insufficient balance.)
+			if !isInteranlDebit(accounts, t.Lines, defaultRoutingNumber) {
+				continue
+			}
 			if balance <= int64(t.Lines[i].Amount) && !opts.AllowOverdraft {
 				return fmt.Errorf("acocunt=%q has insufficient funds: rollback=%v", t.Lines[i].AccountId, tx.Rollback())
 			}
