@@ -6,6 +6,7 @@ package main
 
 import (
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -100,8 +101,8 @@ func TestSqliteTransactionRepository(t *testing.T) {
 	}
 }
 
-// TestSqliteTransactionRepository__Overdraft will create an internal transfer, but allow an overdraft to occur
-func TestSqliteTransactionRepository__Overdraft(t *testing.T) {
+// TestSqliteTransactionRepository__AllowOverdraft will create an internal transfer, but allow an overdraft to occur
+func TestSqliteTransactionRepository__AllowOverdraft(t *testing.T) {
 	repo := createTestSqliteTransactionRepository(t)
 	defer repo.Close()
 
@@ -149,6 +150,41 @@ func TestSqliteTransactionRepository__Overdraft(t *testing.T) {
 	bal, err = repo.getAccountBalance(dbtx, account2)
 	if err != nil || bal != 500 {
 		t.Errorf("got balance of %d", bal)
+	}
+}
+
+// TestSqliteTransactionRepository__DisallowOverdraft will attempt an internal transfer, but be rejected on an overdraft error
+func TestSqliteTransactionRepository__DisallowOverdraft(t *testing.T) {
+	repo := createTestSqliteTransactionRepository(t)
+	defer repo.Close()
+
+	// Override the accountRepository and write our gl.Accounts
+	account1, account2 := base.ID(), base.ID()
+	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
+		accounts: []*gl.Account{
+			// Setup the account being debited from as 'internal' (routing number we manage).
+			{ID: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
+			{ID: account2, AccountNumber: "432", RoutingNumber: "121042882"},
+		},
+	}
+
+	// Attempt our transaction
+	tx := transaction{
+		ID:        base.ID(),
+		Timestamp: time.Now(),
+		Lines: []transactionLine{
+			{AccountId: account1, Purpose: ACHDebit, Amount: -500},
+			{AccountId: account2, Purpose: ACHCredit, Amount: 500},
+		},
+	}
+
+	// run the transfer without AllowOverdraft to encounter 'has insufficient funds' error
+	if err := repo.createTransaction(tx, createTransactionOpts{AllowOverdraft: false}); err == nil {
+		t.Error("expected error")
+	} else {
+		if !strings.Contains(err.Error(), "has insufficient funds") {
+			t.Errorf("unknown error: %v", err)
+		}
 	}
 }
 
