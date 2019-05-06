@@ -43,8 +43,11 @@ func qualifyQLedgerAccountTest(t *testing.T) *testQLedgerAccountRepository {
 
 	// repo, err := setupQLedgerAccountStorage("https://api.moov.io/v1/qledger", "moov") // Test against Production
 	repo, err := setupQLedgerAccountStorage(fmt.Sprintf("http://localhost:%s", deployment.qledger.GetPort("7000/tcp")), "moov")
-	if err != nil {
-		t.Fatal(err)
+	if repo == nil || err != nil {
+		t.Fatalf("repo=%v error=%v", repo, err)
+	}
+	if err := repo.Close(); err != nil { // should do nothing, so call in every test to make sure
+		t.Fatal("QLedger .Close() is a no-op")
 	}
 	return &testQLedgerAccountRepository{repo, deployment}
 }
@@ -61,7 +64,8 @@ func TestQLedgerAccounts__ping(t *testing.T) {
 func TestQLedger__Accounts(t *testing.T) {
 	repo := qualifyQLedgerAccountTest(t)
 
-	customerId := base.ID()
+	customerId, now := base.ID(), time.Now()
+	future := now.Add(24 * time.Hour)
 	account := &gl.Account{
 		ID:               base.ID(),
 		CustomerID:       customerId,
@@ -73,7 +77,9 @@ func TestQLedger__Accounts(t *testing.T) {
 		Balance:          100,
 		BalancePending:   123,
 		BalanceAvailable: 412,
-		CreatedAt:        time.Now(),
+		CreatedAt:        now,
+		ClosedAt:         &future,
+		LastModified:     &now,
 	}
 	if err := repo.CreateAccount(customerId, account); err != nil {
 		t.Error(err)

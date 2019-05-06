@@ -96,23 +96,27 @@ func main() {
 	// Setup Account storage
 	accountStorageType := os.Getenv("ACCOUNT_STORAGE_TYPE")
 	if accountStorageType == "" {
-		accountStorageType = "qledger"
+		accountStorageType = "sqlite"
 	}
-	accountRepo, err := initAccountStorage(accountStorageType)
+	accountRepo, err := initAccountStorage(logger, accountStorageType)
 	if err != nil {
 		panic(fmt.Sprintf("account storage: %v", err))
 	}
+	defer accountRepo.Close()
+	logger.Log("main", fmt.Sprintf("using %T for account storage", accountRepo))
 	adminServer.AddLivenessCheck(fmt.Sprintf("%s-accounts", accountStorageType), accountRepo.Ping)
 
 	// Setup Transaction storage
 	transactionStorageType := os.Getenv("TRANSACTION_STORAGE_TYPE")
 	if transactionStorageType == "" {
-		transactionStorageType = "qledger"
+		transactionStorageType = "sqlite"
 	}
-	transactionRepo, err := initTransactionStorage(transactionStorageType)
+	transactionRepo, err := initTransactionStorage(logger, transactionStorageType)
 	if err != nil {
 		panic(fmt.Sprintf("transaction storage: %v", err))
 	}
+	defer transactionRepo.Close()
+	logger.Log("main", fmt.Sprintf("using %T for transaction storage", transactionRepo))
 	adminServer.AddLivenessCheck(fmt.Sprintf("%s-transactions", transactionStorageType), transactionRepo.Ping)
 
 	// setup databases

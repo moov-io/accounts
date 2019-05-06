@@ -32,6 +32,10 @@ var (
 	}
 )
 
+func init() {
+	defaultRoutingNumber = "231380104"
+}
+
 func TestAccounts__createAccountRequest(t *testing.T) {
 	req := createAccountRequest{"example acct", "checking"}
 	if err := req.validate(); err != nil {

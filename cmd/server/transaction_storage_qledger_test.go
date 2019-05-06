@@ -39,8 +39,11 @@ func qualifyQLedgerTransactionTest(t *testing.T) *testQLedgerTransactionReposito
 
 	// repo, err := setupQLedgerTransactionStorage("https://api.moov.io/v1/qledger", "moov") // Test against Production
 	repo, err := setupQLedgerTransactionStorage(fmt.Sprintf("http://localhost:%s", deployment.qledger.GetPort("7000/tcp")), "moov")
-	if err != nil {
-		t.Fatal(err)
+	if repo == nil || err != nil {
+		t.Fatalf("repo=%v error=%v", repo, err)
+	}
+	if err := repo.Close(); err != nil { // should do nothing, so call in every test to make sure
+		t.Fatal("QLedger .Close() is a no-op")
 	}
 	return &testQLedgerTransactionRepository{repo, deployment}
 }
@@ -95,7 +98,7 @@ func TestQLedgerTransactions(t *testing.T) {
 		},
 	}).asTransaction(base.ID())
 
-	if err := transactionRepo.createTransaction(tx); err != nil {
+	if err := transactionRepo.createTransaction(tx, createTransactionOpts{AllowOverdraft: false}); err != nil {
 		t.Fatal(err)
 	}
 

@@ -23,8 +23,11 @@ var (
 		`create table if not exists customers_addresses(customer_id, type, address1, address2, city, state, postal_code, country, validated, active, unique (customer_id, address1) on conflict abort);`,
 
 		// Account tables
-		`create table if not exists accounts(account_id primary key, customer_id, name, account_number, routing_number, status, type, created_at datetime, closed_at datetime, last_modified datetime, deleted_at datetime);`,
-		// TODO(adam): make unique constraint on (account_number, routing_number) and (account_id, customer_id)
+		`create table if not exists accounts(account_id primary key, customer_id, name, account_number, routing_number, status, type, created_at datetime, closed_at datetime, last_modified datetime, deleted_at datetime, unique(account_number, routing_number));`,
+
+		// Transaction tables
+		`create table if not exists transactions(transaction_id primart key, timestamp datetime, created_at datetime, deleted_at datetime);`,
+		`create table if not exists transaction_lines(transaction_id, account_id, purpose, amount integer, created_at datetime, deleted_at datetime, unique(transaction_id, account_id));`,
 	}
 )
 
