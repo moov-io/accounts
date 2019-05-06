@@ -89,7 +89,7 @@ func (t transaction) validate() error {
 
 func addTransactionRoutes(logger log.Logger, router *mux.Router, accountRepo accountRepository, transactionRepo transactionRepository) {
 	router.Methods("GET").Path("/accounts/{accountId}/transactions").HandlerFunc(getAccountTransactions(logger, transactionRepo))
-	router.Methods("POST").Path("/accounts/{accountId}/transactions").HandlerFunc(createTransaction(logger, accountRepo, transactionRepo))
+	router.Methods("POST").Path("/accounts/transactions").HandlerFunc(createTransaction(logger, accountRepo, transactionRepo))
 }
 
 func getAccountId(w http.ResponseWriter, r *http.Request) string {
@@ -133,6 +133,7 @@ func createTransaction(logger log.Logger, accountRepo accountRepository, transac
 		if err != nil {
 			return
 		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 		var req createTransactionRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -143,11 +144,11 @@ func createTransaction(logger log.Logger, accountRepo accountRepository, transac
 		// Post the transaction
 		tx := req.asTransaction(base.ID())
 		if err := transactionRepo.createTransaction(tx, createTransactionOpts{AllowOverdraft: false}); err != nil {
+			logger.Log("transactions", fmt.Errorf("problem creating transaction: %v", err)) // TODO(adam): add customerId to log
 			moovhttp.Problem(w, err)
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(tx)
 	}

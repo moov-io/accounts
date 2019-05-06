@@ -231,7 +231,7 @@ func TestTransactions_Create(t *testing.T) {
 			{AccountId: accountRepo.accounts[1].ID, Purpose: ACHCredit, Amount: 4121},
 		},
 	})
-	req := httptest.NewRequest("POST", "/accounts/foo/transactions", &body)
+	req := httptest.NewRequest("POST", "/accounts/transactions", &body)
 	req.Header.Set("x-user-id", base.ID())
 
 	w := httptest.NewRecorder()
@@ -280,7 +280,7 @@ func TestTransactions_CreateInvalid(t *testing.T) {
 			{AccountId: base.ID(), Purpose: ACHCredit, Amount: -121},
 		},
 	})
-	req := httptest.NewRequest("POST", "/accounts/foo/transactions", &body)
+	req := httptest.NewRequest("POST", "/accounts/transactions", &body)
 	req.Header.Set("x-user-id", base.ID())
 
 	w := httptest.NewRecorder()
