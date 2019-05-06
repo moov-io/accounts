@@ -377,9 +377,16 @@ components:
   schemas:
     CreateAccount:
       example:
+        balance: 1000
         name: Super Checking
         type: Checking
       properties:
+        balance:
+          description: Initial balance of account in USD cents. This amount is to
+            be deposited from an account at another Financial Institution or in-person
+            (i.e. cash) on account creation.
+          example: 1000
+          type: integer
         name:
           description: Caller defined label for this account.
           example: Super Checking
@@ -392,6 +399,7 @@ components:
           - FBO
           type: string
       required:
+      - balance
       - name
       - type
       type: object

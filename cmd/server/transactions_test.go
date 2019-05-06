@@ -35,8 +35,8 @@ func (r *mockTransactionRepository) Close() error {
 	return r.err
 }
 
-func (r *mockTransactionRepository) createTransaction(tx transaction, _ createTransactionOpts) error {
-	if err := tx.validate(); err != nil {
+func (r *mockTransactionRepository) createTransaction(tx transaction, opts createTransactionOpts) error {
+	if err := tx.validate(); err != nil && !opts.InitialDeposit {
 		return err
 	}
 	return r.err

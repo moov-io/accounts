@@ -314,9 +314,14 @@ components:
     CreateAccount:
       type: object
       required:
+        - balance
         - name
         - type
       properties:
+        balance:
+          type: integer
+          description: Initial balance of account in USD cents. This amount is to be deposited from an account at another Financial Institution or in-person (i.e. cash) on account creation.
+          example: 1000
         name:
           type: string
           description: Caller defined label for this account.

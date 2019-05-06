@@ -23,6 +23,11 @@ type createTransactionOpts struct {
 	// AllowOverdraft is an option on creating a transaction where GL will let the account 'go negative'
 	// and extend credit from the FI to the customer.
 	AllowOverdraft bool
+
+	// InitialDeposit is an option for allowing the transaction validation to be bypassed in order
+	// to onboard on account. This is done to initially add funds into an account, but we don't track where the
+	// funds come from on the transaction level.
+	InitialDeposit bool
 }
 
 func initTransactionStorage(logger log.Logger, name string) (transactionRepository, error) {
