@@ -118,6 +118,15 @@ func TestSqliteAccountRepository(t *testing.T) {
 	if acct.ID != otherAccount.ID {
 		t.Errorf("found account %q", acct.ID)
 	}
+
+	// Change the case of otherAccount.Type
+	acct, err = repo.SearchAccounts(otherAccount.AccountNumber, otherAccount.RoutingNumber, "checKIng")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if acct.ID != otherAccount.ID {
+		t.Errorf("found account %q", acct.ID)
+	}
 }
 
 // TestSqliteAccountRepository_unique will ensure we can't insert multiple accounts

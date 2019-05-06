@@ -135,7 +135,7 @@ func (r *sqliteAccountRepository) CreateAccount(customerId string, a *gl.Account
 }
 
 func (r *sqliteAccountRepository) SearchAccounts(accountNumber, routingNumber, acctType string) (*gl.Account, error) {
-	query := `select account_id from accounts where account_number = ? and routing_number = ? and type = ? and deleted_at is null limit 1;`
+	query := `select account_id from accounts where account_number = ? and routing_number = ? and lower(type) = lower(?) and deleted_at is null limit 1;`
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
 		return nil, err
