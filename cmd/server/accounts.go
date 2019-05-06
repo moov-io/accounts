@@ -27,11 +27,11 @@ var (
 	defaultRoutingNumber = os.Getenv("DEFAULT_ROUTING_NUMBER")
 )
 
-func addAccountRoutes(logger log.Logger, r *mux.Router, repo accountRepository) {
-	r.Methods("GET").Path("/accounts/search").HandlerFunc(searchAccounts(logger, repo))
+func addAccountRoutes(logger log.Logger, r *mux.Router, accountRepo accountRepository, transactionRepo transactionRepository) {
+	r.Methods("GET").Path("/accounts/search").HandlerFunc(searchAccounts(logger, accountRepo))
 
-	r.Methods("GET").Path("/customers/{customerId}/accounts").HandlerFunc(getCustomerAccounts(logger, repo))
-	r.Methods("POST").Path("/customers/{customerId}/accounts").HandlerFunc(createCustomerAccount(logger, repo))
+	r.Methods("GET").Path("/customers/{customerId}/accounts").HandlerFunc(getCustomerAccounts(logger, accountRepo))
+	r.Methods("POST").Path("/customers/{customerId}/accounts").HandlerFunc(createCustomerAccount(logger, accountRepo, transactionRepo))
 }
 
 // searchAccounts will attempt to find an Account which matches all query parameters and if all match return
@@ -67,11 +67,15 @@ func searchAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc 
 }
 
 type createAccountRequest struct {
-	Name string `json:"name"`
-	Type string `json:"type"`
+	Balance int    `json:"balance"`
+	Name    string `json:"name"`
+	Type    string `json:"type"`
 }
 
 func (r createAccountRequest) validate() error {
+	if r.Balance < 100 { // $1
+		return fmt.Errorf("createAccountRequest: invalid initial amount %d USD cents", r.Balance)
+	}
 	if r.Name == "" {
 		return errors.New("createAccountRequest: missing Name")
 	}
@@ -89,19 +93,25 @@ func createAccountNumber() string {
 	return fmt.Sprintf("%d", n.Int64())
 }
 
-func createCustomerAccount(logger log.Logger, repo accountRepository) http.HandlerFunc {
+func createCustomerAccount(logger log.Logger, accountRepo accountRepository, transactionRepo transactionRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w, err := wrapResponseWriter(logger, w, r)
 		if err != nil {
 			return
 		}
+		requestId := moovhttp.GetRequestId(r)
+		if requestId == "" {
+			requestId = base.ID()
+		}
 
 		var req createAccountRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			logger.Log("accounts", fmt.Sprintf("error reading JSON request: %v", err), "requestId", requestId)
 			moovhttp.Problem(w, err)
 			return
 		}
 		if err := req.validate(); err != nil {
+			logger.Log("accounts", fmt.Sprintf("error validaing request: %v", err), "requestId", requestId)
 			moovhttp.Problem(w, err)
 			return
 		}
@@ -119,10 +129,25 @@ func createCustomerAccount(logger log.Logger, repo accountRepository) http.Handl
 			LastModified:  &now,
 		}
 
-		if err := repo.CreateAccount(customerId, account); err != nil {
-			if requestId := moovhttp.GetRequestId(r); requestId != "" {
-				logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
-			}
+		if err := accountRepo.CreateAccount(customerId, account); err != nil {
+			logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
+			moovhttp.Problem(w, err)
+			return
+		}
+
+		// Submit a transaction of the initial amount (where does the exteranl ABA come from)?
+		tx := (&createTransactionRequest{
+			Lines: []transactionLine{
+				{
+					AccountId: account.ID,
+					Purpose:   ACHCredit,
+					// Amount:    req.Balance,
+					Amount: 10000,
+				},
+			},
+		}).asTransaction(base.ID())
+		if err := transactionRepo.createTransaction(tx, createTransactionOpts{InitialDeposit: true}); err != nil {
+			logger.Log("accounts", fmt.Errorf("problem creating initial balance transaction: %v", err), "requestId", requestId)
 			moovhttp.Problem(w, err)
 			return
 		}

@@ -59,7 +59,7 @@ func isInteranlDebit(accounts []*gl.Account, lines []transactionLine, glRoutingN
 }
 
 func (r *sqliteTransactionRepository) createTransaction(t transaction, opts createTransactionOpts) error {
-	if err := t.validate(); err != nil {
+	if err := t.validate(); err != nil && !opts.InitialDeposit {
 		return fmt.Errorf("transaction=%q is invalid: %v", t.ID, err)
 	}
 
