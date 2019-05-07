@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/moov-io/base"
@@ -33,6 +34,18 @@ var (
 	Wire      TransactionPurpose = "wire"
 )
 
+func (p *TransactionPurpose) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
+	*p = TransactionPurpose(strings.ToLower(s))
+	if err := p.validate(); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (p TransactionPurpose) validate() error {
 	switch p {
 	case ACHCredit, ACHDebit, Fee, Interest, Transfer, Wire:
@@ -46,6 +59,13 @@ type transactionLine struct {
 	AccountId string             `json:"accountId"`
 	Purpose   TransactionPurpose `json:"purpose"`
 	Amount    int                `json:"amount"`
+}
+
+func (line transactionLine) validate() error {
+	if line.AccountId == "" || line.Amount == 0 {
+		return fmt.Errorf("transactionLine: AccountId=%s Amount=%d is invalid", line.AccountId, line.Amount)
+	}
+	return line.Purpose.validate()
 }
 
 type createTransactionRequest struct {
@@ -71,15 +91,18 @@ func (t transaction) validate() error {
 		return errors.New("transaction: empty ID")
 	}
 	if len(t.Lines) == 0 {
-		return fmt.Errorf("transaction=%q has no Lines", t.ID)
+		return fmt.Errorf("transaction=%s has no Lines", t.ID)
 	}
 	if t.Timestamp.IsZero() {
-		return fmt.Errorf("transaction=%q has no Timestamp", t.ID)
+		return fmt.Errorf("transaction=%s has no Timestamp", t.ID)
 	}
 
 	sum := 0
 	for i := range t.Lines {
 		sum += t.Lines[i].Amount
+		if err := t.Lines[i].validate(); err != nil {
+			return fmt.Errorf("transaction=%s has invalid line[%d]: %v", t.ID, i, err)
+		}
 	}
 	if sum == 0 {
 		return nil

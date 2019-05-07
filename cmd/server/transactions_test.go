@@ -64,6 +64,27 @@ func TestTransactionPurpose(t *testing.T) {
 			t.Errorf("expected no error on %q: %v", cases[i], err)
 		}
 	}
+
+	// JSON
+	var purpose TransactionPurpose
+	if err := json.Unmarshal([]byte(`"other"`), &purpose); err != nil {
+		if err.Error() != "unknown TransactionPurpose \"other\"" {
+			t.Fatal(err)
+		}
+	}
+	if err := purpose.validate(); err == nil {
+		t.Errorf("expected error")
+	}
+	// valid, case-insensitive
+	if err := json.Unmarshal([]byte(`"achCredit"`), &purpose); err != nil {
+		t.Fatal(err)
+	}
+	if err := purpose.validate(); err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if purpose != ACHCredit {
+		t.Errorf("unexpected value: %s", purpose)
+	}
 }
 
 func TestTransaction__validate(t *testing.T) {
@@ -107,10 +128,16 @@ func TestTransaction__validate(t *testing.T) {
 	}
 	tx.Lines[0].Amount = -500
 
+	tx.Lines[0].Purpose = TransactionPurpose("other")
+	if err := tx.validate(); err == nil {
+		t.Error("expected error")
+	}
+
 	tx.Lines = []transactionLine{}
 	if err := tx.validate(); err == nil {
 		t.Error("expected error")
 	}
+
 }
 
 func TestTransactions_getAccountId(t *testing.T) {
