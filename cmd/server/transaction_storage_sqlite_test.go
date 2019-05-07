@@ -188,7 +188,7 @@ func TestSqliteTransactionRepository__DisallowOverdraft(t *testing.T) {
 	}
 }
 
-func TestTransactions__isInteranlDebit(t *testing.T) {
+func TestTransactions__isInternalDebit(t *testing.T) {
 	account1, account2 := base.ID(), base.ID()
 	accounts := []*gl.Account{
 		// Setup the account being debited from as 'remote' (routing number we don't manage)
@@ -200,7 +200,7 @@ func TestTransactions__isInteranlDebit(t *testing.T) {
 		{AccountId: account1, Purpose: ACHDebit, Amount: -500},
 		{AccountId: account2, Purpose: ACHCredit, Amount: 500},
 	}
-	if isInteranlDebit(accounts, lines, defaultRoutingNumber) {
+	if isInternalDebit(accounts, lines, defaultRoutingNumber) {
 		t.Errorf("account1 is external")
 	}
 
@@ -208,12 +208,12 @@ func TestTransactions__isInteranlDebit(t *testing.T) {
 	accounts[0].RoutingNumber = defaultRoutingNumber
 	accounts[1].RoutingNumber = "121042882"
 
-	if !isInteranlDebit(accounts, lines, defaultRoutingNumber) {
+	if !isInternalDebit(accounts, lines, defaultRoutingNumber) {
 		t.Errorf("account1 is internal")
 	}
 
 	// no accounts
-	if !isInteranlDebit(nil, nil, "") {
+	if !isInternalDebit(nil, nil, "") {
 		t.Errorf("default should assume an internal transfer")
 	}
 }
