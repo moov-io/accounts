@@ -158,6 +158,8 @@ func createTransaction(logger log.Logger, accountRepo accountRepository, transac
 		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
+		requestId := moovhttp.GetRequestId(r)
+
 		var req createTransactionRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			moovhttp.Problem(w, err)
@@ -167,10 +169,11 @@ func createTransaction(logger log.Logger, accountRepo accountRepository, transac
 		// Post the transaction
 		tx := req.asTransaction(base.ID())
 		if err := transactionRepo.createTransaction(tx, createTransactionOpts{AllowOverdraft: false}); err != nil {
-			logger.Log("transactions", fmt.Errorf("problem creating transaction: %v", err)) // TODO(adam): add customerId to log
+			logger.Log("transactions", fmt.Errorf("problem creating transaction: %v", err), "requestId", requestId)
 			moovhttp.Problem(w, err)
 			return
 		}
+		logger.Log("transaction", fmt.Errorf("created transaction %s", tx.ID), "requestId", requestId)
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(tx)
