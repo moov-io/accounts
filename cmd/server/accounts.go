@@ -141,8 +141,7 @@ func createCustomerAccount(logger log.Logger, accountRepo accountRepository, tra
 				{
 					AccountId: account.ID,
 					Purpose:   ACHCredit,
-					// Amount:    req.Balance,
-					Amount: 10000,
+					Amount:    req.Balance,
 				},
 			},
 		}).asTransaction(base.ID())
