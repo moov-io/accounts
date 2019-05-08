@@ -101,6 +101,79 @@ func TestSqliteTransactionRepository(t *testing.T) {
 	}
 }
 
+// TestSqliteTransactionRepository__Internal will create an internal transfer
+func TestSqliteTransactionRepository__Internal(t *testing.T) {
+	repo := createTestSqliteTransactionRepository(t)
+	defer repo.Close()
+
+	// Override the accountRepository and write our gl.Accounts
+	account1, account2 := base.ID(), base.ID()
+	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
+		accounts: []*gl.Account{
+			// Setup the account being debited from as 'internal' (routing number we manage).
+			{ID: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
+			{ID: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
+		},
+	}
+
+	// Add initial funds
+	tx := transaction{
+		ID:        base.ID(),
+		Timestamp: time.Now(),
+		Lines: []transactionLine{
+			{AccountId: account1, Purpose: ACHCredit, Amount: 1000},
+		},
+	}
+	if err := repo.createTransaction(tx, createTransactionOpts{InitialDeposit: true}); err != nil {
+		t.Fatal(err)
+	}
+	dbtx, _ := repo.db.db.Begin()
+	if bal, _ := repo.getAccountBalance(dbtx, account1); bal != 1000 {
+		t.Fatalf("account1=%s has unexpected balance of %d", account1, bal)
+	}
+	if bal, _ := repo.getAccountBalance(dbtx, account2); bal != 0 {
+		t.Fatalf("account2=%s has unexpected balance of %d", account2, bal)
+	}
+	dbtx.Rollback()
+
+	// Attempt our transaction
+	tx = transaction{
+		ID:        base.ID(),
+		Timestamp: time.Now(),
+		Lines: []transactionLine{
+			{AccountId: account1, Purpose: ACHDebit, Amount: -400},
+			{AccountId: account2, Purpose: ACHCredit, Amount: 400},
+		},
+	}
+	// Create the transaction and allow it to overdraft
+	if err := repo.createTransaction(tx, createTransactionOpts{}); err != nil {
+		t.Errorf("NOTE: account1=%s account2=%s", account1, account2)
+		t.Fatal(err)
+	}
+
+	transactions, err := repo.getAccountTransactions(account1)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(transactions) != 2 {
+		t.Errorf("got %d transactions: %v", len(transactions), transactions)
+	}
+	if transactions[0].ID != tx.ID || len(transactions[0].Lines) != 2 {
+		t.Errorf("%#v", transactions[0])
+	}
+
+	dbtx, _ = repo.db.db.Begin()
+	bal, err := repo.getAccountBalance(dbtx, account1)
+	if err != nil || bal != 600 {
+		t.Errorf("got balance of %d", bal)
+	}
+	bal, err = repo.getAccountBalance(dbtx, account2)
+	if err != nil || bal != 400 {
+		t.Errorf("got balance of %d", bal)
+	}
+	dbtx.Rollback()
+}
+
 // TestSqliteTransactionRepository__AllowOverdraft will create an internal transfer, but allow an overdraft to occur
 func TestSqliteTransactionRepository__AllowOverdraft(t *testing.T) {
 	repo := createTestSqliteTransactionRepository(t)

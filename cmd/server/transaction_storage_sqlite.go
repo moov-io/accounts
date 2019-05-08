@@ -104,10 +104,17 @@ func (r *sqliteTransactionRepository) createTransaction(t transaction, opts crea
 		//
 		// From Wade: Allowing overdrafts is similar to offering credit to customers, which requires additional disclosures and would need
 		// to be done on an account-by-account basis.
-		if opts.InitialDeposit && len(t.Lines) == 1 && t.Lines[0].Amount > 100 {
-			// Ignore all other checks and just allow the deposit
-			continue
+		if opts.InitialDeposit {
+			if t.Lines[0].Purpose != ACHCredit {
+				return fmt.Errorf("createTransaction: InitialDeposit must be ACHCredit")
+			}
+			if len(t.Lines) == 1 && t.Lines[0].Amount > 100 {
+				// Ignore all other checks and just allow the deposit
+				continue
+			}
 		}
+		// TODO(adam): I think we need to add a check (to bypass further validation) on external accounts
+		// since we won't have an accurate way to confirm their balance.
 		balance, err := r.getAccountBalance(tx, t.Lines[i].AccountId)
 		if err != nil {
 			return fmt.Errorf("createTransaction: getAccountBalance: transaction=%q account=%q: err=%v rollback=%v", t.ID, t.Lines[i].AccountId, err, tx.Rollback())
@@ -119,7 +126,7 @@ func (r *sqliteTransactionRepository) createTransaction(t transaction, opts crea
 		if opts.AllowOverdraft || !isInternalDebit(accounts, t.Lines, defaultRoutingNumber) {
 			continue
 		}
-		if balance <= 0 || balance <= int64(t.Lines[i].Amount) {
+		if balance <= 0 || (balance <= int64(t.Lines[i].Amount) && t.Lines[i].Purpose == ACHDebit) {
 			return fmt.Errorf("acocunt=%q has insufficient funds: rollback=%v", t.Lines[i].AccountId, tx.Rollback())
 		}
 	}
