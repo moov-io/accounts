@@ -4,4 +4,4 @@
 
 package gl
 
-const Version = "v0.2.3-dev"
+const Version = "v0.3.0-rc1"
