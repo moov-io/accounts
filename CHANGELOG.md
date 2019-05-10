@@ -1,3 +1,22 @@
+## v0.3.0 (Unreleased)
+
+ADDITIONS
+
+- cmd/server: add initial transaction storage with QLedger
+- cmd/server: use our qledgerDeployment dockertest setup for qledgerAccountRepository tests
+- api,client: add route to for getting account transactions, generate client
+- cmd/server: accounts: setup sqlite persistence for gl.Accounts
+- cmd/server: transactions: setup initial sqlite persistence for transactions
+- cmd/server: add 'balance' to account creation to track initial balance
+- cmd/server: compute overdraft correctly by rejecting accounts in the negative
+
+BUG FIXES
+
+- api: Fix broken OpenAPI Go client generation
+- cmd/server: add missing database/sql Rows.Close()
+- cmd/server: return database/sql Rows.Err
+- cmd/server: accounts: case-insensitive compare for account type
+
 ## v0.2.2 (Released 2019-03-27)
 
 BUG FIXES
