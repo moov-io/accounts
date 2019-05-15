@@ -17,11 +17,6 @@ import (
 var (
 	// migrations holds all our SQL migrations to be done (in order)
 	migrations = []string{
-		// Customer tables
-		`create table if not exists customers(customer_id primary key, first_name, middle_name, last_name, nick_name, suffix, birthdate, gender, culture, status, email, created_at datetime, last_modified datetime, deleted_at datetime);`,
-		`create table if not exists customers_phones(customer_id, number, valid, type, unique (customer_id, number) on conflict abort);`,
-		`create table if not exists customers_addresses(customer_id, type, address1, address2, city, state, postal_code, country, validated, active, unique (customer_id, address1) on conflict abort);`,
-
 		// Account tables
 		`create table if not exists accounts(account_id primary key, customer_id, name, account_number, routing_number, status, type, created_at datetime, closed_at datetime, last_modified datetime, deleted_at datetime, unique(account_number, routing_number));`,
 
