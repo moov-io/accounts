@@ -34,11 +34,9 @@ All URIs are relative to *http://localhost:8085*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *GLApi* | [**CreateAccount**](docs/GLApi.md#createaccount) | **Post** /customers/{customer_id}/accounts | Create a new account for a Customer
-*GLApi* | [**CreateCustomer**](docs/GLApi.md#createcustomer) | **Post** /customers | Create a new customer
 *GLApi* | [**CreateTransaction**](docs/GLApi.md#createtransaction) | **Post** /accounts/transactions | Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
 *GLApi* | [**GetAccountTransactions**](docs/GLApi.md#getaccounttransactions) | **Get** /accounts/{account_id}/transactions | Get transactions for an account. Ordered descending from their posted date.
 *GLApi* | [**GetAccountsByCustomerID**](docs/GLApi.md#getaccountsbycustomerid) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
-*GLApi* | [**GetGLCustomer**](docs/GLApi.md#getglcustomer) | **Get** /customers/{customer_id} | Retrieves a Customer object associated with the customer ID.
 *GLApi* | [**Ping**](docs/GLApi.md#ping) | **Get** /ping | Ping the GL service to check if running
 *GLApi* | [**SearchAccounts**](docs/GLApi.md#searchaccounts) | **Get** /accounts/search | Search for account which matches all query parameters
 
@@ -49,10 +47,8 @@ Class | Method | HTTP request | Description
  - [Address](docs/Address.md)
  - [CreateAccount](docs/CreateAccount.md)
  - [CreateAddress](docs/CreateAddress.md)
- - [CreateCustomer](docs/CreateCustomer.md)
  - [CreatePhone](docs/CreatePhone.md)
  - [CreateTransaction](docs/CreateTransaction.md)
- - [Customer](docs/Customer.md)
  - [Error](docs/Error.md)
  - [Phone](docs/Phone.md)
  - [Transaction](docs/Transaction.md)
