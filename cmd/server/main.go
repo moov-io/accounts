@@ -119,16 +119,11 @@ func main() {
 	logger.Log("main", fmt.Sprintf("using %T for transaction storage", transactionRepo))
 	adminServer.AddLivenessCheck(fmt.Sprintf("%s-transactions", transactionStorageType), transactionRepo.Ping)
 
-	// setup databases
-	customerRepo := &sqliteCustomerRepository{db}
-	defer customerRepo.close()
-
 	// Setup business HTTP routes
 	router := mux.NewRouter()
 	moovhttp.AddCORSHandler(router)
 	addPingRoute(logger, router)
 	addAccountRoutes(logger, router, accountRepo, transactionRepo)
-	addCustomerRoutes(logger, router, customerRepo)
 	addTransactionRoutes(logger, router, accountRepo, transactionRepo)
 
 	// Start business HTTP server

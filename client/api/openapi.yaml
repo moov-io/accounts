@@ -191,89 +191,6 @@ paths:
         date.
       tags:
       - GL
-  /customers:
-    post:
-      operationId: createCustomer
-      parameters:
-      - description: Optional Request ID allows application developer to trace requests
-          through the systems logs
-        example: rs4f9915
-        explode: false
-        in: header
-        name: X-Request-Id
-        required: false
-        schema:
-          type: string
-        style: simple
-      - description: Moov User ID header, required in all requests
-        example: e3cdf999
-        explode: false
-        in: header
-        name: X-User-Id
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateCustomer'
-          description: Customer was successfully created
-        400:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Customer was not created, see error(s)
-      summary: Create a new customer
-      tags:
-      - GL
-  /customers/{customer_id}:
-    get:
-      operationId: getGLCustomer
-      parameters:
-      - description: Customer Id
-        explode: false
-        in: path
-        name: customer_id
-        required: true
-        schema:
-          example: e210a9d6-d755-4455-9bd2-9577ea7e1081
-          type: string
-        style: simple
-      - description: Optional Request ID allows application developer to trace requests
-          through the systems logs
-        example: rs4f9915
-        explode: false
-        in: header
-        name: X-Request-Id
-        required: false
-        schema:
-          type: string
-        style: simple
-      - description: Moov User ID header, required in all requests
-        example: e3cdf999
-        explode: false
-        in: header
-        name: X-User-Id
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Customer'
-          description: A customer objects for the supplied customer ID
-        404:
-          description: A resource with the specified ID was not found
-      summary: Retrieves a Customer object associated with the customer ID.
-      tags:
-      - GL
   /customers/{customer_id}/accounts:
     get:
       operationId: getAccountsByCustomerID
@@ -493,175 +410,7 @@ components:
       items:
         $ref: '#/components/schemas/Account'
       type: array
-    CreateCustomer:
-      example:
-        firstName: Robert
-        lastName: Smith
-        addresses:
-        - country: US
-          address2: address2
-          city: city
-          address1: address1
-          postalCode: postalCode
-          state: state
-          type: Primary
-        - country: US
-          address2: address2
-          city: city
-          address1: address1
-          postalCode: postalCode
-          state: state
-          type: Primary
-        phones:
-        - number: +1.818.555.1212
-          type: Home
-        - number: +1.818.555.1212
-          type: Home
-        email: email
-      properties:
-        firstName:
-          description: Given Name or First Name
-          example: Robert
-          maximum: 64
-          type: string
-        lastName:
-          description: Surname or Last Name
-          example: Smith
-          type: string
-        email:
-          description: Primary email address of customer name@domain.com
-          maximum: 255
-          type: string
-        phones:
-          items:
-            $ref: '#/components/schemas/CreatePhone'
-          type: array
-        addresses:
-          items:
-            $ref: '#/components/schemas/CreateAddress'
-          type: array
-      type: object
-    Customer:
-      example:
-        lastName: Smith
-        addresses:
-        - country: US
-          validated: true
-          address2: address2
-          city: city
-          address1: address1
-          postalCode: postalCode
-          active: true
-          state: state
-          type: Primary
-        - country: US
-          validated: true
-          address2: address2
-          city: city
-          address1: address1
-          postalCode: postalCode
-          active: true
-          state: state
-          type: Primary
-        gender: Male
-        nickName: Bob
-        phones:
-        - valid: true
-          number: +1.818.555.1212
-          type: Home
-        - valid: true
-          number: +1.818.555.1212
-          type: Home
-        suffix: suffix
-        birthDate: 2000-01-23T04:56:07.000+00:00
-        firstName: Robert
-        createdAt: 2000-01-23T04:56:07.000+00:00
-        culture: en-US
-        customerId: e210a9d6-d755-4455-9bd2-9577ea7e1081
-        middleName: Flex
-        lastModified: 2000-01-23T04:56:07.000+00:00
-        email: email
-        status: Applied
-      properties:
-        customerId:
-          description: The unique identifier for the customer who owns the account
-          example: e210a9d6-d755-4455-9bd2-9577ea7e1081
-          format: uuid
-          type: string
-        firstName:
-          description: Given Name or First Name
-          example: Robert
-          maximum: 64
-          type: string
-        middleName:
-          description: Middle Name
-          example: Flex
-          maximum: 64
-          type: string
-        lastName:
-          description: Surname or Last Name
-          example: Smith
-          type: string
-        nickName:
-          description: Name Customer is preferred to be called
-          example: Bob
-          type: string
-        suffix:
-          description: Customers name suffix. "Jr", "PH.D."
-          type: string
-        birthDate:
-          description: Legal date of birth
-          format: date-time
-          type: string
-        gender:
-          enum:
-          - Male
-          - Female
-          - Unknown
-          type: string
-        culture:
-          description: Used for localization of documents
-          enum:
-          - en-US
-          - es-US
-          type: string
-        status:
-          description: State of the customer
-          enum:
-          - Applied
-          - Verified
-          - Denied
-          - Archieved
-          - Deceased
-          type: string
-        email:
-          description: Primary email address of customer name@domain.com
-          maximum: 255
-          type: string
-        phones:
-          items:
-            $ref: '#/components/schemas/Phone'
-          type: array
-        addresses:
-          items:
-            $ref: '#/components/schemas/Address'
-          type: array
-        createdAt:
-          format: date-time
-          type: string
-        lastModified:
-          description: Last time the object was modified
-          format: date-time
-          type: string
-      type: object
-    Customers:
-      items:
-        $ref: '#/components/schemas/Customer'
-      type: array
     CreatePhone:
-      example:
-        number: +1.818.555.1212
-        type: Home
       properties:
         number:
           description: phone number
@@ -677,10 +426,6 @@ components:
       - number
       - type
     Phone:
-      example:
-        valid: true
-        number: +1.818.555.1212
-        type: Home
       properties:
         number:
           description: phone number
@@ -696,14 +441,6 @@ components:
           - Work
           type: string
     CreateAddress:
-      example:
-        country: US
-        address2: address2
-        city: city
-        address1: address1
-        postalCode: postalCode
-        state: state
-        type: Primary
       properties:
         type:
           enum:
@@ -739,16 +476,6 @@ components:
       - type
       type: object
     Address:
-      example:
-        country: US
-        validated: true
-        address2: address2
-        city: city
-        address1: address1
-        postalCode: postalCode
-        active: true
-        state: state
-        type: Primary
       properties:
         type:
           enum:

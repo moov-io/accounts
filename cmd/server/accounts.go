@@ -25,7 +25,18 @@ import (
 
 var (
 	defaultRoutingNumber = os.Getenv("DEFAULT_ROUTING_NUMBER")
+
+	errNoCustomerId = errors.New("no Customer ID found")
 )
+
+func getCustomerId(w http.ResponseWriter, r *http.Request) string {
+	v, ok := mux.Vars(r)["customerId"]
+	if !ok || v == "" {
+		moovhttp.Problem(w, errNoCustomerId)
+		return ""
+	}
+	return v
+}
 
 func addAccountRoutes(logger log.Logger, r *mux.Router, accountRepo accountRepository, transactionRepo transactionRepository) {
 	r.Methods("GET").Path("/accounts/search").HandlerFunc(searchAccounts(logger, accountRepo))
