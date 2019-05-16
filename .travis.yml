@@ -43,18 +43,18 @@ after_success:
   - make docker
 before_deploy:
 - make dist
-# deploy:
-#   provider: releases
-#   api_key:
-#     secure: lSTzVBNKgqNfJSGAZXqY7XItya1+yr5aImtJ9P2WLrELvpsk7hcRNAcf9wa3jQocuUvru30nyafyqo9WSxN+KawqM3HKEwyczw+tlccY+pB2NPwlbxGaauu+/XSQXe5EQKXDCr7uMehJQl1+QqSyEhSt8xkgXsm5CgVV/1VBmBzzvfvWNo0gid8skCmCiVcatK7WKTo1uMd3FiNY7ri1TUnFaF1V/Vh0iaq9NWPAc6YJ4YzjfUYkxQpn6E0TXnI6tVtkWXTsun4RMdhmyyP1qpaCWpAKGBwYr0aF1s7FKOl5b1F2Ws+Mb+BIXcxvy6HSD4AgvqsrDxR4a4uHwXcUqOQabG/W7Dy6cK1STHtf44WGuOnD3sqCjTHzeA7y2EKsA9X1A3diKnbJMrV9lEHzVz6PkmThenxw4yiYgbridYF2BMVoswmL32jlpLLMOgYSmNN2V0I9IZXYd2nctXUQdW5e9ref0AN3qmwcw5zQLeAR9SaY7hOD5bqq18s+MbQV326JAgi3+siSLIRJOYf5DhFeMNHLCdp+EvwnwaMd+hDHn0ALBKA/smO2cQPhz0YzDHVPc9hHlJSodOnH24mnY7Dab0UU/5rePrdTaY6SEjlsWfyZ0/KiW4slbVmhyPL2HNGaxbHvX3HbPG+Ac4eGnlXoh2X7BCMGT9g11rNu3jE=
-#   file_glob: true
-#   file:
-#     - bin/gl-*
-#   on:
-#     repo: moov-io/gl # TODO(adam): rename to GL
-#     tags: true
-#     go: 1.12.x
-#   skip_cleanup: true
 after_deploy:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - make release-push
+deploy:
+  provider: releases
+  api_key:
+    secure: F019439LyMN7uT/PH6rSI/RGuLZxvqLfTYtJhnKwf4F7VZJMam+1PudDsA9phHxSSVuxXY7vbX76HT+OMLmTKxL9zIlO8QX7GGNOiySWqlxM6RLDzu9qZKY4Tt/XIq+N5bJ0/hEceRH+O0xicDfuhn9c0qtTiC2Q+QuAX8vHCaVUUexQqBHtDz+qizyVfFzdpTdY4v+X98IH5b4/0V+GAWJgBK8kmNOmCzI92YwOJWrGxNSpC7090YXbEJli6SaKatQohfQmiYCRiqyKe+RR012geczRW4wk8D9tux5M34KhU8gz46k3cL7YOCnAW6oO3CSUK2XfVQatOZ9vo24iJ8SUuGGzZzK+0KsUYgsXxi870eZ3FJkdgMS8E8TQ6tfpSpQMXTe9L39i9IVRtPm/aOMu8t6+0Xtz1h2A0V+KoxUx4W5K1VjPQkIrYjDLuND4m0SkJATyNkISCLy9alWVVWi2btIjrtrcLk4wksFKS/ECZFGkYgWZDzJw7UUh6WdivqLbOsGA+22pVhCsfb0zueAO4CLRkFrRdrQupmwErL7wblvNWtyn5/iBOrsr8rpd9c+A75zxAC6KBPluBJdUlJLGjjao3pJnFOMEy8dy83EfD2N5mHpe6j27zaVtGD1X+kkhMPjiiRbwK47vxxmcGIx0+5L43vK6utJEa3JQoVY=
+  file_glob: true
+  file:
+    - bin/accounts-*
+  on:
+    repo: moov-io/accounts
+    tags: true
+    go: 1.12.x
+  skip_cleanup: true
