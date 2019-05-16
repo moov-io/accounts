@@ -1,15 +1,15 @@
-# \GLApi
+# \AccountsApi
 
 All URIs are relative to *http://localhost:8085*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**CreateAccount**](GLApi.md#CreateAccount) | **Post** /customers/{customer_id}/accounts | Create a new account for a Customer
-[**CreateTransaction**](GLApi.md#CreateTransaction) | **Post** /accounts/transactions | Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
-[**GetAccountTransactions**](GLApi.md#GetAccountTransactions) | **Get** /accounts/{account_id}/transactions | Get transactions for an account. Ordered descending from their posted date.
-[**GetAccountsByCustomerID**](GLApi.md#GetAccountsByCustomerID) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
-[**Ping**](GLApi.md#Ping) | **Get** /ping | Ping the GL service to check if running
-[**SearchAccounts**](GLApi.md#SearchAccounts) | **Get** /accounts/search | Search for account which matches all query parameters
+[**CreateAccount**](AccountsApi.md#CreateAccount) | **Post** /customers/{customer_id}/accounts | Create a new account for a Customer
+[**CreateTransaction**](AccountsApi.md#CreateTransaction) | **Post** /accounts/transactions | Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
+[**GetAccountTransactions**](AccountsApi.md#GetAccountTransactions) | **Get** /accounts/{account_id}/transactions | Get transactions for an account. Ordered descending from their posted date.
+[**GetAccountsByCustomerID**](AccountsApi.md#GetAccountsByCustomerID) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
+[**Ping**](AccountsApi.md#Ping) | **Get** /ping | Ping the Accounts service to check if running
+[**SearchAccounts**](AccountsApi.md#SearchAccounts) | **Get** /accounts/search | Search for account which matches all query parameters
 
 
 
@@ -195,7 +195,7 @@ No authorization required
 ## Ping
 
 > Ping(ctx, )
-Ping the GL service to check if running
+Ping the Accounts service to check if running
 
 ### Required Parameters
 
