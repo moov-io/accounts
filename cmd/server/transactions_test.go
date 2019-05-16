@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
+	accounts "github.com/moov-io/accounts/client"
 	"github.com/moov-io/base"
-	"github.com/moov-io/gl"
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
@@ -235,15 +235,9 @@ func TestTransactions_Get(t *testing.T) {
 
 func TestTransactions_Create(t *testing.T) {
 	accountRepo := &testAccountRepository{
-		accounts: []*gl.Account{
-			{
-				ID:      base.ID(),
-				Balance: 10000,
-			},
-			{
-				ID:      base.ID(),
-				Balance: 1000,
-			},
+		accounts: []*accounts.Account{
+			{Id: base.ID(), Balance: 10000},
+			{Id: base.ID(), Balance: 1000},
 		},
 	}
 	transactionRepo := &mockTransactionRepository{}
@@ -254,8 +248,8 @@ func TestTransactions_Create(t *testing.T) {
 	var body bytes.Buffer
 	json.NewEncoder(&body).Encode(createTransactionRequest{
 		Lines: []transactionLine{
-			{AccountId: accountRepo.accounts[0].ID, Purpose: ACHDebit, Amount: -4121},
-			{AccountId: accountRepo.accounts[1].ID, Purpose: ACHCredit, Amount: 4121},
+			{AccountId: accountRepo.accounts[0].Id, Purpose: ACHDebit, Amount: -4121},
+			{AccountId: accountRepo.accounts[1].Id, Purpose: ACHCredit, Amount: 4121},
 		},
 	})
 	req := httptest.NewRequest("POST", "/accounts/transactions", &body)

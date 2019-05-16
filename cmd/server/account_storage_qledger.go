@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/moov-io/gl"
+	accounts "github.com/moov-io/accounts/client"
 	mledge "github.com/moov-io/qledger-sdk-go"
 )
 
@@ -29,7 +29,7 @@ func (r *qledgerAccountRepository) Close() error {
 	return nil
 }
 
-func (r *qledgerAccountRepository) GetAccounts(accountIds []string) ([]*gl.Account, error) {
+func (r *qledgerAccountRepository) GetAccounts(accountIds []string) ([]*accounts.Account, error) {
 	var terms []map[string]interface{}
 	for i := range accountIds {
 		m := make(map[string]interface{})
@@ -50,7 +50,7 @@ func (r *qledgerAccountRepository) GetAccounts(accountIds []string) ([]*gl.Accou
 	return convertAccounts(accts), nil
 }
 
-func (r *qledgerAccountRepository) GetCustomerAccounts(customerId string) ([]*gl.Account, error) {
+func (r *qledgerAccountRepository) GetCustomerAccounts(customerId string) ([]*accounts.Account, error) {
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
 			"must": map[string]interface{}{
@@ -67,10 +67,10 @@ func (r *qledgerAccountRepository) GetCustomerAccounts(customerId string) ([]*gl
 	return convertAccounts(accts), nil
 }
 
-func (r *qledgerAccountRepository) CreateAccount(customerId string, account *gl.Account) error {
+func (r *qledgerAccountRepository) CreateAccount(customerId string, account *accounts.Account) error {
 	data := map[string]interface{}{
-		"accountId":        account.ID,
-		"customerId":       account.CustomerID,
+		"accountId":        account.Id,
+		"customerId":       account.CustomerId,
 		"name":             account.Name,
 		"accountNumber":    account.AccountNumber,
 		"routingNumber":    account.RoutingNumber,
@@ -81,20 +81,20 @@ func (r *qledgerAccountRepository) CreateAccount(customerId string, account *gl.
 		"balancePending":   fmt.Sprintf("%d", account.BalancePending),
 		"createdAt":        account.CreatedAt.Format(qledgerTimeFormat),
 	}
-	if account.ClosedAt != nil {
+	if !account.ClosedAt.IsZero() {
 		data["closedAt"] = account.ClosedAt.Format(qledgerTimeFormat)
 	}
-	if account.LastModified != nil {
+	if !account.LastModified.IsZero() {
 		data["lastModified"] = account.LastModified.Format(qledgerTimeFormat)
 	}
 	return r.api.CreateAccount(&mledge.Account{
-		ID:      account.ID,
+		ID:      account.Id,
 		Balance: int(account.Balance),
 		Data:    data,
 	})
 }
 
-func (r *qledgerAccountRepository) SearchAccounts(accountNumber, routingNumber, acctType string) (*gl.Account, error) {
+func (r *qledgerAccountRepository) SearchAccounts(accountNumber, routingNumber, acctType string) (*accounts.Account, error) {
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
 			"must": map[string]interface{}{
@@ -127,8 +127,8 @@ func setupQLedgerAccountStorage(endpoint, apiToken string) (*qledgerAccountRepos
 	}, nil
 }
 
-func convertAccounts(accts []*mledge.Account) []*gl.Account {
-	var accounts []*gl.Account
+func convertAccounts(accts []*mledge.Account) []*accounts.Account {
+	var out []*accounts.Account
 	for i := range accts {
 		var closedAt time.Time
 		if v, exists := accts[i].Data["closedAt"]; exists {
@@ -138,28 +138,28 @@ func convertAccounts(accts []*mledge.Account) []*gl.Account {
 		if v, exists := accts[i].Data["lastModified"]; exists {
 			lastModified = readTime(v.(string))
 		}
-		accounts = append(accounts, &gl.Account{
-			ID:               accts[i].ID,
-			CustomerID:       accts[i].Data["customerId"].(string),
+		out = append(out, &accounts.Account{
+			Id:               accts[i].ID,
+			CustomerId:       accts[i].Data["customerId"].(string),
 			Name:             accts[i].Data["name"].(string),
 			AccountNumber:    accts[i].Data["accountNumber"].(string),
 			RoutingNumber:    accts[i].Data["routingNumber"].(string),
 			Status:           accts[i].Data["status"].(string),
 			Type:             accts[i].Data["type"].(string),
-			Balance:          int64(accts[i].Balance),
+			Balance:          int32(accts[i].Balance),
 			BalanceAvailable: readBalance(accts[i].Data["balanceAvailable"].(string)),
 			BalancePending:   readBalance(accts[i].Data["balancePending"].(string)),
 			CreatedAt:        readTime(accts[i].Data["createdAt"].(string)),
-			ClosedAt:         &closedAt,
-			LastModified:     &lastModified,
+			ClosedAt:         closedAt,
+			LastModified:     lastModified,
 		})
 	}
-	return accounts
+	return out
 }
 
-func readBalance(str string) int64 {
+func readBalance(str string) int32 {
 	n, _ := strconv.Atoi(str)
-	return int64(n)
+	return int32(n)
 }
 
 func readTime(str string) time.Time {

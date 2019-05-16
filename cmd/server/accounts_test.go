@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	accounts "github.com/moov-io/accounts/client"
 	"github.com/moov-io/base"
-	"github.com/moov-io/gl"
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
@@ -20,10 +20,10 @@ import (
 
 var (
 	mockAccountRepo = &testAccountRepository{
-		accounts: []*gl.Account{
+		accounts: []*accounts.Account{
 			{
-				ID:            base.ID(),
-				CustomerID:    base.ID(),
+				Id:            base.ID(),
+				CustomerId:    base.ID(),
 				Name:          "example account",
 				AccountNumber: "132",
 				RoutingNumber: "51321",
@@ -77,12 +77,12 @@ func TestAccounts__CreateAccount(t *testing.T) {
 		t.Errorf("bogus status code: %d:\n  %s", w.Code, w.Body.String())
 	}
 
-	var acct gl.Account // TODO(adam): check more of Customer response?
+	var acct accounts.Account // TODO(adam): check more of Customer response?
 	if err := json.NewDecoder(w.Body).Decode(&acct); err != nil {
 		t.Fatal(err)
 	}
-	if acct.ID == "" {
-		t.Error("empty Account.ID")
+	if acct.Id == "" {
+		t.Error("empty Account.Id")
 	}
 }
 
@@ -102,15 +102,15 @@ func TestAccounts__GetCustomerAccounts(t *testing.T) {
 		t.Errorf("bogus status code: %d", w.Code)
 	}
 
-	var accounts []gl.Account // TODO(adam): check more of Customer response?
+	var accounts []accounts.Account // TODO(adam): check more of Customer response?
 	if err := json.NewDecoder(w.Body).Decode(&accounts); err != nil {
 		t.Fatal(err)
 	}
 	if len(accounts) != 1 {
 		t.Errorf("expected 1 account, but got %d", len(accounts))
 	}
-	if accounts[0].ID == "" {
-		t.Error("empty Account.ID")
+	if accounts[0].Id == "" {
+		t.Error("empty Account.Id")
 	}
 }
 
@@ -130,11 +130,11 @@ func TestAccounts__SearchAccounts(t *testing.T) {
 		t.Errorf("bogus status code: %d", w.Code)
 	}
 
-	var acct gl.Account // TODO(adam): check more of Customer response?
+	var acct accounts.Account // TODO(adam): check more of Customer response?
 	if err := json.NewDecoder(w.Body).Decode(&acct); err != nil {
 		t.Fatal(err)
 	}
-	if acct.ID == "" {
-		t.Error("empty Account.ID")
+	if acct.Id == "" {
+		t.Error("empty Account.Id")
 	}
 }

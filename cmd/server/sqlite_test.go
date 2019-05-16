@@ -32,12 +32,12 @@ func (r *testSqliteDB) close() error {
 //
 // Callers should call close on the returned *testSqliteDB.
 func createTestSqliteDB() (*testSqliteDB, error) {
-	dir, err := ioutil.TempDir("", "gl-sqlite")
+	dir, err := ioutil.TempDir("", "accounts-sqlite")
 	if err != nil {
 		return nil, err
 	}
 
-	db, err := createSqliteConnection(nil, filepath.Join(dir, "gl.db"))
+	db, err := createSqliteConnection(nil, filepath.Join(dir, "accounts.db"))
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func TestSqlite__basic(t *testing.T) {
 }
 
 func TestSqlite__getSqlitePath(t *testing.T) {
-	if v := getSqlitePath(); v != "gl.db" {
+	if v := getSqlitePath(); v != "accounts.db" {
 		t.Errorf("got %s", v)
 	}
 }

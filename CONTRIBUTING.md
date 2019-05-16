@@ -30,9 +30,9 @@ This project uses [Go Modules](https://github.com/golang/go/wiki/Modules) and th
 
 ```
 # Just pull down into the Go Module's cache, not the source code.
-$ go get -u github.com/moov-io/gl
+$ go get -u github.com/moov-io/accounts
 
-$ go doc github.com/moov-io/gl BatchHeader
+$ go doc github.com/moov-io/accounts/client
 ```
 
 You can pull a working repository of our code code with git:
@@ -40,17 +40,17 @@ You can pull a working repository of our code code with git:
 ```
 $ midir -p moov/
 $ cd moov/
-$ git clone git@github.com:moov-io/gl.git
+$ git clone git@github.com:moov-io/accounts.git
 ```
 
 We recommend using additional git remote's for pushing/pulling code. This allows you to use the same repository for submitting patches as tracking our code.
 
-First, [Fork our project](https://github.com/moov-io/gl) somewhere and after that's done add the remote:
+First, [Fork our project](https://github.com/moov-io/accounts) somewhere and after that's done add the remote:
 
 ```
-$ cd moov/gl # Whereever this project's source code is
+$ cd moov/accounts # Whereever this project's source code is
 
-$ git remote add $user git@github.com:$user/gl.git # After
+$ git remote add $user git@github.com:$user/accounts.git # After
 
 $ git fetch $user
 ```
@@ -71,4 +71,4 @@ A good quality PR will have the following characteristics:
 
 A good PR should be able to flow through a peer review system easily and quickly.
 
-Our Build pipeline utilizes [Travis-CI](https://travis-ci.org/moov-io/gl) to enforce many tools that you should add to your editor before issuing a pull request. Learn more about these tools on our [Go Report card](https://goreportcard.com/report/github.com/moov-io/paygate)
+Our Build pipeline utilizes [Travis-CI](https://travis-ci.org/moov-io/accounts) to enforce many tools that you should add to your editor before issuing a pull request. Learn more about these tools on our [Go Report card](https://goreportcard.com/report/github.com/moov-io/accounts)

@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
+	accounts "github.com/moov-io/accounts/client"
 	"github.com/moov-io/base"
-	"github.com/moov-io/gl"
 
 	"github.com/go-kit/kit/log"
 )
@@ -34,7 +34,7 @@ func createTestSqliteTransactionRepository(t *testing.T) *testSqliteTransactionR
 	if err != nil {
 		t.Fatal(err)
 	}
-	repo, err := setupSqliteTransactionStorage(log.NewNopLogger(), filepath.Join(db.dir, "gl.db"))
+	repo, err := setupSqliteTransactionStorage(log.NewNopLogger(), filepath.Join(db.dir, "accounts.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,14 +54,14 @@ func TestSqliteTransactionRepository(t *testing.T) {
 	repo := createTestSqliteTransactionRepository(t)
 	defer repo.Close()
 
-	// Override the accountRepository and write our gl.Accounts
+	// Override the accountRepository and write our accounts
 	account1, account2 := base.ID(), base.ID()
 	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
-		accounts: []*gl.Account{
+		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'remote' (routing number we don't manage)
 			// so we can send the ACH file and possibly get a return.
-			{ID: account1, AccountNumber: "123", RoutingNumber: "121042882"},
-			{ID: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
+			{Id: account1, AccountNumber: "123", RoutingNumber: "121042882"},
+			{Id: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
 		},
 	}
 
@@ -106,13 +106,13 @@ func TestSqliteTransactionRepository__Internal(t *testing.T) {
 	repo := createTestSqliteTransactionRepository(t)
 	defer repo.Close()
 
-	// Override the accountRepository and write our gl.Accounts
+	// Override the accountRepository and write our accounts
 	account1, account2 := base.ID(), base.ID()
 	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
-		accounts: []*gl.Account{
+		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'internal' (routing number we manage).
-			{ID: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
-			{ID: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
+			{Id: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
+			{Id: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
 		},
 	}
 
@@ -179,13 +179,13 @@ func TestSqliteTransactionRepository__AllowOverdraft(t *testing.T) {
 	repo := createTestSqliteTransactionRepository(t)
 	defer repo.Close()
 
-	// Override the accountRepository and write our gl.Accounts
+	// Override the accountRepository and write our accounts
 	account1, account2 := base.ID(), base.ID()
 	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
-		accounts: []*gl.Account{
+		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'internal' (routing number we manage).
-			{ID: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
-			{ID: account2, AccountNumber: "432", RoutingNumber: "121042882"},
+			{Id: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
+			{Id: account2, AccountNumber: "432", RoutingNumber: "121042882"},
 		},
 	}
 
@@ -231,13 +231,13 @@ func TestSqliteTransactionRepository__DisallowOverdraft(t *testing.T) {
 	repo := createTestSqliteTransactionRepository(t)
 	defer repo.Close()
 
-	// Override the accountRepository and write our gl.Accounts
+	// Override the accountRepository and write our accounts
 	account1, account2 := base.ID(), base.ID()
 	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
-		accounts: []*gl.Account{
+		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'internal' (routing number we manage).
-			{ID: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
-			{ID: account2, AccountNumber: "432", RoutingNumber: "121042882"},
+			{Id: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
+			{Id: account2, AccountNumber: "432", RoutingNumber: "121042882"},
 		},
 	}
 
@@ -263,11 +263,11 @@ func TestSqliteTransactionRepository__DisallowOverdraft(t *testing.T) {
 
 func TestTransactions__isInternalDebit(t *testing.T) {
 	account1, account2 := base.ID(), base.ID()
-	accounts := []*gl.Account{
+	accounts := []*accounts.Account{
 		// Setup the account being debited from as 'remote' (routing number we don't manage)
 		// so we can send the ACH file and possibly get a return.
-		{ID: account1, AccountNumber: "123", RoutingNumber: "121042882"},
-		{ID: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
+		{Id: account1, AccountNumber: "123", RoutingNumber: "121042882"},
+		{Id: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
 	}
 	lines := []transactionLine{
 		{AccountId: account1, Purpose: ACHDebit, Amount: -500},

@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/moov-io/gl"
+	accounts "github.com/moov-io/accounts/client"
 
 	"github.com/go-kit/kit/log"
 )
@@ -17,10 +17,10 @@ type accountRepository interface {
 	Ping() error
 	Close() error
 
-	GetAccounts(accountIds []string) ([]*gl.Account, error)
-	GetCustomerAccounts(customerId string) ([]*gl.Account, error)
-	CreateAccount(customerId string, account *gl.Account) error // TODO(adam): acctType needs strong type, we can drop customerId as it's on gl.Account
-	SearchAccounts(accountNumber, routingNumber, acctType string) (*gl.Account, error)
+	GetAccounts(accountIds []string) ([]*accounts.Account, error)
+	GetCustomerAccounts(customerId string) ([]*accounts.Account, error)
+	CreateAccount(customerId string, account *accounts.Account) error // TODO(adam): acctType needs strong type, we can drop customerId as it's on accounts.Account
+	SearchAccounts(accountNumber, routingNumber, acctType string) (*accounts.Account, error)
 }
 
 func initAccountStorage(logger log.Logger, name string) (accountRepository, error) {

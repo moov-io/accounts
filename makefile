@@ -6,12 +6,12 @@ VERSION := $(shell grep -Eo '(v[0-9]+[\.][0-9]+[\.][0-9]+([-a-zA-Z0-9]*)?)' vers
 build:
 	go fmt ./...
 	@mkdir -p ./bin/
-	go build github.com/moov-io/gl
-	CGO_ENABLED=1 go build -o ./bin/server github.com/moov-io/gl/cmd/server
+	go build github.com/moov-io/accounts
+	CGO_ENABLED=1 go build -o ./bin/server github.com/moov-io/accounts/cmd/server
 
 docker:
-	docker build --pull -t moov/gl:$(VERSION) -f Dockerfile .
-	docker tag moov/gl:$(VERSION) moov/gl:latest
+	docker build --pull -t moov/accounts:$(VERSION) -f Dockerfile .
+	docker tag moov/accounts:$(VERSION) moov/accounts:latest
 
 .PHONY: client
 client:
@@ -21,7 +21,7 @@ client:
 	OPENAPI_GENERATOR_VERSION=4.0.0 ./openapi-generator generate -i openapi.yaml -g go -o ./client
 	rm -f client/go.mod client/go.sum
 	go fmt ./...
-	go build github.com/moov-io/gl/client
+	go build github.com/moov-io/accounts/client
 	go test ./client
 
 clean:
@@ -31,9 +31,9 @@ clean:
 
 dist: clean generate build
 ifeq ($(OS),Windows_NT)
-	CGO_ENABLED=1 GOOS=windows go build -o bin/gl-windows-amd64.exe github.com/moov-io/gl/cmd/server
+	CGO_ENABLED=1 GOOS=windows go build -o bin/accounts-windows-amd64.exe github.com/moov-io/accounts/cmd/server
 else
-	CGO_ENABLED=1 GOOS=$(PLATFORM) go build -o bin/gl-$(PLATFORM)-amd64 github.com/moov-io/gl/cmd/server
+	CGO_ENABLED=1 GOOS=$(PLATFORM) go build -o bin/accounts-$(PLATFORM)-amd64 github.com/moov-io/accounts/cmd/server
 endif
 
 release: docker AUTHORS
@@ -42,7 +42,7 @@ release: docker AUTHORS
 	git tag -f $(VERSION)
 
 release-push:
-	docker push moov/gl:$(VERSION)
+	docker push moov/accounts:$(VERSION)
 
 # From https://github.com/genuinetools/img
 .PHONY: AUTHORS

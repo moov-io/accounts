@@ -1,5 +1,9 @@
 ## v0.3.0 (Unreleased)
 
+BREAKING CHANGES
+
+- This project is called `accounts` now and was renamed from `gl`.
+
 ADDITIONS
 
 - cmd/server: add initial transaction storage with QLedger

@@ -20,7 +20,7 @@ type transactionRepository interface {
 }
 
 type createTransactionOpts struct {
-	// AllowOverdraft is an option on creating a transaction where GL will let the account 'go negative'
+	// AllowOverdraft is an option on creating a transaction where we will let the account 'go negative'
 	// and extend credit from the FI to the customer.
 	AllowOverdraft bool
 

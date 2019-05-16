@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
+	accounts "github.com/moov-io/accounts/client"
 	"github.com/moov-io/base"
-	"github.com/moov-io/gl"
 
 	"github.com/go-kit/kit/log"
 )
@@ -34,7 +34,7 @@ func createTestSqliteAccountRepository(t *testing.T) *testSqliteAccountRepositor
 	if err != nil {
 		t.Fatal(err)
 	}
-	repo, err := setupSqliteAccountStorage(log.NewNopLogger(), filepath.Join(db.dir, "gl.db"))
+	repo, err := setupSqliteAccountStorage(log.NewNopLogger(), filepath.Join(db.dir, "accounts.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,25 +56,25 @@ func TestSqliteAccountRepository(t *testing.T) {
 
 	customerId, now := base.ID(), time.Now()
 	future := now.Add(24 * time.Hour)
-	account := &gl.Account{
-		ID:            base.ID(),
-		CustomerID:    customerId,
+	account := &accounts.Account{
+		Id:            base.ID(),
+		CustomerId:    customerId,
 		Name:          "test account",
 		AccountNumber: "12411",
 		RoutingNumber: "219871289",
 		Status:        "open",
 		Type:          "Savings",
 		CreatedAt:     time.Now(),
-		ClosedAt:      &future,
-		LastModified:  &now,
+		ClosedAt:      future,
+		LastModified:  now,
 	}
 	if err := repo.CreateAccount(customerId, account); err != nil {
 		t.Fatal(err)
 	}
 
-	otherAccount := &gl.Account{
-		ID:            base.ID(),
-		CustomerID:    base.ID(),
+	otherAccount := &accounts.Account{
+		Id:            base.ID(),
+		CustomerId:    base.ID(),
 		Name:          "other account",
 		AccountNumber: "18412481",
 		RoutingNumber: "219871289",
@@ -82,32 +82,32 @@ func TestSqliteAccountRepository(t *testing.T) {
 		Type:          "Checking",
 		CreatedAt:     time.Now(),
 	}
-	if err := repo.CreateAccount(otherAccount.CustomerID, otherAccount); err != nil {
+	if err := repo.CreateAccount(otherAccount.CustomerId, otherAccount); err != nil {
 		t.Fatal(err)
 	}
 
 	// read via one method
-	accounts, err := repo.GetAccounts([]string{account.ID})
+	accounts, err := repo.GetAccounts([]string{account.Id})
 	if err != nil {
 		t.Error(err)
 	}
 	if len(accounts) != 1 {
 		t.Fatalf("got %d accounts: %#v", len(accounts), accounts)
 	}
-	if accounts[0].ID != account.ID {
-		t.Errorf("Got %s", accounts[0].ID)
+	if accounts[0].Id != account.Id {
+		t.Errorf("Got %s", accounts[0].Id)
 	}
 
 	// and read via another
-	accounts, err = repo.GetCustomerAccounts(account.CustomerID)
+	accounts, err = repo.GetCustomerAccounts(account.CustomerId)
 	if err != nil {
 		t.Error(err)
 	}
 	if len(accounts) != 1 {
 		t.Fatalf("got %d accounts: %#v", len(accounts), accounts)
 	}
-	if accounts[0].ID != account.ID {
-		t.Errorf("Got %s", accounts[0].ID)
+	if accounts[0].Id != account.Id {
+		t.Errorf("Got %s", accounts[0].Id)
 	}
 
 	// finally via a third method
@@ -115,8 +115,8 @@ func TestSqliteAccountRepository(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if acct.ID != otherAccount.ID {
-		t.Errorf("found account %q", acct.ID)
+	if acct.Id != otherAccount.Id {
+		t.Errorf("found account %q", acct.Id)
 	}
 
 	// Change the case of otherAccount.Type
@@ -124,8 +124,8 @@ func TestSqliteAccountRepository(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if acct.ID != otherAccount.ID {
-		t.Errorf("found account %q", acct.ID)
+	if acct.Id != otherAccount.Id {
+		t.Errorf("found account %q", acct.Id)
 	}
 }
 
@@ -137,24 +137,24 @@ func TestSqliteAccountRepository_unique(t *testing.T) {
 
 	customerId, now := base.ID(), time.Now()
 	future := now.Add(24 * time.Hour)
-	account := &gl.Account{
-		ID:            base.ID(),
-		CustomerID:    customerId,
+	account := &accounts.Account{
+		Id:            base.ID(),
+		CustomerId:    customerId,
 		Name:          "test account",
 		AccountNumber: "12411",
 		RoutingNumber: "219871289",
 		Status:        "open",
 		Type:          "Savings",
 		CreatedAt:     time.Now(),
-		ClosedAt:      &future,
-		LastModified:  &now,
+		ClosedAt:      future,
+		LastModified:  now,
 	}
 	if err := repo.CreateAccount(customerId, account); err != nil {
 		t.Fatal(err)
 	}
 
 	// attempt again
-	account.ID = base.ID()
+	account.Id = base.ID()
 	if err := repo.CreateAccount(customerId, account); err == nil {
 		t.Error("expected error")
 	} else {
