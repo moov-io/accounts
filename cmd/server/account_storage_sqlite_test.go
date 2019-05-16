@@ -129,6 +129,19 @@ func TestSqliteAccountRepository(t *testing.T) {
 	}
 }
 
+func TestSqliteAccounts__GetAccounts(t *testing.T) {
+	repo := createTestSqliteAccountRepository(t)
+	defer repo.Close()
+
+	accounts, err := repo.GetAccounts(nil)
+	if err == nil {
+		t.Errorf("expected error")
+	}
+	if len(accounts) != 0 {
+		t.Errorf("unexpected %d accounts: %v", len(accounts), accounts)
+	}
+}
+
 // TestSqliteAccountRepository_unique will ensure we can't insert multiple accounts
 // with the same account and routing numbers.
 func TestSqliteAccountRepository_unique(t *testing.T) {
