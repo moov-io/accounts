@@ -29,7 +29,7 @@ clean:
 	@rm -rf tmp/
 	@rm -f openapi-generator-cli-*.jar
 
-dist: clean generate build
+dist: clean client build
 ifeq ($(OS),Windows_NT)
 	CGO_ENABLED=1 GOOS=windows go build -o bin/accounts-windows-amd64.exe github.com/moov-io/accounts/cmd/server
 else
