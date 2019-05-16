@@ -3,7 +3,7 @@ servers:
   - description: Local development
     url: http://localhost:8085
 info:
-  description: Moov GL is an HTTP service which represents both a general ledger and chart of accounts for customers. The service is designed to abstract over various core systems and provide a uniform API for developers.
+  description: Moov Accounts is an HTTP service which represents both a general ledger and chart of accounts for customers. The service is designed to abstract over various core systems and provide a uniform API for developers.
   version: 1.0.0
   title: Simple Core System API
   contact:
@@ -12,17 +12,17 @@ info:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 tags:
-  - name: GL
+  - name: Accounts
     description: |
-      GL endpoints cover both Customers and their Accounts at a Financial Instittuion.
+      Accounts endpoints cover both Customers and their Accounts at a Financial Instittuion.
        - A customer is a single individual who can own account's. Customers need to be verified via KYC before they can make transactions or own accounts.
        - An account is financial institution account associated with a single customer
 paths:
   /ping:
     get:
       tags:
-        - GL
-      summary: Ping the GL service to check if running
+        - Accounts
+      summary: Ping the Accounts service to check if running
       operationId: ping
       responses:
         '200':
@@ -30,7 +30,7 @@ paths:
   /accounts/search:
     get:
       tags:
-        - GL
+        - Accounts
       summary: Search for account which matches all query parameters
       operationId: searchAccounts
       parameters:
@@ -80,7 +80,7 @@ paths:
   /accounts/transactions:
     post:
       tags:
-        - GL
+        - Accounts
       summary: Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
       operationId: createTransaction
       parameters:
@@ -119,7 +119,7 @@ paths:
   /accounts/{account_id}/transactions:
     get:
       tags:
-        - GL
+        - Accounts
       summary: Get transactions for an account. Ordered descending from their posted date.
       operationId: getAccountTransactions
       parameters:
@@ -159,7 +159,7 @@ paths:
   /customers/{customer_id}/accounts:
     get:
       tags:
-        - GL
+        - Accounts
       summary: Retrieves a list of accounts associated with the customer ID.
       operationId: getAccountsByCustomerID
       parameters:
@@ -194,7 +194,7 @@ paths:
           description: A resource with the specified ID was not found
     post:
       tags:
-        - GL
+        - Accounts
       summary: Create a new account for a Customer
       operationId: createAccount
       parameters:
@@ -267,7 +267,7 @@ components:
     Account:
       type: object
       properties:
-        accountId:
+        id:
           type: string
           format: uuid
           description: The unique identifier for an account

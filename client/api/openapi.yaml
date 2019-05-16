@@ -2,9 +2,9 @@ openapi: 3.0.2
 info:
   contact:
     url: https://groups.google.com/forum/#!forum/moov-users
-  description: Moov GL is an HTTP service which represents both a general ledger and
-    chart of accounts for customers. The service is designed to abstract over various
-    core systems and provide a uniform API for developers.
+  description: Moov Accounts is an HTTP service which represents both a general ledger
+    and chart of accounts for customers. The service is designed to abstract over
+    various core systems and provide a uniform API for developers.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -15,10 +15,10 @@ servers:
   url: http://localhost:8085
 tags:
 - description: |
-    GL endpoints cover both Customers and their Accounts at a Financial Instittuion.
+    Accounts endpoints cover both Customers and their Accounts at a Financial Instittuion.
      - A customer is a single individual who can own account's. Customers need to be verified via KYC before they can make transactions or own accounts.
      - An account is financial institution account associated with a single customer
-  name: GL
+  name: Accounts
 paths:
   /ping:
     get:
@@ -26,9 +26,9 @@ paths:
       responses:
         200:
           description: Service is running properly
-      summary: Ping the GL service to check if running
+      summary: Ping the Accounts service to check if running
       tags:
-      - GL
+      - Accounts
   /accounts/search:
     get:
       operationId: searchAccounts
@@ -90,7 +90,7 @@ paths:
           description: No account found for provided query parameters
       summary: Search for account which matches all query parameters
       tags:
-      - GL
+      - Accounts
   /accounts/transactions:
     post:
       operationId: createTransaction
@@ -138,7 +138,7 @@ paths:
         moved from account to account. Accounts can be referred to in a Transaction
         without creating them first.
       tags:
-      - GL
+      - Accounts
   /accounts/{account_id}/transactions:
     get:
       operationId: getAccountTransactions
@@ -190,7 +190,7 @@ paths:
       summary: Get transactions for an account. Ordered descending from their posted
         date.
       tags:
-      - GL
+      - Accounts
   /customers/{customer_id}/accounts:
     get:
       operationId: getAccountsByCustomerID
@@ -234,7 +234,7 @@ paths:
           description: A resource with the specified ID was not found
       summary: Retrieves a list of accounts associated with the customer ID.
       tags:
-      - GL
+      - Accounts
     post:
       operationId: createAccount
       parameters:
@@ -289,7 +289,7 @@ paths:
           description: Internal error, check error(s) and report the issue.
       summary: Create a new account for a Customer
       tags:
-      - GL
+      - Accounts
 components:
   schemas:
     CreateAccount:
@@ -327,17 +327,17 @@ components:
         accountNumber: "987654321"
         type: Checking
         balancePending: 100
-        accountId: d290f1ee-6c54-4b01-90e6-d701748f0851
         routingNumber: "073000176"
         createdAt: 2000-01-23T04:56:07.000+00:00
         balance: 1000
         customerId: e210a9d6-d755-4455-9bd2-9577ea7e1081
         name: Super Checking
+        id: d290f1ee-6c54-4b01-90e6-d701748f0851
         lastModified: 2000-01-23T04:56:07.000+00:00
         closedAt: 2000-01-23T04:56:07.000+00:00
         status: Open
       properties:
-        accountId:
+        id:
           description: The unique identifier for an account
           example: d290f1ee-6c54-4b01-90e6-d701748f0851
           format: uuid

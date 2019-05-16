@@ -1,17 +1,17 @@
-moov-io/gl
+moov-io/accounts
 ===
 
-[![GoDoc](https://godoc.org/github.com/moov-io/gl?status.svg)](https://godoc.org/github.com/moov-io/gl)
-[![Build Status](https://travis-ci.com/moov-io/gl.svg?branch=master)](https://travis-ci.com/moov-io/gl)
-[![Coverage Status](https://codecov.io/gh/moov-io/gl/branch/master/graph/badge.svg)](https://codecov.io/gh/moov-io/gl)
-[![Go Report Card](https://goreportcard.com/badge/github.com/moov-io/gl)](https://goreportcard.com/report/github.com/moov-io/gl)
-[![Apache 2 licensed](https://img.shields.io/badge/license-Apache2-blue.svg)](https://raw.githubusercontent.com/moov-io/gl/master/LICENSE)
+[![GoDoc](https://godoc.org/github.com/moov-io/accounts?status.svg)](https://godoc.org/github.com/moov-io/accounts)
+[![Build Status](https://travis-ci.com/moov-io/accounts.svg?branch=master)](https://travis-ci.com/moov-io/accounts)
+[![Coverage Status](https://codecov.io/gh/moov-io/accounts/branch/master/graph/badge.svg)](https://codecov.io/gh/moov-io/accounts)
+[![Go Report Card](https://goreportcard.com/badge/github.com/moov-io/accounts)](https://goreportcard.com/report/github.com/moov-io/accounts)
+[![Apache 2 licensed](https://img.shields.io/badge/license-Apache2-blue.svg)](https://raw.githubusercontent.com/moov-io/accounts/master/LICENSE)
 
 *project is under active development and is not production ready*
 
-GL is an RESTful API implementation of an accounting [General Ledger](https://en.wikipedia.org/wiki/General_ledger) used to track monetary transfers in digital systems. Our primary use is with [paygate](https://github.com/moov-io/paygate). This implementation is currently not complete for use in production, but any advice or feedback would be greatly appreciated!
+Accounts is an RESTful API implementation of an accounting [General Ledger](https://en.wikipedia.org/wiki/General_ledger) used to track monetary transfers in digital systems. Our primary use is with [paygate](https://github.com/moov-io/paygate). This implementation is currently not complete for use in production, but any advice or feedback would be greatly appreciated!
 
-Docs: [docs.moov.io](https://docs.moov.io/en/latest/) | [api docs](https://api.moov.io/apps/gl/)
+Docs: [docs.moov.io](https://docs.moov.io/en/latest/) | [api docs](https://api.moov.io/apps/accounts/)
 
 ### Reading
 

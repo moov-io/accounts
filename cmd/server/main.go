@@ -16,10 +16,10 @@ import (
 	"syscall"
 	"time"
 
+	app "github.com/moov-io/accounts"
 	"github.com/moov-io/base/admin"
 	moovhttp "github.com/moov-io/base/http"
 	"github.com/moov-io/base/http/bind"
-	"github.com/moov-io/gl"
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
@@ -27,14 +27,20 @@ import (
 )
 
 var (
-	httpAddr  = flag.String("http.addr", bind.HTTP("gl"), "HTTP listen address")
-	adminAddr = flag.String("admin.addr", bind.Admin("gl"), "Admin HTTP listen address")
+	httpAddr  = flag.String("http.addr", bind.HTTP("accounts"), "HTTP listen address")
+	adminAddr = flag.String("admin.addr", bind.Admin("accounts"), "Admin HTTP listen address")
 
 	flagLogFormat = flag.String("log.format", "", "Format for log lines (Options: json, plain")
 )
 
 func main() {
 	flag.Parse()
+
+	fmt.Printf("http: %q\n", bind.HTTP("accounts"))
+	fmt.Printf("admin: %q\n", bind.Admin("accounts"))
+
+	fmt.Printf("http: %q\n", bind.HTTP("gl"))
+	fmt.Printf("admin: %q\n", bind.Admin("gl"))
 
 	var logger log.Logger
 	if strings.ToLower(*flagLogFormat) == "json" {
@@ -45,7 +51,7 @@ func main() {
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 	logger = log.With(logger, "caller", log.DefaultCaller)
 
-	logger.Log("startup", fmt.Sprintf("Starting moov/gl server version %s", gl.Version))
+	logger.Log("startup", fmt.Sprintf("Starting moov/accounts server version %s", app.Version))
 
 	// Check for default routing number
 	if defaultRoutingNumber == "" { // accounts.go

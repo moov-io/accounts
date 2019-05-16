@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/moov-io/gl"
+	accounts "github.com/moov-io/accounts/client"
 
 	"github.com/go-kit/kit/log"
 )
@@ -42,15 +42,15 @@ func (r *sqliteTransactionRepository) Close() error {
 }
 
 // isInternalDebit returns true only when the debited account's routing number matches
-// GL's configured routing number. This means we have to be accountable for choosing
+// the configured default routing number. This means we have to be accountable for choosing
 // to allow an overdraft or not.
-func isInternalDebit(accounts []*gl.Account, lines []transactionLine, glRoutingNumber string) bool {
+func isInternalDebit(accounts []*accounts.Account, lines []transactionLine, routingNumber string) bool {
 	for i := range accounts {
 		for j := range lines {
-			if accounts[i].ID == lines[j].AccountId {
+			if accounts[i].Id == lines[j].AccountId {
 				switch lines[j].Purpose {
 				case ACHDebit:
-					return accounts[i].RoutingNumber == glRoutingNumber
+					return accounts[i].RoutingNumber == routingNumber
 				}
 			}
 		}
@@ -122,11 +122,11 @@ func (r *sqliteTransactionRepository) createTransaction(t transaction, opts crea
 		// The current account balance is negative, so if that balance is less negative than the transaction amount that means the
 		// account was overdrawn (i.e. insufficient funds). If the balances are equal then we also ran out of funds.
 		//
-		// If the debited account is external then allow the transfer. (That GL system will send back a returned file on an insufficient balance.)
+		// If the debited account is external then allow the transfer. (That accounts system will send back a returned file on an insufficient balance.)
 		if opts.AllowOverdraft || !isInternalDebit(accounts, t.Lines, defaultRoutingNumber) {
 			continue
 		}
-		if balance <= 0 || (balance <= int64(t.Lines[i].Amount) && t.Lines[i].Purpose == ACHDebit) {
+		if balance <= 0 || (balance <= int32(t.Lines[i].Amount) && t.Lines[i].Purpose == ACHDebit) {
 			return fmt.Errorf("acocunt=%q has insufficient funds: rollback=%v", t.Lines[i].AccountId, tx.Rollback())
 		}
 	}
@@ -224,7 +224,7 @@ func (r *sqliteTransactionRepository) getTransaction(tx *sql.Tx, transactionId s
 	}, rows.Err()
 }
 
-func (r *sqliteTransactionRepository) getAccountBalance(tx *sql.Tx, accountId string) (int64, error) {
+func (r *sqliteTransactionRepository) getAccountBalance(tx *sql.Tx, accountId string) (int32, error) {
 	// TODO(adam): At some point we should probably checkpoint balances so we avoid an entire index scan on an account_id
 	query := `select coalesce(sum(amount), 0) from transaction_lines where account_id = ? and deleted_at is null;`
 	stmt, err := tx.Prepare(query)
@@ -233,7 +233,7 @@ func (r *sqliteTransactionRepository) getAccountBalance(tx *sql.Tx, accountId st
 	}
 	defer stmt.Close()
 
-	var amount int64
+	var amount int32
 	if err := stmt.QueryRow(accountId).Scan(&amount); err != nil {
 		return 0, err
 	}

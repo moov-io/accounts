@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/moov-io/gl"
+	accounts "github.com/moov-io/accounts/client"
 
 	"github.com/go-kit/kit/log"
 )
@@ -42,7 +42,7 @@ func (r *sqliteAccountRepository) Close() error {
 	return r.db.Close()
 }
 
-func (r *sqliteAccountRepository) GetAccounts(accountIds []string) ([]*gl.Account, error) {
+func (r *sqliteAccountRepository) GetAccounts(accountIds []string) ([]*accounts.Account, error) {
 	if len(accountIds) > 250 {
 		return nil, fmt.Errorf("sqlite.GetAccounts: too many accountIds (%d)", len(accountIds))
 	}
@@ -70,20 +70,20 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 	}
 	defer rows.Close()
 
-	var accounts []*gl.Account
+	var out []*accounts.Account
 	for rows.Next() {
-		var a gl.Account
-		err := rows.Scan(&a.ID, &a.CustomerID, &a.Name, &a.AccountNumber, &a.RoutingNumber, &a.Status, &a.Type, &a.CreatedAt, &a.ClosedAt, &a.LastModified)
+		var a accounts.Account
+		err := rows.Scan(&a.Id, &a.CustomerId, &a.Name, &a.AccountNumber, &a.RoutingNumber, &a.Status, &a.Type, &a.CreatedAt, &a.ClosedAt, &a.LastModified)
 		if err != nil {
-			return nil, fmt.Errorf("sqlite.GetAccounts: account=%q: %v", a.ID, err)
+			return nil, fmt.Errorf("sqlite.GetAccounts: account=%q: %v", a.Id, err)
 		}
-		balance, err := r.transactionRepo.getAccountBalance(tx, a.ID)
+		balance, err := r.transactionRepo.getAccountBalance(tx, a.Id)
 		if err != nil {
-			return nil, fmt.Errorf("sqlite.GetAccounts: getAccountBalance: account=%q: %v", a.ID, err)
+			return nil, fmt.Errorf("sqlite.GetAccounts: getAccountBalance: account=%q: %v", a.Id, err)
 		}
 		// TODO(adam): need Balance, BalanceAvailable, and BalancePending
 		a.Balance = balance
-		accounts = append(accounts, &a)
+		out = append(out, &a)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("sqlite.GetAccounts: scan: %v", err)
@@ -91,10 +91,10 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("sqlite.GetAccounts: commit: %v", err)
 	}
-	return accounts, nil
+	return out, nil
 }
 
-func (r *sqliteAccountRepository) GetCustomerAccounts(customerId string) ([]*gl.Account, error) {
+func (r *sqliteAccountRepository) GetCustomerAccounts(customerId string) ([]*accounts.Account, error) {
 	query := `select account_id from accounts where customer_id = ? and deleted_at is null;`
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
@@ -122,19 +122,19 @@ func (r *sqliteAccountRepository) GetCustomerAccounts(customerId string) ([]*gl.
 	return r.GetAccounts(accountIds)
 }
 
-func (r *sqliteAccountRepository) CreateAccount(customerId string, a *gl.Account) error {
-	query := `insert into accounts (account_id, customer_id, name, account_number, routing_number, status, type, created_at) values (?, ?, ?, ?, ?, ?, ?, ?);`
+func (r *sqliteAccountRepository) CreateAccount(customerId string, a *accounts.Account) error {
+	query := `insert into accounts (account_id, customer_id, name, account_number, routing_number, status, type, created_at, closed_at, last_modified) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(a.ID, a.CustomerID, a.Name, a.AccountNumber, a.RoutingNumber, a.Status, a.Type, a.CreatedAt)
+	_, err = stmt.Exec(a.Id, a.CustomerId, a.Name, a.AccountNumber, a.RoutingNumber, a.Status, a.Type, a.CreatedAt, a.ClosedAt, a.LastModified)
 	return err
 }
 
-func (r *sqliteAccountRepository) SearchAccounts(accountNumber, routingNumber, acctType string) (*gl.Account, error) {
+func (r *sqliteAccountRepository) SearchAccounts(accountNumber, routingNumber, acctType string) (*accounts.Account, error) {
 	query := `select account_id from accounts where account_number = ? and routing_number = ? and lower(type) = lower(?) and deleted_at is null limit 1;`
 	stmt, err := r.db.Prepare(query)
 	if err != nil {

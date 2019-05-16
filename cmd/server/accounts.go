@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
+	accounts "github.com/moov-io/accounts/client"
 	"github.com/moov-io/base"
 	moovhttp "github.com/moov-io/base/http"
-	"github.com/moov-io/gl"
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
@@ -128,16 +128,16 @@ func createCustomerAccount(logger log.Logger, accountRepo accountRepository, tra
 		}
 
 		customerId, now := getCustomerId(w, r), time.Now()
-		account := &gl.Account{
-			ID:            base.ID(),
-			CustomerID:    customerId,
+		account := &accounts.Account{
+			Id:            base.ID(),
+			CustomerId:    customerId,
 			Name:          req.Name,
 			AccountNumber: createAccountNumber(),
 			RoutingNumber: defaultRoutingNumber,
 			Status:        "open",
 			Type:          req.Type,
 			CreatedAt:     now,
-			LastModified:  &now,
+			LastModified:  now,
 		}
 
 		if err := accountRepo.CreateAccount(customerId, account); err != nil {
@@ -150,7 +150,7 @@ func createCustomerAccount(logger log.Logger, accountRepo accountRepository, tra
 		tx := (&createTransactionRequest{
 			Lines: []transactionLine{
 				{
-					AccountId: account.ID,
+					AccountId: account.Id,
 					Purpose:   ACHCredit,
 					Amount:    req.Balance,
 				},

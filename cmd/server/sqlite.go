@@ -33,7 +33,7 @@ func getSqlitePath() string {
 	if path == "" || strings.Contains(path, "..") {
 		// set default if empty or trying to escape
 		// don't filepath.ABS to avoid full-fs reads
-		path = "gl.db"
+		path = "accounts.db"
 	}
 	return path
 }
