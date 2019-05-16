@@ -36,12 +36,6 @@ var (
 func main() {
 	flag.Parse()
 
-	fmt.Printf("http: %q\n", bind.HTTP("accounts"))
-	fmt.Printf("admin: %q\n", bind.Admin("accounts"))
-
-	fmt.Printf("http: %q\n", bind.HTTP("gl"))
-	fmt.Printf("admin: %q\n", bind.Admin("gl"))
-
 	var logger log.Logger
 	if strings.ToLower(*flagLogFormat) == "json" {
 		logger = log.NewJSONLogger(os.Stderr)
