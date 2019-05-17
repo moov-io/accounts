@@ -134,8 +134,8 @@ func TestSqliteAccounts__GetAccounts(t *testing.T) {
 	defer repo.Close()
 
 	accounts, err := repo.GetAccounts(nil)
-	if err == nil {
-		t.Errorf("expected error")
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
 	}
 	if len(accounts) != 0 {
 		t.Errorf("unexpected %d accounts: %v", len(accounts), accounts)

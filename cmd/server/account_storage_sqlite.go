@@ -43,8 +43,8 @@ func (r *sqliteAccountRepository) Close() error {
 }
 
 func (r *sqliteAccountRepository) GetAccounts(accountIds []string) ([]*accounts.Account, error) {
-	if n := len(accountIds); n <= 0 || n > 250 {
-		return nil, fmt.Errorf("sqlite.GetAccounts: invalid amount of accountIds (%d)", n)
+	if len(accountIds) == 0 {
+		return nil, nil // no accountIds to find
 	}
 
 	tx, err := r.db.Begin()

@@ -20,7 +20,6 @@ BUG FIXES
 - cmd/server: add missing database/sql Rows.Close()
 - cmd/server: return database/sql Rows.Err
 - cmd/server: accounts: case-insensitive compare for account type
-- cmd/server: accounts: fix negative strings.Repeat call
 
 ## v0.2.2 (Released 2019-03-27)
 
