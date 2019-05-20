@@ -13,6 +13,7 @@ ADDITIONS
 - cmd/server: transactions: setup initial sqlite persistence for transactions
 - cmd/server: add 'balance' to account creation to track initial balance
 - cmd/server: compute overdraft correctly by rejecting accounts in the negative
+- all: add customerId as query parameter to account search
 
 BUG FIXES
 
