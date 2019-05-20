@@ -33,10 +33,9 @@ All URIs are relative to *http://localhost:8085*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*AccountsApi* | [**CreateAccount**](docs/AccountsApi.md#createaccount) | **Post** /customers/{customer_id}/accounts | Create a new account for a Customer
+*AccountsApi* | [**CreateAccount**](docs/AccountsApi.md#createaccount) | **Post** /accounts | Create a new account for a Customer
 *AccountsApi* | [**CreateTransaction**](docs/AccountsApi.md#createtransaction) | **Post** /accounts/transactions | Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
 *AccountsApi* | [**GetAccountTransactions**](docs/AccountsApi.md#getaccounttransactions) | **Get** /accounts/{account_id}/transactions | Get transactions for an account. Ordered descending from their posted date.
-*AccountsApi* | [**GetAccountsByCustomerID**](docs/AccountsApi.md#getaccountsbycustomerid) | **Get** /customers/{customer_id}/accounts | Retrieves a list of accounts associated with the customer ID.
 *AccountsApi* | [**Ping**](docs/AccountsApi.md#ping) | **Get** /ping | Ping the Accounts service to check if running
 *AccountsApi* | [**SearchAccounts**](docs/AccountsApi.md#searchaccounts) | **Get** /accounts/search | Search for account which matches all query parameters
 

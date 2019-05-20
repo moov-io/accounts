@@ -18,9 +18,10 @@ type accountRepository interface {
 	Close() error
 
 	GetAccounts(accountIds []string) ([]*accounts.Account, error)
-	GetCustomerAccounts(customerId string) ([]*accounts.Account, error)
 	CreateAccount(customerId string, account *accounts.Account) error // TODO(adam): acctType needs strong type, we can drop customerId as it's on accounts.Account
-	SearchAccounts(accountNumber, routingNumber, acctType string) (*accounts.Account, error)
+
+	SearchAccountsByCustomerId(customerId string) ([]*accounts.Account, error)
+	SearchAccountsByRoutingNumber(accountNumber, routingNumber, acctType string) (*accounts.Account, error)
 }
 
 func initAccountStorage(logger log.Logger, name string) (accountRepository, error) {

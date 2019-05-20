@@ -42,7 +42,7 @@ func (r *testAccountRepository) CreateAccount(customerId string, account *accoun
 	return r.err
 }
 
-func (r *testAccountRepository) SearchAccounts(accountNumber, routingNumber, acctType string) (*accounts.Account, error) {
+func (r *testAccountRepository) SearchAccountsByRoutingNumber(accountNumber, routingNumber, acctType string) (*accounts.Account, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -50,4 +50,11 @@ func (r *testAccountRepository) SearchAccounts(accountNumber, routingNumber, acc
 		return r.accounts[0], nil
 	}
 	return nil, nil
+}
+
+func (r *testAccountRepository) SearchAccountsByCustomerId(customerId string) ([]*accounts.Account, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+	return r.accounts, nil
 }

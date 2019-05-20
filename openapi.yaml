@@ -37,24 +37,27 @@ paths:
         - name: number
           in: query
           description: Account number
-          required: true
           schema:
             type: string
             example: 2151
         - name: routingNumber
           in: query
           description: ABA routing number for the Financial Institution
-          required: true
           schema:
             type: string
             example: "69100013"
         - name: type
           in: query
           description: Account type
-          required: true
           schema:
             type: string
             example: Checking
+        - name: customerId
+          in: query
+          description: Customer ID associated to accounts
+          schema:
+            type: string
+            example: cb9012eb
         - name: X-Request-Id
           in: header
           description: Optional Request ID allows application developer to trace requests through the systems logs
@@ -156,55 +159,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Transactions'
-  /customers/{customer_id}/accounts:
-    get:
-      tags:
-        - Accounts
-      summary: Retrieves a list of accounts associated with the customer ID.
-      operationId: getAccountsByCustomerID
-      parameters:
-        - name: customer_id
-          in: path
-          description: Customer Id
-          required: true
-          schema:
-            type: string
-            example: e210a9d6-d755-4455-9bd2-9577ea7e1081
-        - name: X-Request-Id
-          in: header
-          description: Optional Request ID allows application developer to trace requests through the systems logs
-          example: rs4f9915
-          schema:
-            type: string
-        - name: X-User-Id
-          in: header
-          description: Moov User ID header, required in all requests
-          example: e3cdf999
-          schema:
-            type: string
-          required: true
-      responses:
-        '200':
-          description: An array of account objects for the supplied customer ID
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Accounts'
-        '404':
-          description: A resource with the specified ID was not found
+  /accounts:
     post:
       tags:
         - Accounts
       summary: Create a new account for a Customer
       operationId: createAccount
       parameters:
-        - name: customer_id
-          in: path
-          description: Customer Id
-          required: true
-          schema:
-            type: string
-            example: e210a9d6-d755-4455-9bd2-9577ea7e1081
         - name: X-Request-Id
           in: header
           description: Optional Request ID allows application developer to trace requests through the systems logs
@@ -245,10 +206,15 @@ components:
     CreateAccount:
       type: object
       required:
+        - customerId
         - balance
         - name
         - type
       properties:
+        customerId:
+          type: string
+          description: Customer ID associated with accounts
+          example: 0c584689
         balance:
           type: integer
           description: Initial balance of account in USD cents. This amount is to be deposited from an account at another Financial Institution or in-person (i.e. cash) on account creation.
