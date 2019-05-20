@@ -424,7 +424,7 @@ AccountsApiService Search for account which matches all query parameters
  * @param "Type_" (optional.String) -  Account type
  * @param "CustomerId" (optional.String) -  Customer ID associated to accounts
  * @param "XRequestId" (optional.String) -  Optional Request ID allows application developer to trace requests through the systems logs
-@return Account
+@return []Account
 */
 
 type SearchAccountsOpts struct {
@@ -435,14 +435,14 @@ type SearchAccountsOpts struct {
 	XRequestId    optional.String
 }
 
-func (a *AccountsApiService) SearchAccounts(ctx context.Context, xUserId string, localVarOptionals *SearchAccountsOpts) (Account, *http.Response, error) {
+func (a *AccountsApiService) SearchAccounts(ctx context.Context, xUserId string, localVarOptionals *SearchAccountsOpts) ([]Account, *http.Response, error) {
 	var (
 		localVarHttpMethod   = strings.ToUpper("Get")
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  Account
+		localVarReturnValue  []Account
 	)
 
 	// create path and map variables
@@ -507,7 +507,7 @@ func (a *AccountsApiService) SearchAccounts(ctx context.Context, xUserId string,
 			error: localVarHttpResponse.Status,
 		}
 		if localVarHttpResponse.StatusCode == 200 {
-			var v Account
+			var v []Account
 			err = a.client.decode(&v, localVarBody, localVarHttpResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

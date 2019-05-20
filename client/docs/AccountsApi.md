@@ -174,7 +174,7 @@ No authorization required
 
 ## SearchAccounts
 
-> Account SearchAccounts(ctx, xUserId, optional)
+> []Account SearchAccounts(ctx, xUserId, optional)
 Search for account which matches all query parameters
 
 ### Required Parameters
@@ -202,7 +202,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Account**](Account.md)
+[**[]Account**](Account.md)
 
 ### Authorization
 

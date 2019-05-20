@@ -77,7 +77,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Account'
+                $ref: '#/components/schemas/Accounts'
         '404':
           description: No account found for provided query parameters
   /accounts/transactions:
