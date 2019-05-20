@@ -4,4 +4,4 @@
 
 package accounts
 
-const Version = "v0.3.0-rc6"
+const Version = "v0.3.0-rc7"
