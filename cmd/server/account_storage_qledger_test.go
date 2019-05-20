@@ -86,7 +86,7 @@ func TestQLedger__Accounts(t *testing.T) {
 	}
 
 	// Now grab accounts for this customer
-	accounts, err := repo.GetCustomerAccounts(customerId)
+	accounts, err := repo.SearchAccountsByCustomerId(customerId)
 	if err != nil {
 		t.Error(err)
 	}
@@ -130,7 +130,7 @@ func TestQLedger__Accounts(t *testing.T) {
 	}
 
 	// Search for account
-	acct, err := repo.SearchAccounts(account.AccountNumber, account.RoutingNumber, "Checking")
+	acct, err := repo.SearchAccountsByRoutingNumber(account.AccountNumber, account.RoutingNumber, "Checking")
 	if err != nil {
 		t.Fatal(err)
 	}

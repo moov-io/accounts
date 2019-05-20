@@ -38,10 +38,16 @@ func init() {
 }
 
 func TestAccounts__createAccountRequest(t *testing.T) {
-	req := createAccountRequest{100, "example acct", "checking"} // $1
+	req := createAccountRequest{"customerId", 100, "example acct", "checking"} // $1
 	if err := req.validate(); err != nil {
 		t.Error(err)
 	}
+
+	req.CustomerId = ""
+	if err := req.validate(); err == nil {
+		t.Error("expected error")
+	}
+	req.CustomerId = "customerId"
 
 	req.Balance = 10 // $0.10
 	if err := req.validate(); err == nil {
@@ -62,8 +68,8 @@ func TestAccounts__createAccountRequest(t *testing.T) {
 
 func TestAccounts__CreateAccount(t *testing.T) {
 	w := httptest.NewRecorder()
-	body := strings.NewReader(`{"balance": 1000, "name": "Money", "type": "Savings"}`)
-	req := httptest.NewRequest("POST", "/customers/foo/accounts", body)
+	body := strings.NewReader(`{"customerId": "customerId", "balance": 1000, "name": "Money", "type": "Savings"}`)
+	req := httptest.NewRequest("POST", "/accounts", body)
 	req.Header.Set("x-user-id", "test")
 
 	transactionRepo := &mockTransactionRepository{}
@@ -88,7 +94,7 @@ func TestAccounts__CreateAccount(t *testing.T) {
 
 func TestAccounts__GetCustomerAccounts(t *testing.T) {
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/customers/foo/accounts", nil)
+	req := httptest.NewRequest("GET", "/accounts/search?customerId=customerId", nil)
 	req.Header.Set("x-user-id", "test")
 
 	transactionRepo := &mockTransactionRepository{}
@@ -102,7 +108,7 @@ func TestAccounts__GetCustomerAccounts(t *testing.T) {
 		t.Errorf("bogus status code: %d", w.Code)
 	}
 
-	var accounts []accounts.Account // TODO(adam): check more of Customer response?
+	var accounts []accounts.Account
 	if err := json.NewDecoder(w.Body).Decode(&accounts); err != nil {
 		t.Fatal(err)
 	}
@@ -130,11 +136,11 @@ func TestAccounts__SearchAccounts(t *testing.T) {
 		t.Errorf("bogus status code: %d", w.Code)
 	}
 
-	var acct accounts.Account // TODO(adam): check more of Customer response?
-	if err := json.NewDecoder(w.Body).Decode(&acct); err != nil {
+	var accts []*accounts.Account
+	if err := json.NewDecoder(w.Body).Decode(&accts); err != nil {
 		t.Fatal(err)
 	}
-	if acct.Id == "" {
-		t.Error("empty Account.Id")
+	if len(accts) == 0 || accts[0].Id == "" {
+		t.Errorf("length:%d empty Account.Id", len(accts))
 	}
 }

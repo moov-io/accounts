@@ -50,23 +50,6 @@ func (r *qledgerAccountRepository) GetAccounts(accountIds []string) ([]*accounts
 	return convertAccounts(accts), nil
 }
 
-func (r *qledgerAccountRepository) GetCustomerAccounts(customerId string) ([]*accounts.Account, error) {
-	query := map[string]interface{}{
-		"query": map[string]interface{}{
-			"must": map[string]interface{}{
-				"terms": []map[string]interface{}{
-					{"customerId": customerId},
-				},
-			},
-		},
-	}
-	accts, err := r.api.SearchAccounts(query)
-	if err != nil {
-		return nil, err
-	}
-	return convertAccounts(accts), nil
-}
-
 func (r *qledgerAccountRepository) CreateAccount(customerId string, account *accounts.Account) error {
 	data := map[string]interface{}{
 		"accountId":        account.Id,
@@ -94,7 +77,7 @@ func (r *qledgerAccountRepository) CreateAccount(customerId string, account *acc
 	})
 }
 
-func (r *qledgerAccountRepository) SearchAccounts(accountNumber, routingNumber, acctType string) (*accounts.Account, error) {
+func (r *qledgerAccountRepository) SearchAccountsByRoutingNumber(accountNumber, routingNumber, acctType string) (*accounts.Account, error) {
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
 			"must": map[string]interface{}{
@@ -116,6 +99,23 @@ func (r *qledgerAccountRepository) SearchAccounts(accountNumber, routingNumber, 
 		return convertAccounts(accts)[0], nil
 	}
 	return nil, nil
+}
+
+func (r *qledgerAccountRepository) SearchAccountsByCustomerId(customerId string) ([]*accounts.Account, error) {
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"must": map[string]interface{}{
+				"terms": []map[string]interface{}{
+					{"customerId": customerId},
+				},
+			},
+		},
+	}
+	accts, err := r.api.SearchAccounts(query)
+	if err != nil {
+		return nil, err
+	}
+	return convertAccounts(accts), nil
 }
 
 func setupQLedgerAccountStorage(endpoint, apiToken string) (*qledgerAccountRepository, error) {

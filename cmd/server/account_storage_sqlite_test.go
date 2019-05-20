@@ -99,7 +99,7 @@ func TestSqliteAccountRepository(t *testing.T) {
 	}
 
 	// and read via another
-	accounts, err = repo.GetCustomerAccounts(account.CustomerId)
+	accounts, err = repo.SearchAccountsByCustomerId(account.CustomerId)
 	if err != nil {
 		t.Error(err)
 	}
@@ -111,7 +111,7 @@ func TestSqliteAccountRepository(t *testing.T) {
 	}
 
 	// finally via a third method
-	acct, err := repo.SearchAccounts(otherAccount.AccountNumber, otherAccount.RoutingNumber, otherAccount.Type)
+	acct, err := repo.SearchAccountsByRoutingNumber(otherAccount.AccountNumber, otherAccount.RoutingNumber, otherAccount.Type)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +120,7 @@ func TestSqliteAccountRepository(t *testing.T) {
 	}
 
 	// Change the case of otherAccount.Type
-	acct, err = repo.SearchAccounts(otherAccount.AccountNumber, otherAccount.RoutingNumber, "checKIng")
+	acct, err = repo.SearchAccountsByRoutingNumber(otherAccount.AccountNumber, otherAccount.RoutingNumber, "checKIng")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -37,7 +37,7 @@ paths:
         explode: true
         in: query
         name: number
-        required: true
+        required: false
         schema:
           example: "2151"
           type: string
@@ -46,7 +46,7 @@ paths:
         explode: true
         in: query
         name: routingNumber
-        required: true
+        required: false
         schema:
           example: "69100013"
           type: string
@@ -55,9 +55,18 @@ paths:
         explode: true
         in: query
         name: type
-        required: true
+        required: false
         schema:
           example: Checking
+          type: string
+        style: form
+      - description: Customer ID associated to accounts
+        explode: true
+        in: query
+        name: customerId
+        required: false
+        schema:
+          example: cb9012eb
           type: string
         style: form
       - description: Optional Request ID allows application developer to trace requests
@@ -191,62 +200,10 @@ paths:
         date.
       tags:
       - Accounts
-  /customers/{customer_id}/accounts:
-    get:
-      operationId: getAccountsByCustomerID
-      parameters:
-      - description: Customer Id
-        explode: false
-        in: path
-        name: customer_id
-        required: true
-        schema:
-          example: e210a9d6-d755-4455-9bd2-9577ea7e1081
-          type: string
-        style: simple
-      - description: Optional Request ID allows application developer to trace requests
-          through the systems logs
-        example: rs4f9915
-        explode: false
-        in: header
-        name: X-Request-Id
-        required: false
-        schema:
-          type: string
-        style: simple
-      - description: Moov User ID header, required in all requests
-        example: e3cdf999
-        explode: false
-        in: header
-        name: X-User-Id
-        required: true
-        schema:
-          type: string
-        style: simple
-      responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Accounts'
-          description: An array of account objects for the supplied customer ID
-        404:
-          description: A resource with the specified ID was not found
-      summary: Retrieves a list of accounts associated with the customer ID.
-      tags:
-      - Accounts
+  /accounts:
     post:
       operationId: createAccount
       parameters:
-      - description: Customer Id
-        explode: false
-        in: path
-        name: customer_id
-        required: true
-        schema:
-          example: e210a9d6-d755-4455-9bd2-9577ea7e1081
-          type: string
-        style: simple
       - description: Optional Request ID allows application developer to trace requests
           through the systems logs
         example: rs4f9915
@@ -295,9 +252,14 @@ components:
     CreateAccount:
       example:
         balance: 1000
+        customerId: 0c584689
         name: Super Checking
         type: Checking
       properties:
+        customerId:
+          description: Customer ID associated with accounts
+          example: 0c584689
+          type: string
         balance:
           description: Initial balance of account in USD cents. This amount is to
             be deposited from an account at another Financial Institution or in-person
@@ -317,6 +279,7 @@ components:
           type: string
       required:
       - balance
+      - customerId
       - name
       - type
       type: object

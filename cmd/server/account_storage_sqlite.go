@@ -94,34 +94,6 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 	return out, nil
 }
 
-func (r *sqliteAccountRepository) GetCustomerAccounts(customerId string) ([]*accounts.Account, error) {
-	query := `select account_id from accounts where customer_id = ? and deleted_at is null;`
-	stmt, err := r.db.Prepare(query)
-	if err != nil {
-		return nil, err
-	}
-	defer stmt.Close()
-
-	rows, err := stmt.Query(customerId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var accountIds []string
-	for rows.Next() {
-		var id string
-		if err := rows.Scan(&id); err != nil {
-			return nil, fmt.Errorf("sqlite.GetCustomerAccounts: account=%q: %v", id, err)
-		}
-		accountIds = append(accountIds, id)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return r.GetAccounts(accountIds)
-}
-
 func (r *sqliteAccountRepository) CreateAccount(customerId string, a *accounts.Account) error {
 	query := `insert into accounts (account_id, customer_id, name, account_number, routing_number, status, type, created_at, closed_at, last_modified) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`
 	stmt, err := r.db.Prepare(query)
@@ -134,7 +106,7 @@ func (r *sqliteAccountRepository) CreateAccount(customerId string, a *accounts.A
 	return err
 }
 
-func (r *sqliteAccountRepository) SearchAccounts(accountNumber, routingNumber, acctType string) (*accounts.Account, error) {
+func (r *sqliteAccountRepository) SearchAccountsByRoutingNumber(accountNumber, routingNumber, acctType string) (*accounts.Account, error) {
 	query := `select account_id from accounts where account_number = ? and routing_number = ? and lower(type) = lower(?) and deleted_at is null limit 1;`
 	stmt, err := r.db.Prepare(query)
 	if err != nil {
@@ -154,4 +126,32 @@ func (r *sqliteAccountRepository) SearchAccounts(accountNumber, routingNumber, a
 		return nil, fmt.Errorf("sqlite.SearchAccounts: no accounts: %v", err)
 	}
 	return accounts[0], nil
+}
+
+func (r *sqliteAccountRepository) SearchAccountsByCustomerId(customerId string) ([]*accounts.Account, error) {
+	query := `select account_id from accounts where customer_id = ? and deleted_at is null;`
+	stmt, err := r.db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(customerId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var accountIds []string
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, fmt.Errorf("sqlite.SearchAccountsByCustomerId: account=%q: %v", id, err)
+		}
+		accountIds = append(accountIds, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return r.GetAccounts(accountIds)
 }

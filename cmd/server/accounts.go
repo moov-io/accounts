@@ -39,14 +39,12 @@ func getCustomerId(w http.ResponseWriter, r *http.Request) string {
 }
 
 func addAccountRoutes(logger log.Logger, r *mux.Router, accountRepo accountRepository, transactionRepo transactionRepository) {
+	r.Methods("POST").Path("/accounts").HandlerFunc(createAccount(logger, accountRepo, transactionRepo))
 	r.Methods("GET").Path("/accounts/search").HandlerFunc(searchAccounts(logger, accountRepo))
-
-	r.Methods("GET").Path("/customers/{customerId}/accounts").HandlerFunc(getCustomerAccounts(logger, accountRepo))
-	r.Methods("POST").Path("/customers/{customerId}/accounts").HandlerFunc(createCustomerAccount(logger, accountRepo, transactionRepo))
 }
 
-// searchAccounts will attempt to find an Account which matches all query parameters and if all match return
-// the account. Otherwise a 404 will be returned. '400 Bad Request' will be returned if query parameters are missing.
+// searchAccounts will attempt to find Accounts which match all query parameters. Searching with an account number will only
+// return one account. Otherwise a 404 will be returned. '400 Bad Request' will be returned if query parameters are missing.
 func searchAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w, err := wrapResponseWriter(logger, w, r)
@@ -55,35 +53,59 @@ func searchAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc 
 		}
 
 		q := r.URL.Query()
-		reqAcctNumber, reqRoutingNumber := q.Get("number"), q.Get("routingNumber")
-		reqAcctType := q.Get("type")
-		if reqAcctNumber == "" || reqRoutingNumber == "" || reqAcctType == "" {
-			moovhttp.Problem(w, fmt.Errorf("missing query parameters: number=%q, routingNumber=%q, type=%q", reqAcctNumber, reqRoutingNumber, reqAcctType))
-			return
-		}
 
-		account, err := repo.SearchAccounts(reqAcctNumber, reqRoutingNumber, reqAcctType)
-		if err != nil || account == nil {
-			if requestId := moovhttp.GetRequestId(r); requestId != "" {
-				logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
+		// Search for a single account
+		reqAcctNumber, reqRoutingNumber, reqAcctType := q.Get("number"), q.Get("routingNumber"), q.Get("type")
+		if reqAcctNumber != "" && reqRoutingNumber != "" && reqAcctType != "" {
+			// Grab and return accounts
+			account, err := repo.SearchAccountsByRoutingNumber(reqAcctNumber, reqRoutingNumber, reqAcctType)
+			if err != nil || account == nil {
+				if requestId := moovhttp.GetRequestId(r); requestId != "" {
+					logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
+				}
+				moovhttp.Problem(w, fmt.Errorf("account not found, err=%v", err))
+				return
 			}
-			moovhttp.Problem(w, fmt.Errorf("account not found, err=%v", err))
+
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode([]*accounts.Account{account})
 			return
 		}
 
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(account)
+		// Search based on CustomerId
+		if customerId := q.Get("customerId"); customerId != "" {
+			accounts, err := repo.SearchAccountsByCustomerId(customerId)
+			if err != nil || len(accounts) == 0 {
+				if requestId := moovhttp.GetRequestId(r); requestId != "" {
+					logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
+				}
+				moovhttp.Problem(w, fmt.Errorf("account not found, err=%v", err))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(accounts)
+			return
+		}
+
+		// Error if we didn't quit early from query params
+		moovhttp.Problem(w, errors.New("missing account search query parameters"))
 	}
 }
 
 type createAccountRequest struct {
-	Balance int    `json:"balance"`
-	Name    string `json:"name"`
-	Type    string `json:"type"`
+	CustomerId string `json:"customerId"`
+	Balance    int    `json:"balance"`
+	Name       string `json:"name"`
+	Type       string `json:"type"`
 }
 
 func (r createAccountRequest) validate() error {
+	if r.CustomerId = strings.TrimSpace(r.CustomerId); r.CustomerId == "" {
+		return errors.New("createAccountRequest: empty customerId")
+	}
 	if r.Balance < 100 { // $1
 		return fmt.Errorf("createAccountRequest: invalid initial amount %d USD cents", r.Balance)
 	}
@@ -104,7 +126,7 @@ func createAccountNumber() string {
 	return fmt.Sprintf("%d", n.Int64())
 }
 
-func createCustomerAccount(logger log.Logger, accountRepo accountRepository, transactionRepo transactionRepository) http.HandlerFunc {
+func createAccount(logger log.Logger, accountRepo accountRepository, transactionRepo transactionRepository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w, err := wrapResponseWriter(logger, w, r)
 		if err != nil {
@@ -127,10 +149,10 @@ func createCustomerAccount(logger log.Logger, accountRepo accountRepository, tra
 			return
 		}
 
-		customerId, now := getCustomerId(w, r), time.Now()
+		now := time.Now()
 		account := &accounts.Account{
 			Id:            base.ID(),
-			CustomerId:    customerId,
+			CustomerId:    req.CustomerId,
 			Name:          req.Name,
 			AccountNumber: createAccountNumber(),
 			RoutingNumber: defaultRoutingNumber,
@@ -140,7 +162,7 @@ func createCustomerAccount(logger log.Logger, accountRepo accountRepository, tra
 			LastModified:  now,
 		}
 
-		if err := accountRepo.CreateAccount(customerId, account); err != nil {
+		if err := accountRepo.CreateAccount(req.CustomerId, account); err != nil {
 			logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
 			moovhttp.Problem(w, err)
 			return
@@ -165,27 +187,5 @@ func createCustomerAccount(logger log.Logger, accountRepo accountRepository, tra
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(account)
-	}
-}
-
-func getCustomerAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w, err := wrapResponseWriter(logger, w, r)
-		if err != nil {
-			return
-		}
-
-		accounts, err := repo.GetCustomerAccounts(getCustomerId(w, r))
-		if err != nil {
-			if requestId := moovhttp.GetRequestId(r); requestId != "" {
-				logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
-			}
-			moovhttp.Problem(w, err)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(accounts)
 	}
 }
