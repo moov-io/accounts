@@ -125,6 +125,15 @@ func TestQLedgerTransactions(t *testing.T) {
 		}
 	}
 
+	// Grab our transaction by its ID
+	transaction, err := transactionRepo.getTransaction(tx.ID)
+	if err != nil || transaction == nil {
+		t.Fatalf("transaction=%v error=%v", transaction, err)
+	}
+	if err := transaction.validate(); err != nil {
+		t.Fatal(err)
+	}
+
 	// Only cleanup if every test was successful, otherwise keep the containers around for debugging
 	transactionRepo.close()
 }

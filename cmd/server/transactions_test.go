@@ -25,6 +25,7 @@ type mockTransactionRepository struct {
 	err error
 
 	transactions []transaction
+	created      transaction
 }
 
 func (r *mockTransactionRepository) Ping() error {
@@ -39,6 +40,7 @@ func (r *mockTransactionRepository) createTransaction(tx transaction, opts creat
 	if err := tx.validate(); err != nil && !opts.InitialDeposit {
 		return err
 	}
+	r.created = tx
 	return r.err
 }
 
@@ -47,6 +49,13 @@ func (r *mockTransactionRepository) getAccountTransactions(accountID string) ([]
 		return nil, r.err
 	}
 	return r.transactions, nil
+}
+
+func (r *mockTransactionRepository) getTransaction(transactionId string) (*transaction, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+	return &r.transactions[0], nil
 }
 
 func TestTransactionPurpose(t *testing.T) {
@@ -310,5 +319,47 @@ func TestTransactions_CreateInvalid(t *testing.T) {
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("got %d", w.Code)
+	}
+}
+
+func TestTransactions__createTransactionReversal(t *testing.T) {
+	accountRepo := &testAccountRepository{}
+	transactionRepo := &mockTransactionRepository{
+		transactions: []transaction{
+			{
+				ID:        base.ID(),
+				Timestamp: time.Now(),
+				Lines: []transactionLine{
+					{
+						AccountId: base.ID(),
+						Purpose:   ACHDebit,
+						Amount:    -1000,
+					},
+					{
+						AccountId: base.ID(),
+						Purpose:   ACHCredit,
+						Amount:    1000,
+					},
+				},
+			},
+		},
+	}
+
+	router := mux.NewRouter()
+	addTransactionRoutes(log.NewNopLogger(), router, accountRepo, transactionRepo)
+
+	req := httptest.NewRequest("POST", fmt.Sprintf("/accounts/transactions/%s/reversal", transactionRepo.transactions[0].ID), nil)
+	req.Header.Set("x-user-id", base.ID())
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	w.Flush()
+
+	if w.Code != http.StatusOK {
+		t.Errorf("bogus HTTP status: %d", w.Code)
+	}
+	// Check that our reversed transaction is valid
+	if err := transactionRepo.created.validate(); err != nil {
+		t.Fatal(err)
 	}
 }

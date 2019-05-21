@@ -16,7 +16,8 @@ type transactionRepository interface {
 	Close() error
 
 	createTransaction(tx transaction, opts createTransactionOpts) error
-	getAccountTransactions(accountID string) ([]transaction, error) // TODO(adam): limit and/or pagination params
+	getAccountTransactions(accountId string) ([]transaction, error) // TODO(adam): limit and/or pagination params
+	getTransaction(transactionId string) (*transaction, error)
 }
 
 type createTransactionOpts struct {
