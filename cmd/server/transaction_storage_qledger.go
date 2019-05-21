@@ -105,7 +105,14 @@ func convertQLedgerTransactions(xfers []*mledge.Transaction) []transaction {
 			}
 			lines = append(lines, tx)
 		}
-		t, _ := time.Parse(models.LedgerTimestampLayout, xfers[i].Timestamp)
+		t, err := time.Parse(models.LedgerTimestampLayout, xfers[i].Timestamp)
+		if err != nil {
+			// Try another format that seems to show up in QLedger reads
+			t, _ = time.Parse("2006-01-02T15:04:05.000Z", xfers[i].Timestamp)
+		}
+		if t.IsZero() {
+			continue // really invalid format
+		}
 		transactions = append(transactions, transaction{
 			ID:        xfers[i].ID,
 			Timestamp: t,
