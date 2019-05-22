@@ -363,6 +363,15 @@ func TestTransactions__createTransactionReversal(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// verify our response was a transaction
+	var tx transaction
+	if err := json.NewDecoder(w.Body).Decode(&tx); err != nil {
+		t.Fatal(err)
+	}
+	if tx.ID != transactionRepo.created.ID {
+		t.Errorf("transactions don't match")
+	}
+
 	// set an error and ensure we fail
 	transactionRepo.err = errors.New("bad thing")
 
