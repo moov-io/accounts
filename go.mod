@@ -16,7 +16,7 @@ require (
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/golang/protobuf v1.3.1 // indirect
 	github.com/google/go-cmp v0.3.0 // indirect
-	github.com/gorilla/mux v1.7.1
+	github.com/gorilla/mux v1.7.2
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/hashicorp/golang-lru v0.5.1 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
