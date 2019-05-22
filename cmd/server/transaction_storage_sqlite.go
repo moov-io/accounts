@@ -170,7 +170,7 @@ func (r *sqliteTransactionRepository) getAccountTransactions(accountId string) (
 
 	var transactions []transaction
 	for i := range transactionIds {
-		t, err := r.getTransaction(tx, transactionIds[i])
+		t, err := r.loadTransaction(tx, transactionIds[i])
 		if err != nil {
 			return nil, fmt.Errorf("getAccountTransactions: looping: error=%v rollback=%v", err, tx.Rollback())
 		}
@@ -183,29 +183,41 @@ func (r *sqliteTransactionRepository) getAccountTransactions(accountId string) (
 	return transactions, nil
 }
 
-func (r *sqliteTransactionRepository) getTransaction(tx *sql.Tx, transactionId string) (*transaction, error) {
+func (r *sqliteTransactionRepository) getTransaction(transactionId string) (*transaction, error) {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return nil, fmt.Errorf("getTransaction: %v", err)
+	}
+	transaction, err := r.loadTransaction(tx, transactionId)
+	if err != nil {
+		return nil, fmt.Errorf("getTransaction: error=%v rollback=%v", err, tx.Rollback())
+	}
+	return transaction, tx.Commit()
+}
+
+func (r *sqliteTransactionRepository) loadTransaction(tx *sql.Tx, transactionId string) (*transaction, error) {
 	query := `select timestamp from transactions where transaction_id = ? and deleted_at is null limit 1;`
 	stmt, err := tx.Prepare(query)
 	if err != nil {
-		return nil, fmt.Errorf("getTransaction: timestamp: %v", err)
+		return nil, fmt.Errorf("loadTransaction: timestamp: %v", err)
 	}
 	var timestamp time.Time
 	if err := stmt.QueryRow(transactionId).Scan(&timestamp); err != nil {
 		stmt.Close()
-		return nil, fmt.Errorf("getTransaction: timestamp query: %v", err)
+		return nil, fmt.Errorf("loadTransaction: timestamp query: %v", err)
 	}
 	stmt.Close() // close to prevent leaks
 
 	query = `select account_id, purpose, amount from transaction_lines where transaction_id = ? and deleted_at is null`
 	stmt, err = tx.Prepare(query)
 	if err != nil {
-		return nil, fmt.Errorf("getTransaction: %v", err)
+		return nil, fmt.Errorf("loadTransaction: %v", err)
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(transactionId)
 	if err != nil {
-		return nil, fmt.Errorf("getTransaction: query: %v", err)
+		return nil, fmt.Errorf("loadTransaction: query: %v", err)
 	}
 	defer rows.Close()
 
@@ -213,7 +225,7 @@ func (r *sqliteTransactionRepository) getTransaction(tx *sql.Tx, transactionId s
 	for rows.Next() {
 		var line transactionLine
 		if err := rows.Scan(&line.AccountId, &line.Purpose, &line.Amount); err != nil {
-			return nil, fmt.Errorf("getTransaction: scan transaction=%q account=%q: %v", transactionId, line.AccountId, err)
+			return nil, fmt.Errorf("loadTransaction: scan transaction=%q account=%q: %v", transactionId, line.AccountId, err)
 		}
 		lines = append(lines, line)
 	}

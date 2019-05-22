@@ -99,6 +99,15 @@ func TestSqliteTransactionRepository(t *testing.T) {
 	if err != nil || bal != 500 {
 		t.Errorf("got balance of %d", bal)
 	}
+
+	// Grab our transaction by its ID
+	transaction, err := repo.getTransaction(tx.ID)
+	if err != nil || transaction == nil {
+		t.Fatalf("transaction=%v error=%v", transaction, err)
+	}
+	if err := transaction.validate(); err != nil {
+		t.Fatal(err)
+	}
 }
 
 // TestSqliteTransactionRepository__Internal will create an internal transfer

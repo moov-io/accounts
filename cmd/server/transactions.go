@@ -20,7 +20,8 @@ import (
 )
 
 var (
-	errNoAccountId = errors.New("no accountId found")
+	errNoAccountId     = errors.New("no accountId found")
+	errNoTransactionId = errors.New("no transactionId found")
 )
 
 type TransactionPurpose string
@@ -113,6 +114,7 @@ func (t transaction) validate() error {
 func addTransactionRoutes(logger log.Logger, router *mux.Router, accountRepo accountRepository, transactionRepo transactionRepository) {
 	router.Methods("GET").Path("/accounts/{accountId}/transactions").HandlerFunc(getAccountTransactions(logger, transactionRepo))
 	router.Methods("POST").Path("/accounts/transactions").HandlerFunc(createTransaction(logger, accountRepo, transactionRepo))
+	router.Methods("POST").Path("/accounts/transactions/{transactionId}/reversal").HandlerFunc(createTransactionReversal(logger, accountRepo, transactionRepo))
 }
 
 func getAccountId(w http.ResponseWriter, r *http.Request) string {
@@ -177,5 +179,60 @@ func createTransaction(logger log.Logger, accountRepo accountRepository, transac
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(tx)
+	}
+}
+
+func getTransactionId(w http.ResponseWriter, r *http.Request) string {
+	v, ok := mux.Vars(r)["transactionId"]
+	if !ok || v == "" {
+		moovhttp.Problem(w, errNoTransactionId)
+		return ""
+	}
+	return v
+}
+
+func createTransactionReversal(logger log.Logger, accountRepo accountRepository, transactionRepo transactionRepository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w, err := wrapResponseWriter(logger, w, r)
+		if err != nil {
+			return
+		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+		// Read our transactionId and do an info log
+		requestId, transactionId := moovhttp.GetRequestId(r), getTransactionId(w, r)
+		if transactionId == "" {
+			return
+		}
+		logger.Log("transaction", fmt.Sprintf("reversing transaction %s", transactionId), "requestId", requestId)
+
+		// reverse the transaction (after reading it from our database)
+		transaction, err := transactionRepo.getTransaction(transactionId)
+		if err != nil {
+			moovhttp.Problem(w, err)
+			return
+		}
+		transaction.ID = base.ID()
+		transaction.Timestamp = time.Now()
+		for i := range transaction.Lines {
+			// Swap Purpose back if Debit vs Credit
+			switch {
+			case transaction.Lines[i].Purpose == ACHCredit:
+				transaction.Lines[i].Purpose = ACHDebit
+			case transaction.Lines[i].Purpose == ACHDebit:
+				transaction.Lines[i].Purpose = ACHCredit
+			}
+			// Invert the amount posted to each account
+			transaction.Lines[i].Amount = -1 * transaction.Lines[i].Amount
+		}
+		if err := transactionRepo.createTransaction(*transaction, createTransactionOpts{AllowOverdraft: false}); err != nil {
+			logger.Log("transactions", fmt.Errorf("problem creating transaction: %v", err), "requestId", requestId)
+			moovhttp.Problem(w, err)
+			return
+		}
+		logger.Log("transactions", fmt.Sprintf("reversed (original transaction=%s) transaction=%s", transactionId, transaction.ID), "requestId", requestId)
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(transaction)
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/moov-io/base"
+	mledge "github.com/moov-io/qledger-sdk-go"
 )
 
 type testQLedgerTransactionRepository struct {
@@ -125,6 +126,49 @@ func TestQLedgerTransactions(t *testing.T) {
 		}
 	}
 
+	// Grab our transaction by its ID
+	transaction, err := transactionRepo.getTransaction(tx.ID)
+	if err != nil || transaction == nil {
+		t.Fatalf("transaction=%v error=%v", transaction, err)
+	}
+	if err := transaction.validate(); err != nil {
+		t.Fatal(err)
+	}
+
 	// Only cleanup if every test was successful, otherwise keep the containers around for debugging
 	transactionRepo.close()
+}
+
+func TestQLedger__convertQLedgerTransactions(t *testing.T) {
+	a1, a2 := base.ID(), base.ID()
+	incoming := []*mledge.Transaction{
+		{
+			ID: "19defa381fa7125212a430b6e441f04c48618281",
+			Data: map[string]interface{}{
+				"accountIds": []interface{}{a1, a2},
+			},
+			Timestamp: "2019-05-21T16:55:53.933Z",
+			Lines: []*mledge.TransactionLine{
+				{AccountID: a1, Delta: 1000},
+				{AccountID: a2, Delta: -1000},
+			},
+		},
+	}
+	out := convertQLedgerTransactions(incoming)
+	if len(out) != 1 {
+		t.Errorf("got %d transactions", len(out))
+	}
+
+	// Check the reversal fields
+	if out[0].ID != incoming[0].ID {
+		t.Errorf("got %s", out[0].ID)
+	}
+	for i := range out[0].Lines {
+		if out[0].Lines[i].AccountId == a1 && out[0].Lines[i].Amount != 1000 {
+			t.Errorf("a1: unexpected amount %d", out[0].Lines[i].Amount)
+		}
+		if out[0].Lines[i].AccountId == a2 && out[0].Lines[i].Amount != -1000 {
+			t.Errorf("a2: unexpected amount %d", out[0].Lines[i].Amount)
+		}
+	}
 }

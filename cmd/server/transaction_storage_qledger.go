@@ -68,12 +68,23 @@ func (r *qledgerTransactionRepository) getAccountTransactions(accountId string) 
 			},
 		},
 	}
-
 	xfers, err := r.api.SearchTransactions(query)
 	if err != nil {
 		return nil, fmt.Errorf("qledger: getAccountTransactions: %v", err)
 	}
+	return convertQLedgerTransactions(xfers), nil
+}
 
+func (r *qledgerTransactionRepository) getTransaction(transactionId string) (*transaction, error) {
+	tx, err := r.api.GetTransaction(transactionId)
+	if err != nil {
+		return nil, fmt.Errorf("qledger: getTransaction: %v", err)
+	}
+	out := convertQLedgerTransactions([]*mledge.Transaction{tx})[0]
+	return &out, nil
+}
+
+func convertQLedgerTransactions(xfers []*mledge.Transaction) []transaction {
 	var transactions []transaction
 	for i := range xfers {
 		var lines []transactionLine
@@ -94,12 +105,19 @@ func (r *qledgerTransactionRepository) getAccountTransactions(accountId string) 
 			}
 			lines = append(lines, tx)
 		}
-		t, _ := time.Parse(models.LedgerTimestampLayout, xfers[i].Timestamp)
+		t, err := time.Parse(models.LedgerTimestampLayout, xfers[i].Timestamp)
+		if err != nil {
+			// Try another format that seems to show up in QLedger reads
+			t, _ = time.Parse("2006-01-02T15:04:05.000Z", xfers[i].Timestamp)
+		}
+		if t.IsZero() {
+			continue // really invalid format
+		}
 		transactions = append(transactions, transaction{
 			ID:        xfers[i].ID,
 			Timestamp: t,
 			Lines:     lines,
 		})
 	}
-	return transactions, nil
+	return transactions
 }

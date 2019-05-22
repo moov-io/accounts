@@ -8,6 +8,7 @@ Method | HTTP request | Description
 [**CreateTransaction**](AccountsApi.md#CreateTransaction) | **Post** /accounts/transactions | Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
 [**GetAccountTransactions**](AccountsApi.md#GetAccountTransactions) | **Get** /accounts/{account_id}/transactions | Get transactions for an account. Ordered descending from their posted date.
 [**Ping**](AccountsApi.md#Ping) | **Get** /ping | Ping the Accounts service to check if running
+[**ReverseTransaction**](AccountsApi.md#ReverseTransaction) | **Post** /accounts/transactions/{transaction_id}/reversal | Reverse a transaction by debiting the credited and crediting the debited amounts among all accounts involved.
 [**SearchAccounts**](AccountsApi.md#SearchAccounts) | **Get** /accounts/search | Search for account which matches all query parameters
 
 
@@ -166,6 +167,50 @@ No authorization required
 
 - **Content-Type**: Not defined
 - **Accept**: Not defined
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## ReverseTransaction
+
+> Transaction ReverseTransaction(ctx, transactionId, xUserId, optional)
+Reverse a transaction by debiting the credited and crediting the debited amounts among all accounts involved.
+
+### Required Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**transactionId** | **string**| Transaction ID | 
+**xUserId** | **string**| Moov User ID header, required in all requests | 
+ **optional** | ***ReverseTransactionOpts** | optional parameters | nil if no parameters
+
+### Optional Parameters
+
+Optional parameters are passed through a pointer to a ReverseTransactionOpts struct
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+ **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
+
+### Return type
+
+[**Transaction**](Transaction.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
 [[Back to Model list]](../README.md#documentation-for-models)

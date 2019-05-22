@@ -159,6 +159,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Transactions'
+  /accounts/transactions/{transaction_id}/reversal:
+    post:
+      tags:
+        - Accounts
+      summary: Reverse a transaction by debiting the credited and crediting the debited amounts among all accounts involved.
+      operationId: reverseTransaction
+      parameters:
+        - name: transaction_id
+          in: path
+          description: Transaction ID
+          required: true
+          schema:
+            type: string
+            example: 3e2f66e2
+        - name: X-Request-Id
+          in: header
+          description: Optional Request ID allows application developer to trace requests through the systems logs
+          example: rs4f9915
+          schema:
+            type: string
+        - name: X-User-Id
+          in: header
+          description: Moov User ID header, required in all requests
+          example: e3cdf999
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Transaction reversal success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Unable to reverse the specified transaction, check error(s).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /accounts:
     post:
       tags:
