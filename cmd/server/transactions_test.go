@@ -362,4 +362,45 @@ func TestTransactions__createTransactionReversal(t *testing.T) {
 	if err := transactionRepo.created.validate(); err != nil {
 		t.Fatal(err)
 	}
+
+	// set an error and ensure we fail
+	transactionRepo.err = errors.New("bad thing")
+
+	w = httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	w.Flush()
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("bogus HTTP status: %d", w.Code)
+	}
+}
+
+func TestTransactions_getTransactionId(t *testing.T) {
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/foo", nil)
+
+	if accountId := getTransactionId(w, req); accountId != "" {
+		t.Errorf("expected no accountId, got %q", accountId)
+	}
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("got %d", w.Code)
+	}
+
+	w = httptest.NewRecorder()
+
+	// successful extraction
+	var transactionId string
+	router := mux.NewRouter()
+	router.Methods("GET").Path("/transactions/{transactionId}").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		transactionId = getTransactionId(w, req)
+	})
+	router.ServeHTTP(w, httptest.NewRequest("GET", "/transactions/bar", nil))
+	w.Flush()
+
+	if w.Code != http.StatusOK {
+		t.Errorf("got %d", w.Code)
+	}
+	if transactionId != "bar" {
+		t.Errorf("got %q", transactionId)
+	}
 }
