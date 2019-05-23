@@ -1,3 +1,17 @@
+## v0.4.0 (Unreleased)
+
+ADDITIONS
+
+- cmd/server: add endpoint for reversing a transaction
+
+BUG FIXES
+
+- cmd/server: add another format for Transaction timestamps
+
+BUILD
+
+- vendor: update github.com/gorilla/mux to v1.7.2
+
 ## v0.3.0 (Released 2019-05-20)
 
 BREAKING CHANGES
