@@ -83,7 +83,7 @@ func TestAccounts__CreateAccount(t *testing.T) {
 		t.Errorf("bogus status code: %d:\n  %s", w.Code, w.Body.String())
 	}
 
-	var acct accounts.Account // TODO(adam): check more of Customer response?
+	var acct accounts.Account
 	if err := json.NewDecoder(w.Body).Decode(&acct); err != nil {
 		t.Fatal(err)
 	}

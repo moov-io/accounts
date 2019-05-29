@@ -17,14 +17,18 @@ Docs: [docs.moov.io](https://docs.moov.io/en/latest/) | [api docs](https://api.m
 
 Accounting for Developers [Part 1](https://docs.google.com/document/d/1HDLRa6vKpclO1JtxbGB5NeAYWf8cf1UMGy22o8OZZq4/edit#heading=h.jo5avukxj1q), [Part 2](https://docs.google.com/document/d/1qhtirHUzPu7Od7yX3A4kA424tjFCv5Kbi42xj49tKlw/edit), [Part 3](https://docs.google.com/document/d/1kIwonczHvJLgzcijLtljHc5fccQ6fKI6TodhnGYHCEA/edit).
 
+### Deployment
+
+You can download [our docker image `moov/accounts`](https://hub.docker.com/r/moov/accounts/) from Docker Hub or use this repository. No configuration is required to serve on `:8085` and metrics at `:9095/metrics` in Prometheus format.
+
 ### Configuration
 
-TODO
+The following environmental variables can be set to configure behavior in Accounts.
 
 | Environmental Variable | Description | Default |
 |-----|-----|-----|
 | `DEFAULT_ROUTING_NUMBER` | ABA routing number used when accounts are created. | Required |
-| `SQLITE_DB_PATH`| Local filepath location for the paygate SQLite database. | `ofac.db` |
+| `SQLITE_DB_PATH`| Local filepath location for the paygate SQLite database. | `accounts.db` |
 | `ACCOUNT_STORAGE_TYPE` | Storage engine for account data. | Default: `qledger` |
 | `TRANSACTION_STORAGE_TYPE` | Storage engine for transaction data. | Default: `qledger` |
 | `QLEDGER_ENDPOINT` | HTTP endpoint to access QLedger (if storage type is `qledger`) | Required |
