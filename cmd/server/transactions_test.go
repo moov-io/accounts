@@ -149,6 +149,23 @@ func TestTransaction__validate(t *testing.T) {
 
 }
 
+func TestTransactions__microDeposits(t *testing.T) {
+	// build two credits and one debit in a transaction
+	accountId := base.ID()
+	tx := transaction{
+		ID:        base.ID(),
+		Timestamp: time.Now(),
+		Lines: []transactionLine{
+			{AccountId: accountId, Purpose: ACHCredit, Amount: 100},
+			{AccountId: accountId, Purpose: ACHCredit, Amount: 200},
+			{AccountId: accountId, Purpose: ACHDebit, Amount: -300},
+		},
+	}
+	if err := tx.validate(); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestTransactions_getAccountId(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/foo", nil)

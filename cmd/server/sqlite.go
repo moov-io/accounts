@@ -22,7 +22,7 @@ var (
 
 		// Transaction tables
 		`create table if not exists transactions(transaction_id primart key, timestamp datetime, created_at datetime, deleted_at datetime);`,
-		`create table if not exists transaction_lines(transaction_id, account_id, purpose, amount integer, created_at datetime, deleted_at datetime, unique(transaction_id, account_id));`,
+		`create table if not exists transaction_lines(transaction_id, account_id, purpose, amount integer, created_at datetime, deleted_at datetime);`,
 	}
 )
 
