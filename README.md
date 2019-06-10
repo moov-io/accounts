@@ -7,9 +7,9 @@ moov-io/accounts
 [![Go Report Card](https://goreportcard.com/badge/github.com/moov-io/accounts)](https://goreportcard.com/report/github.com/moov-io/accounts)
 [![Apache 2 licensed](https://img.shields.io/badge/license-Apache2-blue.svg)](https://raw.githubusercontent.com/moov-io/accounts/master/LICENSE)
 
-*project is under active development and is not production ready*
+Moov Accounts is a [general ledger](https://en.wikipedia.org/wiki/General_ledger) accounting system designed to support the handling of Customer funds deposited at a bank or credit union. Implemented as an RESTful API and Moov Accounts can be leveraged by a financial institution to provide modern banking services to its customers. Moov Accounts can be utilized by a technology company to manage Customer assets that are in a single For Benefit of Account at a financial institution. Moov's primary use is with [paygate](https://github.com/moov-io/paygate). (A full implementation of ACH origination)
 
-Accounts is an RESTful API implementation of an accounting [General Ledger](https://en.wikipedia.org/wiki/General_ledger) used to track monetary transfers in digital systems. Our primary use is with [paygate](https://github.com/moov-io/paygate). This implementation is currently not complete for use in production, but any advice or feedback would be greatly appreciated!
+*This implementation is currently not complete for use in production, but any advice or feedback would be greatly appreciated!*
 
 Docs: [docs.moov.io](https://docs.moov.io/en/latest/) | [api docs](https://api.moov.io/apps/accounts/)
 
