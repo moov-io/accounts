@@ -43,6 +43,7 @@ release: docker AUTHORS
 
 release-push:
 	docker push moov/accounts:$(VERSION)
+	docker push moov/accounts:latest
 
 # From https://github.com/genuinetools/img
 .PHONY: AUTHORS
