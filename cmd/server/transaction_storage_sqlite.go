@@ -70,7 +70,7 @@ func (r *sqliteTransactionRepository) createTransaction(t transaction, opts crea
 
 	tx, err := r.db.Begin()
 	if err != nil {
-		return fmt.Errorf("createTransaction: tx.Begin: %v", err)
+		return fmt.Errorf("createTransaction: tx.Begin error=%v rollback=%v", err, tx.Rollback())
 	}
 
 	// insert transaction
@@ -106,7 +106,7 @@ func (r *sqliteTransactionRepository) createTransaction(t transaction, opts crea
 		// to be done on an account-by-account basis.
 		if opts.InitialDeposit {
 			if t.Lines[0].Purpose != ACHCredit {
-				return fmt.Errorf("createTransaction: InitialDeposit must be ACHCredit")
+				return fmt.Errorf("createTransaction: InitialDeposit must be ACHCredit rollback=%v", tx.Rollback())
 			}
 			if len(t.Lines) == 1 && t.Lines[0].Amount > 100 {
 				// Ignore all other checks and just allow the deposit

@@ -49,14 +49,14 @@ func (r *sqliteAccountRepository) GetAccounts(accountIds []string) ([]*accounts.
 
 	tx, err := r.db.Begin()
 	if err != nil {
-		return nil, fmt.Errorf("sqlite.GetAccounts: tx.Begin: %v", err)
+		return nil, fmt.Errorf("sqlite.GetAccounts: tx.Begin: error=%v rollback=%v", err, tx.Rollback())
 	}
 
 	query := fmt.Sprintf(`select account_id, customer_id, name, account_number, routing_number, status, type, created_at, closed_at, last_modified
 from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat(",?", len(accountIds)-1))
 	stmt, err := tx.Prepare(query)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sqlite.GetAccounts: tx.Prepare error=%v rollback=%v", err, tx.Rollback())
 	}
 	defer stmt.Close()
 
@@ -66,7 +66,7 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 	}
 	rows, err := stmt.Query(ids...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("sqlite.GetAccounts: stmt query error=%v rollback=%v", err, tx.Rollback())
 	}
 	defer rows.Close()
 
@@ -75,21 +75,21 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 		var a accounts.Account
 		err := rows.Scan(&a.Id, &a.CustomerId, &a.Name, &a.AccountNumber, &a.RoutingNumber, &a.Status, &a.Type, &a.CreatedAt, &a.ClosedAt, &a.LastModified)
 		if err != nil {
-			return nil, fmt.Errorf("sqlite.GetAccounts: account=%q: %v", a.Id, err)
+			return nil, fmt.Errorf("sqlite.GetAccounts: account=%q error=%v rollback=%v", a.Id, err, tx.Rollback())
 		}
 		balance, err := r.transactionRepo.getAccountBalance(tx, a.Id)
 		if err != nil {
-			return nil, fmt.Errorf("sqlite.GetAccounts: getAccountBalance: account=%q: %v", a.Id, err)
+			return nil, fmt.Errorf("sqlite.GetAccounts: getAccountBalance: account=%q error=%v rollback=%v", a.Id, err, tx.Rollback())
 		}
 		// TODO(adam): need Balance, BalanceAvailable, and BalancePending
 		a.Balance = balance
 		out = append(out, &a)
 	}
 	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("sqlite.GetAccounts: scan: %v", err)
+		return nil, fmt.Errorf("sqlite.GetAccounts: scan error=%v rollback=%v", err, tx.Rollback())
 	}
 	if err := tx.Commit(); err != nil {
-		return nil, fmt.Errorf("sqlite.GetAccounts: commit: %v", err)
+		return nil, fmt.Errorf("sqlite.GetAccounts: commit error=%v rollback=%v", err, tx.Rollback())
 	}
 	return out, nil
 }
