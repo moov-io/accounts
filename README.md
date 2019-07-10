@@ -33,6 +33,10 @@ The following environmental variables can be set to configure behavior in Accoun
 | `TRANSACTION_STORAGE_TYPE` | Storage engine for transaction data. | Default: `qledger` |
 | `QLEDGER_ENDPOINT` | HTTP endpoint to access QLedger (if storage type is `qledger`) | Required |
 | `QLEDGER_AUTH_TOKEN` | Auth token to access QLedger (if storage type is `qledger`) | Required |
+| `LOG_FORMAT` | Format for logging lines to be written as. | Options: `json`, `plain` - Default: `plain` |
+| `HTTP_BIND_ADDRESS` | Address for paygate to bind its HTTP server on. This overrides the command-line flag `-http.addr`. | Default: `:8085` |
+| `HTTP_ADMIN_BIND_ADDRESS` | Address for paygate to bind its admin HTTP server on. This overrides the command-line flag `-admin.addr`. | Default: `:9095` |
+
 
 ## Getting Help
 
