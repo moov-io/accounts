@@ -37,6 +37,9 @@ func main() {
 	flag.Parse()
 
 	var logger log.Logger
+	if v := os.Getenv("LOG_FORMAT"); v != "" {
+		*flagLogFormat = v
+	}
 	if strings.ToLower(*flagLogFormat) == "json" {
 		logger = log.NewJSONLogger(os.Stderr)
 	} else {
@@ -80,6 +83,11 @@ func main() {
 			logger.Log("main", err)
 		}
 	}()
+
+	// Check to see if our -admin.addr flag has been overridden
+	if v := os.Getenv("HTTP_ADMIN_BIND_ADDRESS"); v != "" {
+		*adminAddr = v
+	}
 
 	// Start Admin server (with Prometheus metrics)
 	adminServer := admin.NewServer(*adminAddr)
@@ -130,6 +138,11 @@ func main() {
 	readTimeout, _ := time.ParseDuration("30s")
 	writTimeout, _ := time.ParseDuration("30s")
 	idleTimeout, _ := time.ParseDuration("60s")
+
+	// Check to see if our -http.addr flag has been overridden
+	if v := os.Getenv("HTTP_BIND_ADDRESS"); v != "" {
+		*httpAddr = v
+	}
 
 	serve := &http.Server{
 		Addr:    *httpAddr,
