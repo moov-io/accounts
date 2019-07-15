@@ -29,14 +29,13 @@ The following environmental variables can be set to configure behavior in Accoun
 |-----|-----|-----|
 | `DEFAULT_ROUTING_NUMBER` | ABA routing number used when accounts are created. | Required |
 | `SQLITE_DB_PATH`| Local filepath location for the paygate SQLite database. | `accounts.db` |
-| `ACCOUNT_STORAGE_TYPE` | Storage engine for account data. | Default: `qledger` |
-| `TRANSACTION_STORAGE_TYPE` | Storage engine for transaction data. | Default: `qledger` |
-| `QLEDGER_ENDPOINT` | HTTP endpoint to access QLedger (if storage type is `qledger`) | Required |
-| `QLEDGER_AUTH_TOKEN` | Auth token to access QLedger (if storage type is `qledger`) | Required |
+| `ACCOUNT_STORAGE_TYPE` | Storage engine for account data. | Default: `sqlite` |
+| `TRANSACTION_STORAGE_TYPE` | Storage engine for transaction data. | Default: `sqlite` |
+| `QLEDGER_ENDPOINT` | HTTP endpoint to access QLedger (if storage type is `qledger`) | Optional |
+| `QLEDGER_AUTH_TOKEN` | Auth token to access QLedger (if storage type is `qledger`) | Optional |
 | `LOG_FORMAT` | Format for logging lines to be written as. | Options: `json`, `plain` - Default: `plain` |
 | `HTTP_BIND_ADDRESS` | Address for paygate to bind its HTTP server on. This overrides the command-line flag `-http.addr`. | Default: `:8085` |
 | `HTTP_ADMIN_BIND_ADDRESS` | Address for paygate to bind its admin HTTP server on. This overrides the command-line flag `-admin.addr`. | Default: `:9095` |
-
 
 ## Getting Help
 
