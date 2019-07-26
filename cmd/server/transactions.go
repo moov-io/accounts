@@ -100,7 +100,11 @@ func (t transaction) validate() error {
 
 	sum := 0
 	for i := range t.Lines {
-		sum += t.Lines[i].Amount
+		if t.Lines[i].Purpose == ACHDebit {
+			sum += -1 * t.Lines[i].Amount
+		} else {
+			sum += t.Lines[i].Amount
+		}
 		if err := t.Lines[i].validate(); err != nil {
 			return fmt.Errorf("transaction=%s has invalid line[%d]: %v", t.ID, i, err)
 		}
