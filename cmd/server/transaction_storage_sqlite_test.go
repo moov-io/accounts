@@ -70,7 +70,7 @@ func TestSqliteTransactionRepository(t *testing.T) {
 		ID:        base.ID(),
 		Timestamp: time.Now(),
 		Lines: []transactionLine{
-			{AccountId: account1, Purpose: ACHDebit, Amount: -500},
+			{AccountId: account1, Purpose: ACHDebit, Amount: 500},
 			{AccountId: account2, Purpose: ACHCredit, Amount: 500},
 		},
 	}
@@ -150,13 +150,13 @@ func TestSqliteTransactionRepository__Internal(t *testing.T) {
 		ID:        base.ID(),
 		Timestamp: time.Now(),
 		Lines: []transactionLine{
-			{AccountId: account1, Purpose: ACHDebit, Amount: -400},
+			{AccountId: account1, Purpose: ACHDebit, Amount: 400},
 			{AccountId: account2, Purpose: ACHCredit, Amount: 400},
 		},
 	}
 	// Create the transaction and allow it to overdraft
 	if err := repo.createTransaction(tx, createTransactionOpts{}); err != nil {
-		t.Errorf("NOTE: account1=%s account2=%s", account1, account2)
+		t.Logf("account1=%s account2=%s", account1, account2)
 		t.Fatal(err)
 	}
 
@@ -203,7 +203,7 @@ func TestSqliteTransactionRepository__AllowOverdraft(t *testing.T) {
 		ID:        base.ID(),
 		Timestamp: time.Now(),
 		Lines: []transactionLine{
-			{AccountId: account1, Purpose: ACHDebit, Amount: -500},
+			{AccountId: account1, Purpose: ACHDebit, Amount: 500},
 			{AccountId: account2, Purpose: ACHCredit, Amount: 500},
 		},
 	}
@@ -255,7 +255,7 @@ func TestSqliteTransactionRepository__DisallowOverdraft(t *testing.T) {
 		ID:        base.ID(),
 		Timestamp: time.Now(),
 		Lines: []transactionLine{
-			{AccountId: account1, Purpose: ACHDebit, Amount: -500},
+			{AccountId: account1, Purpose: ACHDebit, Amount: 500},
 			{AccountId: account2, Purpose: ACHCredit, Amount: 500},
 		},
 	}
@@ -279,7 +279,7 @@ func TestTransactions__isInternalDebit(t *testing.T) {
 		{Id: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
 	}
 	lines := []transactionLine{
-		{AccountId: account1, Purpose: ACHDebit, Amount: -500},
+		{AccountId: account1, Purpose: ACHDebit, Amount: 500},
 		{AccountId: account2, Purpose: ACHCredit, Amount: 500},
 	}
 	if isInternalDebit(accounts, lines, defaultRoutingNumber) {
@@ -308,8 +308,8 @@ func TestSqliteTransactions_unique(t *testing.T) {
 	account1, account2 := base.ID(), base.ID()
 	lines := []transactionLine{
 		// Valid transaction, but has multiple lines for the same accountId
-		{AccountId: account1, Purpose: ACHDebit, Amount: -500},
-		{AccountId: account1, Purpose: ACHDebit, Amount: -100},
+		{AccountId: account1, Purpose: ACHDebit, Amount: 500},
+		{AccountId: account1, Purpose: ACHDebit, Amount: 100},
 		{AccountId: account2, Purpose: ACHCredit, Amount: 600},
 	}
 	tx := transaction{
