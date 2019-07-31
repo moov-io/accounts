@@ -39,8 +39,9 @@ func getCustomerId(w http.ResponseWriter, r *http.Request) string {
 }
 
 func addAccountRoutes(logger log.Logger, r *mux.Router, accountRepo accountRepository, transactionRepo transactionRepository) {
-	r.Methods("POST").Path("/accounts").HandlerFunc(createAccount(logger, accountRepo, transactionRepo))
 	r.Methods("GET").Path("/accounts/search").HandlerFunc(searchAccounts(logger, accountRepo))
+
+	r.Methods("POST").Path("/accounts").HandlerFunc(createAccount(logger, accountRepo, transactionRepo))
 }
 
 // searchAccounts will attempt to find Accounts which match all query parameters. Searching with an account number will only
@@ -59,39 +60,41 @@ func searchAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc 
 		if reqAcctNumber != "" && reqRoutingNumber != "" && reqAcctType != "" {
 			// Grab and return accounts
 			account, err := repo.SearchAccountsByRoutingNumber(reqAcctNumber, reqRoutingNumber, reqAcctType)
-			if err != nil || account == nil {
+			if err != nil {
 				if requestId := moovhttp.GetRequestId(r); requestId != "" {
 					logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
 				}
 				moovhttp.Problem(w, fmt.Errorf("account not found, err=%v", err))
 				return
 			}
-
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode([]*accounts.Account{account})
+
+			var accounts []*accounts.Account
+			if account != nil {
+				accounts = append(accounts, account)
+			}
+			json.NewEncoder(w).Encode(accounts)
 			return
 		}
 
 		// Search based on CustomerId
 		if customerId := q.Get("customerId"); customerId != "" {
 			accounts, err := repo.SearchAccountsByCustomerId(customerId)
-			if err != nil || len(accounts) == 0 {
+			if err != nil {
 				if requestId := moovhttp.GetRequestId(r); requestId != "" {
 					logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
 				}
 				moovhttp.Problem(w, fmt.Errorf("account not found, err=%v", err))
 				return
 			}
-
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(http.StatusOK)
 			json.NewEncoder(w).Encode(accounts)
-			return
+		} else {
+			// Error if we didn't quit early from query params
+			moovhttp.Problem(w, errors.New("missing account search query parameters"))
 		}
-
-		// Error if we didn't quit early from query params
-		moovhttp.Problem(w, errors.New("missing account search query parameters"))
 	}
 }
 
