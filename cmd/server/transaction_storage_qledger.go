@@ -40,10 +40,15 @@ func (r *qledgerTransactionRepository) createTransaction(tx transaction, opts cr
 	data["accountIds"] = grabAccountIds(tx.Lines)
 
 	for i := range tx.Lines {
-		lines = append(lines, &mledge.TransactionLine{
+		line := &mledge.TransactionLine{
 			AccountID: tx.Lines[i].AccountId,
-			Delta:     tx.Lines[i].Amount,
-		})
+		}
+		if tx.Lines[i].Purpose == ACHDebit {
+			line.Delta = -1 * tx.Lines[i].Amount
+		} else {
+			line.Delta = tx.Lines[i].Amount
+		}
+		lines = append(lines, line)
 		// TODO(adam): https://github.com/RealImage/QLedger/issues/40
 		// data[fmt.Sprintf("%s_purpose", tx.Lines[i].AccountId)] = tx.Lines[i].Purpose
 	}
@@ -91,13 +96,15 @@ func convertQLedgerTransactions(xfers []*mledge.Transaction) []transaction {
 		for j := range xfers[i].Lines {
 			// TODO(adam): https://github.com/RealImage/QLedger/issues/40
 			// p, _ := xfers[i].Data[fmt.Sprintf("%s_purpose", xfers[i].Lines[j].AccountID)].(string)
+			delta := xfers[i].Lines[j].Delta
 			p := "achcredit"
-			if xfers[i].Lines[j].Delta < 0 {
+			if delta < 0 {
 				p = "achdebit" // TODO(adam): mocked for tests, see commented '%s_purpose' above
+				delta *= -1
 			}
 			tx := transactionLine{
 				AccountId: xfers[i].Lines[j].AccountID,
-				Amount:    xfers[i].Lines[j].Delta,
+				Amount:    delta,
 				Purpose:   TransactionPurpose(p),
 			}
 			if err := tx.Purpose.validate(); err != nil {

@@ -7,6 +7,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	accounts "github.com/moov-io/accounts/client"
@@ -238,7 +239,7 @@ func (r *sqliteTransactionRepository) loadTransaction(tx *sql.Tx, transactionId 
 
 func (r *sqliteTransactionRepository) getAccountBalance(tx *sql.Tx, accountId string) (int32, error) {
 	// TODO(adam): At some point we should probably checkpoint balances so we avoid an entire index scan on an account_id
-	query := `select coalesce(sum(amount), 0) from transaction_lines where account_id = ? and deleted_at is null;`
+	query := `select amount, purpose from transaction_lines where account_id = ? and deleted_at is null;`
 	stmt, err := tx.Prepare(query)
 	if err != nil {
 		return 0, err
@@ -246,8 +247,24 @@ func (r *sqliteTransactionRepository) getAccountBalance(tx *sql.Tx, accountId st
 	defer stmt.Close()
 
 	var amount int32
-	if err := stmt.QueryRow(accountId).Scan(&amount); err != nil {
-		return 0, err
+	rows, err := stmt.Query(accountId)
+	if err != nil {
+		return 0, fmt.Errorf("problem querying account=%s balance: %v", accountId, err)
+	}
+	for rows.Next() {
+		var amt int32
+		var purpose string
+		if err := rows.Scan(&amt, &purpose); err != nil {
+			return 0, fmt.Errorf("error reading amount/purpose: %v", err)
+		}
+		if strings.EqualFold(purpose, "achdebit") {
+			amount -= amt
+		} else {
+			amount += amt
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return 0, fmt.Errorf("problem getting account=%s balance: %v", accountId, err)
 	}
 	return amount, nil
 }

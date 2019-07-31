@@ -68,7 +68,7 @@ func TestQLedger__grabAccountIds(t *testing.T) {
 		{
 			AccountId: "accountId2",
 			Purpose:   ACHDebit,
-			Amount:    -1242,
+			Amount:    1242,
 		},
 	})
 	if len(ids) != 2 {
@@ -94,7 +94,7 @@ func TestQLedgerTransactions(t *testing.T) {
 			{
 				AccountId: base.ID(),
 				Purpose:   ACHDebit,
-				Amount:    -1242,
+				Amount:    1242,
 			},
 		},
 	}).asTransaction(base.ID())
@@ -120,7 +120,7 @@ func TestQLedgerTransactions(t *testing.T) {
 				t.Errorf("purpose=%q amount=%d", transactions[0].Lines[i].Purpose, transactions[0].Lines[i].Amount)
 			}
 		} else {
-			if transactions[0].Lines[i].Purpose != ACHDebit || transactions[0].Lines[i].Amount != -1242 {
+			if transactions[0].Lines[i].Purpose != ACHDebit || transactions[0].Lines[i].Amount != 1242 {
 				t.Errorf("purpose=%q amount=%d", transactions[0].Lines[i].Purpose, transactions[0].Lines[i].Amount)
 			}
 		}
@@ -167,7 +167,7 @@ func TestQLedger__convertQLedgerTransactions(t *testing.T) {
 		if out[0].Lines[i].AccountId == a1 && out[0].Lines[i].Amount != 1000 {
 			t.Errorf("a1: unexpected amount %d", out[0].Lines[i].Amount)
 		}
-		if out[0].Lines[i].AccountId == a2 && out[0].Lines[i].Amount != -1000 {
+		if out[0].Lines[i].AccountId == a2 && out[0].Lines[i].Amount != 1000 {
 			t.Errorf("a2: unexpected amount %d", out[0].Lines[i].Amount)
 		}
 	}

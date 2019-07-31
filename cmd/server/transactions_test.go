@@ -102,14 +102,10 @@ func TestTransaction__validate(t *testing.T) {
 		Timestamp: time.Now(),
 		Lines: []transactionLine{
 			{
-				AccountId: base.ID(),
-				Purpose:   ACHDebit,
-				Amount:    -500,
+				AccountId: base.ID(), Purpose: ACHDebit, Amount: 500,
 			},
 			{
-				AccountId: base.ID(),
-				Purpose:   ACHCredit,
-				Amount:    500,
+				AccountId: base.ID(), Purpose: ACHCredit, Amount: 500,
 			},
 		},
 	}
@@ -135,7 +131,7 @@ func TestTransaction__validate(t *testing.T) {
 	if err := tx.validate(); err == nil {
 		t.Error("expected error")
 	}
-	tx.Lines[0].Amount = -500
+	tx.Lines[0].Amount = 500
 
 	tx.Lines[0].Purpose = TransactionPurpose("other")
 	if err := tx.validate(); err == nil {
@@ -257,7 +253,7 @@ func TestTransactions_Create(t *testing.T) {
 	var body bytes.Buffer
 	json.NewEncoder(&body).Encode(createTransactionRequest{
 		Lines: []transactionLine{
-			{AccountId: accountRepo.accounts[0].Id, Purpose: ACHDebit, Amount: -4121},
+			{AccountId: accountRepo.accounts[0].Id, Purpose: ACHDebit, Amount: 4121},
 			{AccountId: accountRepo.accounts[1].Id, Purpose: ACHCredit, Amount: 4121},
 		},
 	})
@@ -333,7 +329,7 @@ func TestTransactions__createTransactionReversal(t *testing.T) {
 					{
 						AccountId: base.ID(),
 						Purpose:   ACHDebit,
-						Amount:    -1000,
+						Amount:    1000,
 					},
 					{
 						AccountId: base.ID(),

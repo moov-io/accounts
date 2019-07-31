@@ -100,7 +100,14 @@ func (t transaction) validate() error {
 
 	sum := 0
 	for i := range t.Lines {
-		sum += t.Lines[i].Amount
+		if t.Lines[0].Amount < 0 {
+			return fmt.Errorf("transaction=%s has negative amount=%d", t.ID, t.Lines[0].Amount)
+		}
+		if t.Lines[i].Purpose == ACHDebit {
+			sum += -1 * t.Lines[i].Amount
+		} else {
+			sum += t.Lines[i].Amount
+		}
 		if err := t.Lines[i].validate(); err != nil {
 			return fmt.Errorf("transaction=%s has invalid line[%d]: %v", t.ID, i, err)
 		}
@@ -222,8 +229,6 @@ func createTransactionReversal(logger log.Logger, accountRepo accountRepository,
 			case transaction.Lines[i].Purpose == ACHDebit:
 				transaction.Lines[i].Purpose = ACHCredit
 			}
-			// Invert the amount posted to each account
-			transaction.Lines[i].Amount = -1 * transaction.Lines[i].Amount
 		}
 		if err := transactionRepo.createTransaction(*transaction, createTransactionOpts{AllowOverdraft: false}); err != nil {
 			logger.Log("transactions", fmt.Errorf("problem creating transaction: %v", err), "requestId", requestId)
