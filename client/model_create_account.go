@@ -16,6 +16,8 @@ type CreateAccount struct {
 	Balance int32 `json:"balance"`
 	// Caller defined label for this account.
 	Name string `json:"name"`
+	// Random number to be used as unique to distinguish this Account
+	Number string `json:"number,omitempty"`
 	// Product type of the account
 	Type string `json:"type"`
 }

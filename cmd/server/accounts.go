@@ -99,6 +99,7 @@ type createAccountRequest struct {
 	CustomerId string `json:"customerId"`
 	Balance    int    `json:"balance"`
 	Name       string `json:"name"`
+	Number     string `json:"number"`
 	Type       string `json:"type"`
 }
 
@@ -154,12 +155,15 @@ func createAccount(logger log.Logger, accountRepo accountRepository, transaction
 			Id:            base.ID(),
 			CustomerId:    req.CustomerId,
 			Name:          req.Name,
-			AccountNumber: createAccountNumber(),
+			AccountNumber: req.Number,
 			RoutingNumber: defaultRoutingNumber,
 			Status:        "open",
 			Type:          req.Type,
 			CreatedAt:     now,
 			LastModified:  now,
+		}
+		if account.AccountNumber == "" {
+			account.AccountNumber = createAccountNumber()
 		}
 
 		if err := accountRepo.CreateAccount(req.CustomerId, account); err != nil {

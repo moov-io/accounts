@@ -263,6 +263,10 @@ components:
           type: string
           description: Caller defined label for this account.
           example: Super Checking
+        number:
+          type: string
+          description: Random number to be used as unique to distinguish this Account
+          example: 12345
         type:
           type: string
           description: Product type of the account

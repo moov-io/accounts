@@ -300,6 +300,7 @@ components:
   schemas:
     CreateAccount:
       example:
+        number: "12345"
         balance: 1000
         customerId: 0c584689
         name: Super Checking
@@ -318,6 +319,10 @@ components:
         name:
           description: Caller defined label for this account.
           example: Super Checking
+          type: string
+        number:
+          description: Random number to be used as unique to distinguish this Account
+          example: "12345"
           type: string
         type:
           description: Product type of the account

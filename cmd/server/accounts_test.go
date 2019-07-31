@@ -38,7 +38,7 @@ func init() {
 }
 
 func TestAccounts__createAccountRequest(t *testing.T) {
-	req := createAccountRequest{"customerId", 100, "example acct", "checking"} // $1
+	req := createAccountRequest{"customerId", 100, "example acct", "", "checking"} // $1
 	if err := req.validate(); err != nil {
 		t.Error(err)
 	}
