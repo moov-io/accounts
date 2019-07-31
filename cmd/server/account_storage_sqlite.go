@@ -75,6 +75,9 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 		var a accounts.Account
 		err := rows.Scan(&a.Id, &a.CustomerId, &a.Name, &a.AccountNumber, &a.RoutingNumber, &a.Status, &a.Type, &a.CreatedAt, &a.ClosedAt, &a.LastModified)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				continue
+			}
 			return nil, fmt.Errorf("sqlite.GetAccounts: account=%q error=%v rollback=%v", a.Id, err, tx.Rollback())
 		}
 		balance, err := r.transactionRepo.getAccountBalance(tx, a.Id)
@@ -117,6 +120,9 @@ func (r *sqliteAccountRepository) SearchAccountsByRoutingNumber(accountNumber, r
 	row := stmt.QueryRow(accountNumber, routingNumber, acctType)
 	var id string
 	if err := row.Scan(&id); err != nil || id == "" {
+		if err == sql.ErrNoRows {
+			return nil, nil // not found
+		}
 		return nil, fmt.Errorf("sqlite.SearchAccounts: account=%q: %v", id, err)
 	}
 
@@ -146,6 +152,9 @@ func (r *sqliteAccountRepository) SearchAccountsByCustomerId(customerId string) 
 	for rows.Next() {
 		var id string
 		if err := rows.Scan(&id); err != nil {
+			if err == sql.ErrNoRows {
+				continue
+			}
 			return nil, fmt.Errorf("sqlite.SearchAccountsByCustomerId: account=%q: %v", id, err)
 		}
 		accountIds = append(accountIds, id)
