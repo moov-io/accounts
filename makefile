@@ -45,6 +45,12 @@ release-push:
 	docker push moov/accounts:$(VERSION)
 	docker push moov/accounts:latest
 
+.PHONY: cover-test cover-web
+cover-test:
+	go test -coverprofile=cover.out ./...
+cover-web:
+	go tool cover -html=cover.out
+
 # From https://github.com/genuinetools/img
 .PHONY: AUTHORS
 AUTHORS:
