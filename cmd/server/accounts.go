@@ -158,6 +158,7 @@ func createAccount(logger log.Logger, accountRepo accountRepository, transaction
 			Id:            base.ID(),
 			CustomerId:    req.CustomerId,
 			Name:          req.Name,
+			AccountNumber: req.Number,
 			RoutingNumber: defaultRoutingNumber,
 			Status:        "open",
 			Type:          req.Type,
