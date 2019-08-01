@@ -158,19 +158,24 @@ func createAccount(logger log.Logger, accountRepo accountRepository, transaction
 			Id:            base.ID(),
 			CustomerId:    req.CustomerId,
 			Name:          req.Name,
-			AccountNumber: req.Number,
 			RoutingNumber: defaultRoutingNumber,
 			Status:        "open",
 			Type:          req.Type,
 			CreatedAt:     now,
 			LastModified:  now,
 		}
-		if account.AccountNumber == "" {
-			account.AccountNumber = createAccountNumber()
+		// We need to generate a unique account number for this routing number. Right now
+		// this involves network calls, but I hope to improve this to something like twitter
+		// snowflake or UUID -> number conversion.
+		if number, err := generateAccountNumber(account, accountRepo); number != "" {
+			account.AccountNumber = number
+		} else {
+			logger.Log("accounts", err, "requestId", requestId)
+			moovhttp.Problem(w, err)
+			return
 		}
-
 		if err := accountRepo.CreateAccount(req.CustomerId, account); err != nil {
-			logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
+			logger.Log("accounts", err, "requestId", requestId)
 			moovhttp.Problem(w, err)
 			return
 		}
@@ -195,4 +200,17 @@ func createAccount(logger log.Logger, accountRepo accountRepository, transaction
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(account)
 	}
+}
+
+func generateAccountNumber(account *accounts.Account, repo accountRepository) (string, error) {
+	number := account.AccountNumber
+	if number == "" {
+		number = createAccountNumber()
+	}
+	for i := 0; i < 10; i++ {
+		if acct, _ := repo.SearchAccountsByRoutingNumber(number, account.RoutingNumber, account.Type); acct == nil {
+			return number, nil
+		}
+	}
+	return "", fmt.Errorf("unable to generate account number for account=%s", account.Id)
 }

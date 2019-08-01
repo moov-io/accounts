@@ -72,10 +72,11 @@ func TestAccounts__CreateAccount(t *testing.T) {
 	req := httptest.NewRequest("POST", "/accounts", body)
 	req.Header.Set("x-user-id", "test")
 
+	accountRepo := &testAccountRepository{}
 	transactionRepo := &mockTransactionRepository{}
 
 	router := mux.NewRouter()
-	addAccountRoutes(log.NewNopLogger(), router, mockAccountRepo, transactionRepo)
+	addAccountRoutes(log.NewNopLogger(), router, accountRepo, transactionRepo)
 	router.ServeHTTP(w, req)
 	w.Flush()
 
@@ -142,5 +143,24 @@ func TestAccounts__SearchAccounts(t *testing.T) {
 	}
 	if len(accts) == 0 || accts[0].Id == "" {
 		t.Errorf("length:%d empty Account.Id", len(accts))
+	}
+}
+
+func TestAccounts__generateAccountNumber(t *testing.T) {
+	repo := &testAccountRepository{}
+	id, err := generateAccountNumber(&accounts.Account{}, repo)
+	if id == "" || err != nil {
+		t.Fatalf("empty account number: %v", err)
+	}
+
+	repo.accounts = append(repo.accounts, &accounts.Account{
+		Id:            "accountId",
+		AccountNumber: "123",
+		RoutingNumber: "987654320",
+	})
+
+	id, err = generateAccountNumber(&accounts.Account{AccountNumber: "123"}, repo)
+	if id != "" || err == nil {
+		t.Fatalf("expected empty account number id=%v error=%v", id, err)
 	}
 }
