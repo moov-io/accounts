@@ -3,10 +3,20 @@
 ADDITIONS
 
 - cmd/server: add endpoint for reversing a transaction
+- cmd/server: bind HTTP server with TLS if HTTPS_* variables are defined
+- cmd/server: accept 'number' when creating an Account
+
+IMPROVEMENTS
+
+- cmd/server: transactions: reject lines with negative amounts
+- cmd/server: ensure account numbers we generate are unique
 
 BUG FIXES
 
 - cmd/server: add another format for Transaction timestamps
+- cmd/server: always rollback sqlite database transactions
+- cmd/server: accounts: return no Accounts during search on sql.ErrNoRows
+- cmd/server: accounts: set AccountNumber from createAccountRequest
 
 BUILD
 
