@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Id** | **string** | Unique ID of a transaction | [optional] 
+**ID** | **string** | Unique ID of a transaction | [optional] 
 **Timestamp** | [**time.Time**](time.Time.md) |  | [optional] 
 **Lines** | [**[]TransactionLine**](TransactionLine.md) |  | [optional] 
 

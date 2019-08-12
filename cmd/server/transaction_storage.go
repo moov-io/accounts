@@ -16,8 +16,8 @@ type transactionRepository interface {
 	Close() error
 
 	createTransaction(tx transaction, opts createTransactionOpts) error
-	getAccountTransactions(accountId string) ([]transaction, error) // TODO(adam): limit and/or pagination params
-	getTransaction(transactionId string) (*transaction, error)
+	getAccountTransactions(accountID string) ([]transaction, error) // TODO(adam): limit and/or pagination params
+	getTransaction(transactionID string) (*transaction, error)
 }
 
 type createTransactionOpts struct {
@@ -41,12 +41,12 @@ func initTransactionStorage(logger log.Logger, name string) (transactionReposito
 	return nil, nil
 }
 
-// grabAccountIds returns an []string of each accountId from an array of transactionLines.
+// grabAccountIDs returns an []string of each accountID from an array of transactionLines.
 // We do this to query transactions that have been posted against an account.
-func grabAccountIds(lines []transactionLine) []string {
+func grabAccountIDs(lines []transactionLine) []string {
 	var out []string
 	for i := range lines {
-		out = append(out, lines[i].AccountId)
+		out = append(out, lines[i].AccountID)
 	}
 	return out
 }

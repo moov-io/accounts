@@ -15,7 +15,7 @@ import (
 
 type Account struct {
 	// The unique identifier for an account
-	Id string `json:"id,omitempty"`
+	ID string `json:"ID,omitempty"`
 	// The unique identifier for the customer who owns the account
 	CustomerID string `json:"customerID,omitempty"`
 	// Caller defined label for this account.

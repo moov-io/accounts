@@ -24,21 +24,21 @@ func (r *testAccountRepository) Close() error {
 	return r.err
 }
 
-func (r *testAccountRepository) GetAccounts(accountIds []string) ([]*accounts.Account, error) {
+func (r *testAccountRepository) GetAccounts(accountIDs []string) ([]*accounts.Account, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 	return r.accounts, nil
 }
 
-func (r *testAccountRepository) GetCustomerAccounts(customerId string) ([]*accounts.Account, error) {
+func (r *testAccountRepository) GetCustomerAccounts(customerID string) ([]*accounts.Account, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
 	return r.accounts, nil
 }
 
-func (r *testAccountRepository) CreateAccount(customerId string, account *accounts.Account) error {
+func (r *testAccountRepository) CreateAccount(customerID string, account *accounts.Account) error {
 	return r.err
 }
 
@@ -52,7 +52,7 @@ func (r *testAccountRepository) SearchAccountsByRoutingNumber(accountNumber, rou
 	return nil, nil
 }
 
-func (r *testAccountRepository) SearchAccountsByCustomerId(customerId string) ([]*accounts.Account, error) {
+func (r *testAccountRepository) SearchAccountsByCustomerID(customerID string) ([]*accounts.Account, error) {
 	if r.err != nil {
 		return nil, r.err
 	}

@@ -17,10 +17,10 @@ type accountRepository interface {
 	Ping() error
 	Close() error
 
-	GetAccounts(accountIds []string) ([]*accounts.Account, error)
-	CreateAccount(customerId string, account *accounts.Account) error // TODO(adam): acctType needs strong type, we can drop customerId as it's on accounts.Account
+	GetAccounts(accountIDs []string) ([]*accounts.Account, error)
+	CreateAccount(customerID string, account *accounts.Account) error // TODO(adam): acctType needs strong type, we can drop customerID as it's on accounts.Account
 
-	SearchAccountsByCustomerId(customerId string) ([]*accounts.Account, error)
+	SearchAccountsByCustomerID(customerID string) ([]*accounts.Account, error)
 	SearchAccountsByRoutingNumber(accountNumber, routingNumber, acctType string) (*accounts.Account, error)
 }
 

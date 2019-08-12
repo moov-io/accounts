@@ -277,7 +277,7 @@ components:
     Account:
       type: object
       properties:
-        id:
+        ID:
           type: string
           format: uuid
           description: The unique identifier for an account
@@ -457,7 +457,7 @@ components:
             $ref: '#/components/schemas/TransactionLine'
     Transaction:
       properties:
-        id:
+        ID:
           type: string
           description: Unique ID of a transaction
           example: 140fa826
