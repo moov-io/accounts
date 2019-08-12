@@ -5,7 +5,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **Id** | **string** | The unique identifier for an account | [optional] 
-**CustomerId** | **string** | The unique identifier for the customer who owns the account | [optional] 
+**CustomerID** | **string** | The unique identifier for the customer who owns the account | [optional] 
 **Name** | **string** | Caller defined label for this account. | [optional] 
 **AccountNumber** | **string** | A unique Account number at the bank. | [optional] 
 **AccountNumberMasked** | **string** | Last four digits of an account number | [optional] 

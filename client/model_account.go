@@ -17,7 +17,7 @@ type Account struct {
 	// The unique identifier for an account
 	Id string `json:"id,omitempty"`
 	// The unique identifier for the customer who owns the account
-	CustomerId string `json:"customerId,omitempty"`
+	CustomerID string `json:"customerID,omitempty"`
 	// Caller defined label for this account.
 	Name string `json:"name,omitempty"`
 	// A unique Account number at the bank.

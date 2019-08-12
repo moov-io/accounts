@@ -15,7 +15,7 @@ Method | HTTP request | Description
 
 ## CreateAccount
 
-> Account CreateAccount(ctx, xUserId, createAccount, optional)
+> Account CreateAccount(ctx, xUserID, createAccount, optional)
 Create a new account for a Customer
 
 ### Required Parameters
@@ -24,7 +24,7 @@ Create a new account for a Customer
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**xUserId** | **string**| Moov User ID header, required in all requests | 
+**xUserID** | **string**| Moov User ID header, required in all requests | 
 **createAccount** | [**CreateAccount**](CreateAccount.md)|  | 
  **optional** | ***CreateAccountOpts** | optional parameters | nil if no parameters
 
@@ -37,7 +37,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
+ **xRequestID** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
 
 ### Return type
 
@@ -59,7 +59,7 @@ No authorization required
 
 ## CreateTransaction
 
-> Transaction CreateTransaction(ctx, xUserId, createTransaction, optional)
+> Transaction CreateTransaction(ctx, xUserID, createTransaction, optional)
 Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
 
 ### Required Parameters
@@ -68,7 +68,7 @@ Post a transaction against multiple accounts. All transaction lines must sum to 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**xUserId** | **string**| Moov User ID header, required in all requests | 
+**xUserID** | **string**| Moov User ID header, required in all requests | 
 **createTransaction** | [**CreateTransaction**](CreateTransaction.md)|  | 
  **optional** | ***CreateTransactionOpts** | optional parameters | nil if no parameters
 
@@ -81,7 +81,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
+ **xRequestID** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
 
 ### Return type
 
@@ -103,7 +103,7 @@ No authorization required
 
 ## GetAccountTransactions
 
-> []Transaction GetAccountTransactions(ctx, accountId, xUserId, optional)
+> []Transaction GetAccountTransactions(ctx, accountId, xUserID, optional)
 Get transactions for an account. Ordered descending from their posted date.
 
 ### Required Parameters
@@ -113,7 +113,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
 **accountId** | **string**| Account ID | 
-**xUserId** | **string**| Moov User ID header, required in all requests | 
+**xUserID** | **string**| Moov User ID header, required in all requests | 
  **optional** | ***GetAccountTransactionsOpts** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -126,7 +126,7 @@ Name | Type | Description  | Notes
 
 
  **limit** | **optional.Float32**| Maximum number of transactions to return | 
- **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
+ **xRequestID** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
 
 ### Return type
 
@@ -175,7 +175,7 @@ No authorization required
 
 ## ReverseTransaction
 
-> Transaction ReverseTransaction(ctx, transactionId, xUserId, optional)
+> Transaction ReverseTransaction(ctx, transactionId, xUserID, optional)
 Reverse a transaction by debiting the credited and crediting the debited amounts among all accounts involved.
 
 ### Required Parameters
@@ -185,7 +185,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
 **transactionId** | **string**| Transaction ID | 
-**xUserId** | **string**| Moov User ID header, required in all requests | 
+**xUserID** | **string**| Moov User ID header, required in all requests | 
  **optional** | ***ReverseTransactionOpts** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -197,7 +197,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
 
- **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
+ **xRequestID** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
 
 ### Return type
 
@@ -219,7 +219,7 @@ No authorization required
 
 ## SearchAccounts
 
-> []Account SearchAccounts(ctx, xUserId, optional)
+> []Account SearchAccounts(ctx, xUserID, optional)
 Search for account which matches all query parameters
 
 ### Required Parameters
@@ -228,7 +228,7 @@ Search for account which matches all query parameters
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**xUserId** | **string**| Moov User ID header, required in all requests | 
+**xUserID** | **string**| Moov User ID header, required in all requests | 
  **optional** | ***SearchAccountsOpts** | optional parameters | nil if no parameters
 
 ### Optional Parameters
@@ -242,8 +242,8 @@ Name | Type | Description  | Notes
  **number** | **optional.String**| Account number | 
  **routingNumber** | **optional.String**| ABA routing number for the Financial Institution | 
  **type_** | **optional.String**| Account type | 
- **customerId** | **optional.String**| Customer ID associated to accounts | 
- **xRequestId** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
+ **customerID** | **optional.String**| Customer ID associated to accounts | 
+ **xRequestID** | **optional.String**| Optional Request ID allows application developer to trace requests through the systems logs | 
 
 ### Return type
 

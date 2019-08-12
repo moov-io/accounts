@@ -63,7 +63,7 @@ paths:
       - description: Customer ID associated to accounts
         explode: true
         in: query
-        name: customerId
+        name: customerID
         required: false
         schema:
           example: cb9012eb
@@ -74,7 +74,7 @@ paths:
         example: rs4f9915
         explode: false
         in: header
-        name: X-Request-Id
+        name: X-Request-ID
         required: false
         schema:
           type: string
@@ -83,7 +83,7 @@ paths:
         example: e3cdf999
         explode: false
         in: header
-        name: X-User-Id
+        name: X-User-ID
         required: true
         schema:
           type: string
@@ -109,7 +109,7 @@ paths:
         example: rs4f9915
         explode: false
         in: header
-        name: X-Request-Id
+        name: X-Request-ID
         required: false
         schema:
           type: string
@@ -118,7 +118,7 @@ paths:
         example: e3cdf999
         explode: false
         in: header
-        name: X-User-Id
+        name: X-User-ID
         required: true
         schema:
           type: string
@@ -175,7 +175,7 @@ paths:
         example: rs4f9915
         explode: false
         in: header
-        name: X-Request-Id
+        name: X-Request-ID
         required: false
         schema:
           type: string
@@ -184,7 +184,7 @@ paths:
         example: e3cdf999
         explode: false
         in: header
-        name: X-User-Id
+        name: X-User-ID
         required: true
         schema:
           type: string
@@ -218,7 +218,7 @@ paths:
         example: rs4f9915
         explode: false
         in: header
-        name: X-Request-Id
+        name: X-Request-ID
         required: false
         schema:
           type: string
@@ -227,7 +227,7 @@ paths:
         example: e3cdf999
         explode: false
         in: header
-        name: X-User-Id
+        name: X-User-ID
         required: true
         schema:
           type: string
@@ -258,7 +258,7 @@ paths:
         example: rs4f9915
         explode: false
         in: header
-        name: X-Request-Id
+        name: X-Request-ID
         required: false
         schema:
           type: string
@@ -267,7 +267,7 @@ paths:
         example: e3cdf999
         explode: false
         in: header
-        name: X-User-Id
+        name: X-User-ID
         required: true
         schema:
           type: string
@@ -302,11 +302,11 @@ components:
       example:
         number: "12345"
         balance: 1000
-        customerId: 0c584689
+        customerID: 0c584689
         name: Super Checking
         type: Checking
       properties:
-        customerId:
+        customerID:
           description: Customer ID associated with accounts
           example: 0c584689
           type: string
@@ -333,7 +333,7 @@ components:
           type: string
       required:
       - balance
-      - customerId
+      - customerID
       - name
       - type
       type: object
@@ -347,7 +347,7 @@ components:
         routingNumber: "073000176"
         createdAt: 2000-01-23T04:56:07.000+00:00
         balance: 1000
-        customerId: e210a9d6-d755-4455-9bd2-9577ea7e1081
+        customerID: e210a9d6-d755-4455-9bd2-9577ea7e1081
         name: Super Checking
         id: d290f1ee-6c54-4b01-90e6-d701748f0851
         lastModified: 2000-01-23T04:56:07.000+00:00
@@ -359,7 +359,7 @@ components:
           example: d290f1ee-6c54-4b01-90e6-d701748f0851
           format: uuid
           type: string
-        customerId:
+        customerID:
           description: The unique identifier for the customer who owns the account
           example: e210a9d6-d755-4455-9bd2-9577ea7e1081
           format: uuid
@@ -528,10 +528,10 @@ components:
     CreateTransaction:
       example:
         lines:
-        - accountId: baa835b8
+        - accountID: baa835b8
           amount: 2500
           purpose: Transfer
-        - accountId: baa835b8
+        - accountID: baa835b8
           amount: 2500
           purpose: Transfer
       properties:
@@ -543,10 +543,10 @@ components:
       example:
         id: 140fa826
         lines:
-        - accountId: baa835b8
+        - accountID: baa835b8
           amount: 2500
           purpose: Transfer
-        - accountId: baa835b8
+        - accountID: baa835b8
           amount: 2500
           purpose: Transfer
         timestamp: 2000-01-23T04:56:07.000+00:00
@@ -568,11 +568,11 @@ components:
       type: array
     TransactionLine:
       example:
-        accountId: baa835b8
+        accountID: baa835b8
         amount: 2500
         purpose: Transfer
       properties:
-        accountId:
+        accountID:
           description: Account ID
           example: baa835b8
           type: string

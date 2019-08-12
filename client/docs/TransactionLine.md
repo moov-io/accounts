@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**AccountId** | **string** | Account ID | [optional] 
+**AccountID** | **string** | Account ID | [optional] 
 **Purpose** | **string** |  | [optional] 
 **Amount** | **float32** | Change in account balance (in USD cents) | [optional] 
 

@@ -11,7 +11,7 @@ package openapi
 
 type TransactionLine struct {
 	// Account ID
-	AccountId string `json:"accountId,omitempty"`
+	AccountID string `json:"accountID,omitempty"`
 	Purpose   string `json:"purpose,omitempty"`
 	// Change in account balance (in USD cents)
 	Amount float32 `json:"amount,omitempty"`

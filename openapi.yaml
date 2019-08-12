@@ -52,19 +52,19 @@ paths:
           schema:
             type: string
             example: Checking
-        - name: customerId
+        - name: customerID
           in: query
           description: Customer ID associated to accounts
           schema:
             type: string
             example: cb9012eb
-        - name: X-Request-Id
+        - name: X-Request-ID
           in: header
           description: Optional Request ID allows application developer to trace requests through the systems logs
           example: rs4f9915
           schema:
             type: string
-        - name: X-User-Id
+        - name: X-User-ID
           in: header
           description: Moov User ID header, required in all requests
           example: e3cdf999
@@ -87,13 +87,13 @@ paths:
       summary: Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
       operationId: createTransaction
       parameters:
-        - name: X-Request-Id
+        - name: X-Request-ID
           in: header
           description: Optional Request ID allows application developer to trace requests through the systems logs
           example: rs4f9915
           schema:
             type: string
-        - name: X-User-Id
+        - name: X-User-ID
           in: header
           description: Moov User ID header, required in all requests
           example: e3cdf999
@@ -139,13 +139,13 @@ paths:
           schema:
             type: number
             example: 25
-        - name: X-Request-Id
+        - name: X-Request-ID
           in: header
           description: Optional Request ID allows application developer to trace requests through the systems logs
           example: rs4f9915
           schema:
             type: string
-        - name: X-User-Id
+        - name: X-User-ID
           in: header
           description: Moov User ID header, required in all requests
           example: e3cdf999
@@ -173,13 +173,13 @@ paths:
           schema:
             type: string
             example: 3e2f66e2
-        - name: X-Request-Id
+        - name: X-Request-ID
           in: header
           description: Optional Request ID allows application developer to trace requests through the systems logs
           example: rs4f9915
           schema:
             type: string
-        - name: X-User-Id
+        - name: X-User-ID
           in: header
           description: Moov User ID header, required in all requests
           example: e3cdf999
@@ -206,13 +206,13 @@ paths:
       summary: Create a new account for a Customer
       operationId: createAccount
       parameters:
-        - name: X-Request-Id
+        - name: X-Request-ID
           in: header
           description: Optional Request ID allows application developer to trace requests through the systems logs
           example: rs4f9915
           schema:
             type: string
-        - name: X-User-Id
+        - name: X-User-ID
           in: header
           description: Moov User ID header, required in all requests
           example: e3cdf999
@@ -246,12 +246,12 @@ components:
     CreateAccount:
       type: object
       required:
-        - customerId
+        - customerID
         - balance
         - name
         - type
       properties:
-        customerId:
+        customerID:
           type: string
           description: Customer ID associated with accounts
           example: 0c584689
@@ -282,7 +282,7 @@ components:
           format: uuid
           description: The unique identifier for an account
           example: d290f1ee-6c54-4b01-90e6-d701748f0851
-        customerId:
+        customerID:
           type: string
           format: uuid
           description: The unique identifier for the customer who owns the account
@@ -475,7 +475,7 @@ components:
         $ref: '#/components/schemas/Transaction'
     TransactionLine:
       properties:
-        accountId:
+        accountID:
           type: string
           description: Account ID
           example: baa835b8

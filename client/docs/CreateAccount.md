@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**CustomerId** | **string** | Customer ID associated with accounts | 
+**CustomerID** | **string** | Customer ID associated with accounts | 
 **Balance** | **int32** | Initial balance of account in USD cents. This amount is to be deposited from an account at another Financial Institution or in-person (i.e. cash) on account creation. | 
 **Name** | **string** | Caller defined label for this account. | 
 **Number** | **string** | Random number to be used as unique to distinguish this Account | [optional] 
