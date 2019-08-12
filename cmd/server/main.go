@@ -195,3 +195,12 @@ func addPingRoute(logger log.Logger, r *mux.Router) {
 		w.Write([]byte("PONG"))
 	})
 }
+
+// or returns primary if non-empty and backup otherwise
+func or(primary, backup string) string {
+	primary = strings.TrimSpace(primary)
+	if primary == "" {
+		return strings.TrimSpace(backup)
+	}
+	return primary
+}

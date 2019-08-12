@@ -58,15 +58,15 @@ func TestQLedgerTransactions__ping(t *testing.T) {
 	}
 }
 
-func TestQLedger__grabAccountIds(t *testing.T) {
-	ids := grabAccountIds([]transactionLine{
+func TestQLedger__grabAccountIDs(t *testing.T) {
+	ids := grabAccountIDs([]transactionLine{
 		{
-			AccountId: "accountId1",
+			AccountID: "accountId1",
 			Purpose:   ACHCredit,
 			Amount:    1242,
 		},
 		{
-			AccountId: "accountId2",
+			AccountID: "accountId2",
 			Purpose:   ACHDebit,
 			Amount:    1242,
 		},
@@ -80,19 +80,19 @@ func TestQLedger__grabAccountIds(t *testing.T) {
 }
 
 func TestQLedgerTransactions(t *testing.T) {
-	accountId := base.ID()
+	accountID := base.ID()
 	transactionRepo := qualifyQLedgerTransactionTest(t)
 
 	// Create a transaction
 	tx := (&createTransactionRequest{
 		Lines: []transactionLine{
 			{
-				AccountId: accountId,
+				AccountID: accountID,
 				Purpose:   ACHCredit,
 				Amount:    1242,
 			},
 			{
-				AccountId: base.ID(),
+				AccountID: base.ID(),
 				Purpose:   ACHDebit,
 				Amount:    1242,
 			},
@@ -103,7 +103,7 @@ func TestQLedgerTransactions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	transactions, err := transactionRepo.getAccountTransactions(accountId)
+	transactions, err := transactionRepo.getAccountTransactions(accountID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +115,7 @@ func TestQLedgerTransactions(t *testing.T) {
 	}
 
 	for i := range transactions[0].Lines {
-		if transactions[0].Lines[i].AccountId == accountId {
+		if transactions[0].Lines[i].AccountID == accountID {
 			if transactions[0].Lines[i].Purpose != ACHCredit || transactions[0].Lines[i].Amount != 1242 {
 				t.Errorf("purpose=%q amount=%d", transactions[0].Lines[i].Purpose, transactions[0].Lines[i].Amount)
 			}
@@ -145,7 +145,7 @@ func TestQLedger__convertQLedgerTransactions(t *testing.T) {
 		{
 			ID: "19defa381fa7125212a430b6e441f04c48618281",
 			Data: map[string]interface{}{
-				"accountIds": []interface{}{a1, a2},
+				"accountIDs": []interface{}{a1, a2},
 			},
 			Timestamp: "2019-05-21T16:55:53.933Z",
 			Lines: []*mledge.TransactionLine{
@@ -164,10 +164,10 @@ func TestQLedger__convertQLedgerTransactions(t *testing.T) {
 		t.Errorf("got %s", out[0].ID)
 	}
 	for i := range out[0].Lines {
-		if out[0].Lines[i].AccountId == a1 && out[0].Lines[i].Amount != 1000 {
+		if out[0].Lines[i].AccountID == a1 && out[0].Lines[i].Amount != 1000 {
 			t.Errorf("a1: unexpected amount %d", out[0].Lines[i].Amount)
 		}
-		if out[0].Lines[i].AccountId == a2 && out[0].Lines[i].Amount != 1000 {
+		if out[0].Lines[i].AccountID == a2 && out[0].Lines[i].Amount != 1000 {
 			t.Errorf("a2: unexpected amount %d", out[0].Lines[i].Amount)
 		}
 	}

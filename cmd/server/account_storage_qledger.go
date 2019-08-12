@@ -29,17 +29,17 @@ func (r *qledgerAccountRepository) Close() error {
 	return nil
 }
 
-func (r *qledgerAccountRepository) GetAccounts(accountIds []string) ([]*accounts.Account, error) {
+func (r *qledgerAccountRepository) GetAccounts(accountIDs []string) ([]*accounts.Account, error) {
 	var terms []map[string]interface{}
-	for i := range accountIds {
+	for i := range accountIDs {
 		m := make(map[string]interface{})
-		m["accountId"] = accountIds[i]
+		m["accountId"] = accountIDs[i]
 		terms = append(terms, m)
 	}
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
 			"should": map[string]interface{}{
-				"terms": terms, // OR query to grab what we can for each accountId
+				"terms": terms, // OR query to grab what we can for each accountID
 			},
 		},
 	}
@@ -50,10 +50,10 @@ func (r *qledgerAccountRepository) GetAccounts(accountIds []string) ([]*accounts
 	return convertAccounts(accts), nil
 }
 
-func (r *qledgerAccountRepository) CreateAccount(customerId string, account *accounts.Account) error {
+func (r *qledgerAccountRepository) CreateAccount(customerID string, account *accounts.Account) error {
 	data := map[string]interface{}{
-		"accountId":        account.Id,
-		"customerId":       account.CustomerId,
+		"accountId":        account.ID,         // old 'Id' naming
+		"customerId":       account.CustomerID, // old 'Id' naming
 		"name":             account.Name,
 		"accountNumber":    account.AccountNumber,
 		"routingNumber":    account.RoutingNumber,
@@ -71,7 +71,7 @@ func (r *qledgerAccountRepository) CreateAccount(customerId string, account *acc
 		data["lastModified"] = account.LastModified.Format(qledgerTimeFormat)
 	}
 	return r.api.CreateAccount(&mledge.Account{
-		ID:      account.Id,
+		ID:      account.ID,
 		Balance: int(account.Balance),
 		Data:    data,
 	})
@@ -101,12 +101,12 @@ func (r *qledgerAccountRepository) SearchAccountsByRoutingNumber(accountNumber, 
 	return nil, nil
 }
 
-func (r *qledgerAccountRepository) SearchAccountsByCustomerId(customerId string) ([]*accounts.Account, error) {
+func (r *qledgerAccountRepository) SearchAccountsByCustomerID(customerID string) ([]*accounts.Account, error) {
 	query := map[string]interface{}{
 		"query": map[string]interface{}{
 			"must": map[string]interface{}{
 				"terms": []map[string]interface{}{
-					{"customerId": customerId},
+					{"customerId": customerID},
 				},
 			},
 		},
@@ -139,8 +139,8 @@ func convertAccounts(accts []*mledge.Account) []*accounts.Account {
 			lastModified = readTime(v.(string))
 		}
 		out = append(out, &accounts.Account{
-			Id:               accts[i].ID,
-			CustomerId:       accts[i].Data["customerId"].(string),
+			ID:               accts[i].ID,
+			CustomerID:       accts[i].Data["customerId"].(string), // old name of '*ID*'
 			Name:             accts[i].Data["name"].(string),
 			AccountNumber:    accts[i].Data["accountNumber"].(string),
 			RoutingNumber:    accts[i].Data["routingNumber"].(string),

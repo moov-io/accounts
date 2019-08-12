@@ -349,12 +349,12 @@ components:
         balance: 1000
         customerID: e210a9d6-d755-4455-9bd2-9577ea7e1081
         name: Super Checking
-        id: d290f1ee-6c54-4b01-90e6-d701748f0851
+        ID: d290f1ee-6c54-4b01-90e6-d701748f0851
         lastModified: 2000-01-23T04:56:07.000+00:00
         closedAt: 2000-01-23T04:56:07.000+00:00
         status: Open
       properties:
-        id:
+        ID:
           description: The unique identifier for an account
           example: d290f1ee-6c54-4b01-90e6-d701748f0851
           format: uuid
@@ -541,7 +541,7 @@ components:
           type: array
     Transaction:
       example:
-        id: 140fa826
+        ID: 140fa826
         lines:
         - accountID: baa835b8
           amount: 2500
@@ -551,7 +551,7 @@ components:
           purpose: Transfer
         timestamp: 2000-01-23T04:56:07.000+00:00
       properties:
-        id:
+        ID:
           description: Unique ID of a transaction
           example: 140fa826
           type: string

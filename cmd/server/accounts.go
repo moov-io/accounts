@@ -29,7 +29,7 @@ var (
 	errNoCustomerId = errors.New("no Customer ID found")
 )
 
-func getCustomerId(w http.ResponseWriter, r *http.Request) string {
+func getCustomerID(w http.ResponseWriter, r *http.Request) string {
 	v, ok := mux.Vars(r)["customerId"]
 	if !ok || v == "" {
 		moovhttp.Problem(w, errNoCustomerId)
@@ -61,8 +61,8 @@ func searchAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc 
 			// Grab and return accounts
 			account, err := repo.SearchAccountsByRoutingNumber(reqAcctNumber, reqRoutingNumber, reqAcctType)
 			if err != nil {
-				if requestId := moovhttp.GetRequestId(r); requestId != "" {
-					logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
+				if requestID := moovhttp.GetRequestId(r); requestID != "" {
+					logger.Log("accounts", fmt.Sprintf("%v", err), "requestID", requestID)
 				}
 				moovhttp.Problem(w, fmt.Errorf("account not found, err=%v", err))
 				return
@@ -79,11 +79,11 @@ func searchAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc 
 		}
 
 		// Search based on CustomerId
-		if customerId := q.Get("customerId"); customerId != "" {
-			accounts, err := repo.SearchAccountsByCustomerId(customerId)
+		if customerID := or(q.Get("customerId"), q.Get("customerID")); customerID != "" {
+			accounts, err := repo.SearchAccountsByCustomerID(customerID)
 			if err != nil {
-				if requestId := moovhttp.GetRequestId(r); requestId != "" {
-					logger.Log("accounts", fmt.Sprintf("%v", err), "requestId", requestId)
+				if requestID := moovhttp.GetRequestId(r); requestID != "" {
+					logger.Log("accounts", fmt.Sprintf("%v", err), "requestID", requestID)
 				}
 				moovhttp.Problem(w, fmt.Errorf("account not found, err=%v", err))
 				return
@@ -99,7 +99,7 @@ func searchAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc 
 }
 
 type createAccountRequest struct {
-	CustomerId string `json:"customerId"`
+	CustomerID string `json:"customerId"`
 	Balance    int    `json:"balance"`
 	Name       string `json:"name"`
 	Number     string `json:"number"`
@@ -107,8 +107,8 @@ type createAccountRequest struct {
 }
 
 func (r createAccountRequest) validate() error {
-	if r.CustomerId = strings.TrimSpace(r.CustomerId); r.CustomerId == "" {
-		return errors.New("createAccountRequest: empty customerId")
+	if r.CustomerID = strings.TrimSpace(r.CustomerID); r.CustomerID == "" {
+		return errors.New("createAccountRequest: empty customerID")
 	}
 	if r.Balance < 100 { // $1
 		return fmt.Errorf("createAccountRequest: invalid initial amount %d USD cents", r.Balance)
@@ -136,27 +136,27 @@ func createAccount(logger log.Logger, accountRepo accountRepository, transaction
 		if err != nil {
 			return
 		}
-		requestId := moovhttp.GetRequestId(r)
-		if requestId == "" {
-			requestId = base.ID()
+		requestID := moovhttp.GetRequestId(r)
+		if requestID == "" {
+			requestID = base.ID()
 		}
 
 		var req createAccountRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			logger.Log("accounts", fmt.Sprintf("error reading JSON request: %v", err), "requestId", requestId)
+			logger.Log("accounts", fmt.Sprintf("error reading JSON request: %v", err), "requestID", requestID)
 			moovhttp.Problem(w, err)
 			return
 		}
 		if err := req.validate(); err != nil {
-			logger.Log("accounts", fmt.Sprintf("error validaing request: %v", err), "requestId", requestId)
+			logger.Log("accounts", fmt.Sprintf("error validaing request: %v", err), "requestID", requestID)
 			moovhttp.Problem(w, err)
 			return
 		}
 
 		now := time.Now()
 		account := &accounts.Account{
-			Id:            base.ID(),
-			CustomerId:    req.CustomerId,
+			ID:            base.ID(),
+			CustomerID:    req.CustomerID,
 			Name:          req.Name,
 			AccountNumber: req.Number,
 			RoutingNumber: defaultRoutingNumber,
@@ -171,12 +171,12 @@ func createAccount(logger log.Logger, accountRepo accountRepository, transaction
 		if number, err := generateAccountNumber(account, accountRepo); number != "" {
 			account.AccountNumber = number
 		} else {
-			logger.Log("accounts", err, "requestId", requestId)
+			logger.Log("accounts", err, "requestID", requestID)
 			moovhttp.Problem(w, err)
 			return
 		}
-		if err := accountRepo.CreateAccount(req.CustomerId, account); err != nil {
-			logger.Log("accounts", err, "requestId", requestId)
+		if err := accountRepo.CreateAccount(req.CustomerID, account); err != nil {
+			logger.Log("accounts", err, "requestID", requestID)
 			moovhttp.Problem(w, err)
 			return
 		}
@@ -185,14 +185,14 @@ func createAccount(logger log.Logger, accountRepo accountRepository, transaction
 		tx := (&createTransactionRequest{
 			Lines: []transactionLine{
 				{
-					AccountId: account.Id,
+					AccountID: account.ID,
 					Purpose:   ACHCredit,
 					Amount:    req.Balance,
 				},
 			},
 		}).asTransaction(base.ID())
 		if err := transactionRepo.createTransaction(tx, createTransactionOpts{InitialDeposit: true}); err != nil {
-			logger.Log("accounts", fmt.Errorf("problem creating initial balance transaction: %v", err), "requestId", requestId)
+			logger.Log("accounts", fmt.Errorf("problem creating initial balance transaction: %v", err), "requestID", requestID)
 			moovhttp.Problem(w, err)
 			return
 		}
@@ -213,5 +213,5 @@ func generateAccountNumber(account *accounts.Account, repo accountRepository) (s
 			return number, nil
 		}
 	}
-	return "", fmt.Errorf("unable to generate account number for account=%s", account.Id)
+	return "", fmt.Errorf("unable to generate account number for account=%s", account.ID)
 }

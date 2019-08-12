@@ -64,11 +64,11 @@ func TestQLedgerAccounts__ping(t *testing.T) {
 func TestQLedger__Accounts(t *testing.T) {
 	repo := qualifyQLedgerAccountTest(t)
 
-	customerId, now := base.ID(), time.Now()
+	customerID, now := base.ID(), time.Now()
 	future := now.Add(24 * time.Hour)
 	account := &accounts.Account{
-		Id:               base.ID(),
-		CustomerId:       customerId,
+		ID:               base.ID(),
+		CustomerID:       customerID,
 		Name:             "example account",
 		AccountNumber:    createAccountNumber(),
 		RoutingNumber:    "121042882",
@@ -81,20 +81,20 @@ func TestQLedger__Accounts(t *testing.T) {
 		ClosedAt:         future,
 		LastModified:     now,
 	}
-	if err := repo.CreateAccount(customerId, account); err != nil {
+	if err := repo.CreateAccount(customerID, account); err != nil {
 		t.Error(err)
 	}
 
 	// Now grab accounts for this customer
-	accounts, err := repo.SearchAccountsByCustomerId(customerId)
+	accounts, err := repo.SearchAccountsByCustomerID(customerID)
 	if err != nil {
 		t.Error(err)
 	}
 	if len(accounts) == 0 {
 		t.Fatal("no accounts found")
 	}
-	if account.Id != accounts[0].Id {
-		t.Errorf("expected account %q, but found %#v", account.Id, accounts[0].Id)
+	if account.ID != accounts[0].ID {
+		t.Errorf("expected account %q, but found %#v", account.ID, accounts[0].ID)
 	}
 	if account.Balance != 100 || account.BalancePending != 123 || account.BalanceAvailable != 412 {
 		t.Errorf("Balance=%d BalancePending=%d BalanceAvailable=%d", account.Balance, account.BalancePending, account.BalanceAvailable)
@@ -105,26 +105,26 @@ func TestQLedger__Accounts(t *testing.T) {
 
 	// Grab accounts by their ID's
 	account2 := *account
-	account2.Id = base.ID()
+	account2.ID = base.ID()
 	account2.Balance += 100
 	account2.RoutingNumber = "231380104" // different value
-	if err := repo.CreateAccount(customerId, &account2); err != nil {
+	if err := repo.CreateAccount(customerID, &account2); err != nil {
 		t.Fatal(err)
 	}
 
-	accounts, err = repo.GetAccounts([]string{account.Id, account2.Id})
+	accounts, err = repo.GetAccounts([]string{account.ID, account2.ID})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(accounts) != 2 {
 		t.Errorf("got %d accounts", len(accounts))
 	}
-	if accounts[0].Id == account.Id {
-		if accounts[1].Id != account2.Id {
+	if accounts[0].ID == account.ID {
+		if accounts[1].ID != account2.ID {
 			t.Errorf("mis-matching accounts")
 		}
 	} else {
-		if accounts[1].Id != account.Id {
+		if accounts[1].ID != account.ID {
 			t.Errorf("mis-matching accounts")
 		}
 	}
@@ -137,8 +137,8 @@ func TestQLedger__Accounts(t *testing.T) {
 	if acct == nil {
 		t.Fatal("SearchAccounts: nil account")
 	}
-	if acct.Id != account.Id {
-		t.Errorf("acct.Id=%q account.Id=%q", acct.Id, account.Id)
+	if acct.ID != account.ID {
+		t.Errorf("acct.ID=%q account.ID=%q", acct.ID, account.ID)
 	}
 
 	repo.close()

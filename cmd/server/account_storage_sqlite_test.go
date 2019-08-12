@@ -54,11 +54,11 @@ func TestSqliteAccountRepository(t *testing.T) {
 	repo := createTestSqliteAccountRepository(t)
 	defer repo.Close()
 
-	customerId, now := base.ID(), time.Now()
+	customerID, now := base.ID(), time.Now()
 	future := now.Add(24 * time.Hour)
 	account := &accounts.Account{
-		Id:            base.ID(),
-		CustomerId:    customerId,
+		ID:            base.ID(),
+		CustomerID:    customerID,
 		Name:          "test account",
 		AccountNumber: "12411",
 		RoutingNumber: "219871289",
@@ -68,13 +68,13 @@ func TestSqliteAccountRepository(t *testing.T) {
 		ClosedAt:      future,
 		LastModified:  now,
 	}
-	if err := repo.CreateAccount(customerId, account); err != nil {
+	if err := repo.CreateAccount(customerID, account); err != nil {
 		t.Fatal(err)
 	}
 
 	otherAccount := &accounts.Account{
-		Id:            base.ID(),
-		CustomerId:    base.ID(),
+		ID:            base.ID(),
+		CustomerID:    base.ID(),
 		Name:          "other account",
 		AccountNumber: "18412481",
 		RoutingNumber: "219871289",
@@ -82,32 +82,32 @@ func TestSqliteAccountRepository(t *testing.T) {
 		Type:          "Checking",
 		CreatedAt:     time.Now(),
 	}
-	if err := repo.CreateAccount(otherAccount.CustomerId, otherAccount); err != nil {
+	if err := repo.CreateAccount(otherAccount.CustomerID, otherAccount); err != nil {
 		t.Fatal(err)
 	}
 
 	// read via one method
-	accounts, err := repo.GetAccounts([]string{account.Id})
+	accounts, err := repo.GetAccounts([]string{account.ID})
 	if err != nil {
 		t.Error(err)
 	}
 	if len(accounts) != 1 {
 		t.Fatalf("got %d accounts: %#v", len(accounts), accounts)
 	}
-	if accounts[0].Id != account.Id {
-		t.Errorf("Got %s", accounts[0].Id)
+	if accounts[0].ID != account.ID {
+		t.Errorf("Got %s", accounts[0].ID)
 	}
 
 	// and read via another
-	accounts, err = repo.SearchAccountsByCustomerId(account.CustomerId)
+	accounts, err = repo.SearchAccountsByCustomerID(account.CustomerID)
 	if err != nil {
 		t.Error(err)
 	}
 	if len(accounts) != 1 {
 		t.Fatalf("got %d accounts: %#v", len(accounts), accounts)
 	}
-	if accounts[0].Id != account.Id {
-		t.Errorf("Got %s", accounts[0].Id)
+	if accounts[0].ID != account.ID {
+		t.Errorf("Got %s", accounts[0].ID)
 	}
 
 	// finally via a third method
@@ -115,8 +115,8 @@ func TestSqliteAccountRepository(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if acct.Id != otherAccount.Id {
-		t.Errorf("found account %q", acct.Id)
+	if acct.ID != otherAccount.ID {
+		t.Errorf("found account %q", acct.ID)
 	}
 
 	// Change the case of otherAccount.Type
@@ -124,8 +124,8 @@ func TestSqliteAccountRepository(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if acct.Id != otherAccount.Id {
-		t.Errorf("found account %q", acct.Id)
+	if acct.ID != otherAccount.ID {
+		t.Errorf("found account %q", acct.ID)
 	}
 }
 
@@ -148,11 +148,11 @@ func TestSqliteAccountRepository_unique(t *testing.T) {
 	repo := createTestSqliteAccountRepository(t)
 	defer repo.Close()
 
-	customerId, now := base.ID(), time.Now()
+	customerID, now := base.ID(), time.Now()
 	future := now.Add(24 * time.Hour)
 	account := &accounts.Account{
-		Id:            base.ID(),
-		CustomerId:    customerId,
+		ID:            base.ID(),
+		CustomerID:    customerID,
 		Name:          "test account",
 		AccountNumber: "12411",
 		RoutingNumber: "219871289",
@@ -162,13 +162,13 @@ func TestSqliteAccountRepository_unique(t *testing.T) {
 		ClosedAt:      future,
 		LastModified:  now,
 	}
-	if err := repo.CreateAccount(customerId, account); err != nil {
+	if err := repo.CreateAccount(customerID, account); err != nil {
 		t.Fatal(err)
 	}
 
 	// attempt again
-	account.Id = base.ID()
-	if err := repo.CreateAccount(customerId, account); err == nil {
+	account.ID = base.ID()
+	if err := repo.CreateAccount(customerID, account); err == nil {
 		t.Error("expected error")
 	} else {
 		if !strings.Contains(err.Error(), "UNIQUE constraint failed") {

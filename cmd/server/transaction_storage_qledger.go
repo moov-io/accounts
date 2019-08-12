@@ -37,11 +37,11 @@ func (r *qledgerTransactionRepository) Close() error {
 func (r *qledgerTransactionRepository) createTransaction(tx transaction, opts createTransactionOpts) error {
 	var lines []*mledge.TransactionLine
 	data := make(map[string]interface{})
-	data["accountIds"] = grabAccountIds(tx.Lines)
+	data["accountIds"] = grabAccountIDs(tx.Lines) // old name of '*Id*'
 
 	for i := range tx.Lines {
 		line := &mledge.TransactionLine{
-			AccountID: tx.Lines[i].AccountId,
+			AccountID: tx.Lines[i].AccountID,
 		}
 		if tx.Lines[i].Purpose == ACHDebit {
 			line.Delta = -1 * tx.Lines[i].Amount
@@ -103,7 +103,7 @@ func convertQLedgerTransactions(xfers []*mledge.Transaction) []transaction {
 				delta *= -1
 			}
 			tx := transactionLine{
-				AccountId: xfers[i].Lines[j].AccountID,
+				AccountID: xfers[i].Lines[j].AccountID,
 				Amount:    delta,
 				Purpose:   TransactionPurpose(p),
 			}

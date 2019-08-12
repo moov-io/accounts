@@ -51,7 +51,7 @@ func (r *mockTransactionRepository) getAccountTransactions(accountID string) ([]
 	return r.transactions, nil
 }
 
-func (r *mockTransactionRepository) getTransaction(transactionId string) (*transaction, error) {
+func (r *mockTransactionRepository) getTransaction(transactionID string) (*transaction, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -102,10 +102,10 @@ func TestTransaction__validate(t *testing.T) {
 		Timestamp: time.Now(),
 		Lines: []transactionLine{
 			{
-				AccountId: base.ID(), Purpose: ACHDebit, Amount: 500,
+				AccountID: base.ID(), Purpose: ACHDebit, Amount: 500,
 			},
 			{
-				AccountId: base.ID(), Purpose: ACHCredit, Amount: 500,
+				AccountID: base.ID(), Purpose: ACHCredit, Amount: 500,
 			},
 		},
 	}
@@ -145,12 +145,12 @@ func TestTransaction__validate(t *testing.T) {
 
 }
 
-func TestTransactions_getAccountId(t *testing.T) {
+func TestTransactions_getAccountID(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/foo", nil)
 
-	if accountId := getAccountId(w, req); accountId != "" {
-		t.Errorf("expected no accountId, got %q", accountId)
+	if accountID := getAccountID(w, req); accountID != "" {
+		t.Errorf("expected no accountID, got %q", accountID)
 	}
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("got %d", w.Code)
@@ -159,10 +159,10 @@ func TestTransactions_getAccountId(t *testing.T) {
 	w = httptest.NewRecorder()
 
 	// successful extraction
-	var accountId string
+	var accountID string
 	router := mux.NewRouter()
 	router.Methods("GET").Path("/accounts/{accountId}").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		accountId = getAccountId(w, req)
+		accountID = getAccountID(w, req)
 	})
 	router.ServeHTTP(w, httptest.NewRequest("GET", "/accounts/bar", nil))
 	w.Flush()
@@ -170,13 +170,13 @@ func TestTransactions_getAccountId(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("got %d", w.Code)
 	}
-	if accountId != "bar" {
-		t.Errorf("got %q", accountId)
+	if accountID != "bar" {
+		t.Errorf("got %q", accountID)
 	}
 }
 
 func TestTransactions_Get(t *testing.T) {
-	accountId := base.ID()
+	accountID := base.ID()
 	accountRepo := &testAccountRepository{}
 	transactionRepo := &mockTransactionRepository{
 		transactions: []transaction{
@@ -185,7 +185,7 @@ func TestTransactions_Get(t *testing.T) {
 				Timestamp: time.Now().Add(-24 * time.Hour),
 				Lines: []transactionLine{
 					{
-						AccountId: accountId,
+						AccountID: accountID,
 						Purpose:   Transfer,
 						Amount:    13412,
 					},
@@ -196,7 +196,7 @@ func TestTransactions_Get(t *testing.T) {
 				Timestamp: time.Now().Add(-24 * 2 * time.Hour),
 				Lines: []transactionLine{
 					{
-						AccountId: accountId,
+						AccountID: accountID,
 						Purpose:   Transfer,
 						Amount:    5331,
 					},
@@ -208,7 +208,7 @@ func TestTransactions_Get(t *testing.T) {
 	router := mux.NewRouter()
 	addTransactionRoutes(log.NewNopLogger(), router, accountRepo, transactionRepo)
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("/accounts/%s/transactions", accountId), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("/accounts/%s/transactions", accountID), nil)
 	req.Header.Set("x-user-id", base.ID())
 
 	w := httptest.NewRecorder()
@@ -241,8 +241,8 @@ func TestTransactions_Get(t *testing.T) {
 func TestTransactions_Create(t *testing.T) {
 	accountRepo := &testAccountRepository{
 		accounts: []*accounts.Account{
-			{Id: base.ID(), Balance: 10000},
-			{Id: base.ID(), Balance: 1000},
+			{ID: base.ID(), Balance: 10000},
+			{ID: base.ID(), Balance: 1000},
 		},
 	}
 	transactionRepo := &mockTransactionRepository{}
@@ -253,8 +253,8 @@ func TestTransactions_Create(t *testing.T) {
 	var body bytes.Buffer
 	json.NewEncoder(&body).Encode(createTransactionRequest{
 		Lines: []transactionLine{
-			{AccountId: accountRepo.accounts[0].Id, Purpose: ACHDebit, Amount: 4121},
-			{AccountId: accountRepo.accounts[1].Id, Purpose: ACHCredit, Amount: 4121},
+			{AccountID: accountRepo.accounts[0].ID, Purpose: ACHDebit, Amount: 4121},
+			{AccountID: accountRepo.accounts[1].ID, Purpose: ACHCredit, Amount: 4121},
 		},
 	})
 	req := httptest.NewRequest("POST", "/accounts/transactions", &body)
@@ -302,8 +302,8 @@ func TestTransactions_CreateInvalid(t *testing.T) {
 	json.NewEncoder(&body).Encode(createTransactionRequest{
 		Lines: []transactionLine{
 			// Invalid Lines will force an error
-			{AccountId: base.ID(), Purpose: ACHDebit, Amount: -4121},
-			{AccountId: base.ID(), Purpose: ACHCredit, Amount: -121},
+			{AccountID: base.ID(), Purpose: ACHDebit, Amount: -4121},
+			{AccountID: base.ID(), Purpose: ACHCredit, Amount: -121},
 		},
 	})
 	req := httptest.NewRequest("POST", "/accounts/transactions", &body)
@@ -327,12 +327,12 @@ func TestTransactions__createTransactionReversal(t *testing.T) {
 				Timestamp: time.Now(),
 				Lines: []transactionLine{
 					{
-						AccountId: base.ID(),
+						AccountID: base.ID(),
 						Purpose:   ACHDebit,
 						Amount:    1000,
 					},
 					{
-						AccountId: base.ID(),
+						AccountID: base.ID(),
 						Purpose:   ACHCredit,
 						Amount:    1000,
 					},
@@ -380,12 +380,12 @@ func TestTransactions__createTransactionReversal(t *testing.T) {
 	}
 }
 
-func TestTransactions_getTransactionId(t *testing.T) {
+func TestTransactions_getTransactionID(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/foo", nil)
 
-	if accountId := getTransactionId(w, req); accountId != "" {
-		t.Errorf("expected no accountId, got %q", accountId)
+	if transactionID := getTransactionID(w, req); transactionID != "" {
+		t.Errorf("expected no transactionID, got %q", transactionID)
 	}
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("got %d", w.Code)
@@ -394,10 +394,10 @@ func TestTransactions_getTransactionId(t *testing.T) {
 	w = httptest.NewRecorder()
 
 	// successful extraction
-	var transactionId string
+	var transactionID string
 	router := mux.NewRouter()
 	router.Methods("GET").Path("/transactions/{transactionId}").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		transactionId = getTransactionId(w, req)
+		transactionID = getTransactionID(w, req)
 	})
 	router.ServeHTTP(w, httptest.NewRequest("GET", "/transactions/bar", nil))
 	w.Flush()
@@ -405,7 +405,7 @@ func TestTransactions_getTransactionId(t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Errorf("got %d", w.Code)
 	}
-	if transactionId != "bar" {
-		t.Errorf("got %q", transactionId)
+	if transactionID != "bar" {
+		t.Errorf("got %q", transactionID)
 	}
 }

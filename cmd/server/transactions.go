@@ -20,8 +20,8 @@ import (
 )
 
 var (
-	errNoAccountId     = errors.New("no accountId found")
-	errNoTransactionId = errors.New("no transactionId found")
+	errNoAccountID     = errors.New("no accountID found")
+	errNoTransactionID = errors.New("no transactionID found")
 )
 
 type TransactionPurpose string
@@ -57,14 +57,14 @@ func (p TransactionPurpose) validate() error {
 }
 
 type transactionLine struct {
-	AccountId string             `json:"accountId"`
+	AccountID string             `json:"accountId"`
 	Purpose   TransactionPurpose `json:"purpose"`
 	Amount    int                `json:"amount"`
 }
 
 func (line transactionLine) validate() error {
-	if line.AccountId == "" || line.Amount == 0 {
-		return fmt.Errorf("transactionLine: AccountId=%s Amount=%d is invalid", line.AccountId, line.Amount)
+	if line.AccountID == "" || line.Amount == 0 {
+		return fmt.Errorf("transactionLine: AccountID=%s Amount=%d is invalid", line.AccountID, line.Amount)
 	}
 	return line.Purpose.validate()
 }
@@ -121,14 +121,16 @@ func (t transaction) validate() error {
 func addTransactionRoutes(logger log.Logger, router *mux.Router, accountRepo accountRepository, transactionRepo transactionRepository) {
 	router.Methods("GET").Path("/accounts/{accountId}/transactions").HandlerFunc(getAccountTransactions(logger, transactionRepo))
 	router.Methods("POST").Path("/accounts/transactions").HandlerFunc(createTransaction(logger, accountRepo, transactionRepo))
-	router.Methods("POST").Path("/accounts/transactions/{transactionId}/reversal").HandlerFunc(createTransactionReversal(logger, accountRepo, transactionRepo))
+	router.Methods("POST").Path("/accounts/transactions/{transactionID}/reversal").HandlerFunc(createTransactionReversal(logger, accountRepo, transactionRepo))
 }
 
-func getAccountId(w http.ResponseWriter, r *http.Request) string {
-	v, ok := mux.Vars(r)["accountId"]
-	if !ok || v == "" {
-		moovhttp.Problem(w, errNoAccountId)
-		return ""
+func getAccountID(w http.ResponseWriter, r *http.Request) string {
+	v, _ := mux.Vars(r)["accountId"]
+	if v == "" {
+		if v, _ = mux.Vars(r)["accountID"]; v == "" {
+			moovhttp.Problem(w, errNoAccountID)
+			return ""
+		}
 	}
 	return v
 }
@@ -140,13 +142,13 @@ func getAccountTransactions(logger log.Logger, transactionRepo transactionReposi
 			return
 		}
 
-		accountId := getAccountId(w, r)
-		if accountId == "" {
-			moovhttp.Problem(w, errNoAccountId)
+		accountID := getAccountID(w, r)
+		if accountID == "" {
+			moovhttp.Problem(w, errNoAccountID)
 			return
 		}
 
-		transactions, err := transactionRepo.getAccountTransactions(accountId)
+		transactions, err := transactionRepo.getAccountTransactions(accountID)
 		if err != nil {
 			moovhttp.Problem(w, err)
 			return
@@ -167,7 +169,7 @@ func createTransaction(logger log.Logger, accountRepo accountRepository, transac
 		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-		requestId := moovhttp.GetRequestId(r)
+		requestID := moovhttp.GetRequestId(r)
 
 		var req createTransactionRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -178,22 +180,24 @@ func createTransaction(logger log.Logger, accountRepo accountRepository, transac
 		// Post the transaction
 		tx := req.asTransaction(base.ID())
 		if err := transactionRepo.createTransaction(tx, createTransactionOpts{AllowOverdraft: false}); err != nil {
-			logger.Log("transactions", fmt.Errorf("problem creating transaction: %v", err), "requestId", requestId)
+			logger.Log("transactions", fmt.Errorf("problem creating transaction: %v", err), "requestID", requestID)
 			moovhttp.Problem(w, err)
 			return
 		}
-		logger.Log("transaction", fmt.Errorf("created transaction %s", tx.ID), "requestId", requestId)
+		logger.Log("transaction", fmt.Errorf("created transaction %s", tx.ID), "requestID", requestID)
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(tx)
 	}
 }
 
-func getTransactionId(w http.ResponseWriter, r *http.Request) string {
-	v, ok := mux.Vars(r)["transactionId"]
-	if !ok || v == "" {
-		moovhttp.Problem(w, errNoTransactionId)
-		return ""
+func getTransactionID(w http.ResponseWriter, r *http.Request) string {
+	v, _ := mux.Vars(r)["transactionId"]
+	if v == "" {
+		if v, _ = mux.Vars(r)["transactionID"]; v == "" {
+			moovhttp.Problem(w, errNoTransactionID)
+			return ""
+		}
 	}
 	return v
 }
@@ -206,15 +210,15 @@ func createTransactionReversal(logger log.Logger, accountRepo accountRepository,
 		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-		// Read our transactionId and do an info log
-		requestId, transactionId := moovhttp.GetRequestId(r), getTransactionId(w, r)
-		if transactionId == "" {
+		// Read our transactionID and do an info log
+		requestID, transactionID := moovhttp.GetRequestId(r), getTransactionID(w, r)
+		if transactionID == "" {
 			return
 		}
-		logger.Log("transaction", fmt.Sprintf("reversing transaction %s", transactionId), "requestId", requestId)
+		logger.Log("transaction", fmt.Sprintf("reversing transaction %s", transactionID), "requestID", requestID)
 
 		// reverse the transaction (after reading it from our database)
-		transaction, err := transactionRepo.getTransaction(transactionId)
+		transaction, err := transactionRepo.getTransaction(transactionID)
 		if err != nil {
 			moovhttp.Problem(w, err)
 			return
@@ -231,11 +235,11 @@ func createTransactionReversal(logger log.Logger, accountRepo accountRepository,
 			}
 		}
 		if err := transactionRepo.createTransaction(*transaction, createTransactionOpts{AllowOverdraft: false}); err != nil {
-			logger.Log("transactions", fmt.Errorf("problem creating transaction: %v", err), "requestId", requestId)
+			logger.Log("transactions", fmt.Errorf("problem creating transaction: %v", err), "requestID", requestID)
 			moovhttp.Problem(w, err)
 			return
 		}
-		logger.Log("transactions", fmt.Sprintf("reversed (original transaction=%s) transaction=%s", transactionId, transaction.ID), "requestId", requestId)
+		logger.Log("transactions", fmt.Sprintf("reversed (original transaction=%s) transaction=%s", transactionID, transaction.ID), "requestID", requestID)
 
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(transaction)

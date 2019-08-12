@@ -60,8 +60,8 @@ func TestSqliteTransactionRepository(t *testing.T) {
 		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'remote' (routing number we don't manage)
 			// so we can send the ACH file and possibly get a return.
-			{Id: account1, AccountNumber: "123", RoutingNumber: "121042882"},
-			{Id: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
+			{ID: account1, AccountNumber: "123", RoutingNumber: "121042882"},
+			{ID: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
 		},
 	}
 
@@ -70,8 +70,8 @@ func TestSqliteTransactionRepository(t *testing.T) {
 		ID:        base.ID(),
 		Timestamp: time.Now(),
 		Lines: []transactionLine{
-			{AccountId: account1, Purpose: ACHDebit, Amount: 500},
-			{AccountId: account2, Purpose: ACHCredit, Amount: 500},
+			{AccountID: account1, Purpose: ACHDebit, Amount: 500},
+			{AccountID: account2, Purpose: ACHCredit, Amount: 500},
 		},
 	}
 	if err := repo.createTransaction(tx, createTransactionOpts{AllowOverdraft: false}); err != nil {
@@ -120,8 +120,8 @@ func TestSqliteTransactionRepository__Internal(t *testing.T) {
 	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
 		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'internal' (routing number we manage).
-			{Id: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
-			{Id: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
+			{ID: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
+			{ID: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
 		},
 	}
 
@@ -130,7 +130,7 @@ func TestSqliteTransactionRepository__Internal(t *testing.T) {
 		ID:        base.ID(),
 		Timestamp: time.Now(),
 		Lines: []transactionLine{
-			{AccountId: account1, Purpose: ACHCredit, Amount: 1000},
+			{AccountID: account1, Purpose: ACHCredit, Amount: 1000},
 		},
 	}
 	if err := repo.createTransaction(tx, createTransactionOpts{InitialDeposit: true}); err != nil {
@@ -150,8 +150,8 @@ func TestSqliteTransactionRepository__Internal(t *testing.T) {
 		ID:        base.ID(),
 		Timestamp: time.Now(),
 		Lines: []transactionLine{
-			{AccountId: account1, Purpose: ACHDebit, Amount: 400},
-			{AccountId: account2, Purpose: ACHCredit, Amount: 400},
+			{AccountID: account1, Purpose: ACHDebit, Amount: 400},
+			{AccountID: account2, Purpose: ACHCredit, Amount: 400},
 		},
 	}
 	// Create the transaction and allow it to overdraft
@@ -193,8 +193,8 @@ func TestSqliteTransactionRepository__AllowOverdraft(t *testing.T) {
 	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
 		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'internal' (routing number we manage).
-			{Id: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
-			{Id: account2, AccountNumber: "432", RoutingNumber: "121042882"},
+			{ID: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
+			{ID: account2, AccountNumber: "432", RoutingNumber: "121042882"},
 		},
 	}
 
@@ -203,8 +203,8 @@ func TestSqliteTransactionRepository__AllowOverdraft(t *testing.T) {
 		ID:        base.ID(),
 		Timestamp: time.Now(),
 		Lines: []transactionLine{
-			{AccountId: account1, Purpose: ACHDebit, Amount: 500},
-			{AccountId: account2, Purpose: ACHCredit, Amount: 500},
+			{AccountID: account1, Purpose: ACHDebit, Amount: 500},
+			{AccountID: account2, Purpose: ACHCredit, Amount: 500},
 		},
 	}
 	// Create the transaction and allow it to overdraft
@@ -245,8 +245,8 @@ func TestSqliteTransactionRepository__DisallowOverdraft(t *testing.T) {
 	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
 		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'internal' (routing number we manage).
-			{Id: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
-			{Id: account2, AccountNumber: "432", RoutingNumber: "121042882"},
+			{ID: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
+			{ID: account2, AccountNumber: "432", RoutingNumber: "121042882"},
 		},
 	}
 
@@ -255,8 +255,8 @@ func TestSqliteTransactionRepository__DisallowOverdraft(t *testing.T) {
 		ID:        base.ID(),
 		Timestamp: time.Now(),
 		Lines: []transactionLine{
-			{AccountId: account1, Purpose: ACHDebit, Amount: 500},
-			{AccountId: account2, Purpose: ACHCredit, Amount: 500},
+			{AccountID: account1, Purpose: ACHDebit, Amount: 500},
+			{AccountID: account2, Purpose: ACHCredit, Amount: 500},
 		},
 	}
 
@@ -275,12 +275,12 @@ func TestTransactions__isInternalDebit(t *testing.T) {
 	accounts := []*accounts.Account{
 		// Setup the account being debited from as 'remote' (routing number we don't manage)
 		// so we can send the ACH file and possibly get a return.
-		{Id: account1, AccountNumber: "123", RoutingNumber: "121042882"},
-		{Id: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
+		{ID: account1, AccountNumber: "123", RoutingNumber: "121042882"},
+		{ID: account2, AccountNumber: "432", RoutingNumber: defaultRoutingNumber},
 	}
 	lines := []transactionLine{
-		{AccountId: account1, Purpose: ACHDebit, Amount: 500},
-		{AccountId: account2, Purpose: ACHCredit, Amount: 500},
+		{AccountID: account1, Purpose: ACHDebit, Amount: 500},
+		{AccountID: account2, Purpose: ACHCredit, Amount: 500},
 	}
 	if isInternalDebit(accounts, lines, defaultRoutingNumber) {
 		t.Errorf("account1 is external")
@@ -300,17 +300,17 @@ func TestTransactions__isInternalDebit(t *testing.T) {
 	}
 }
 
-// TestSqliteTransactions_unique ensures we can't insert a transaction with multiple lines for the same accountId
+// TestSqliteTransactions_unique ensures we can't insert a transaction with multiple lines for the same accountID
 func TestSqliteTransactions_unique(t *testing.T) {
 	repo := createTestSqliteTransactionRepository(t)
 	defer repo.Close()
 
 	account1, account2 := base.ID(), base.ID()
 	lines := []transactionLine{
-		// Valid transaction, but has multiple lines for the same accountId
-		{AccountId: account1, Purpose: ACHDebit, Amount: 500},
-		{AccountId: account1, Purpose: ACHDebit, Amount: 100},
-		{AccountId: account2, Purpose: ACHCredit, Amount: 600},
+		// Valid transaction, but has multiple lines for the same accountID
+		{AccountID: account1, Purpose: ACHDebit, Amount: 500},
+		{AccountID: account1, Purpose: ACHDebit, Amount: 100},
+		{AccountID: account2, Purpose: ACHCredit, Amount: 600},
 	}
 	tx := transaction{
 		ID:        base.ID(),
