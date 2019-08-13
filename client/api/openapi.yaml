@@ -148,14 +148,14 @@ paths:
         without creating them first.
       tags:
       - Accounts
-  /accounts/{account_id}/transactions:
+  /accounts/{accountID}/transactions:
     get:
       operationId: getAccountTransactions
       parameters:
       - description: Account ID
         explode: false
         in: path
-        name: account_id
+        name: accountID
         required: true
         schema:
           example: 098f3653-1dcb-4358-903e-4c7576f957f6

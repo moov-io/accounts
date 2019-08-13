@@ -249,7 +249,7 @@ func (a *AccountsApiService) CreateTransaction(ctx context.Context, xUserID stri
 /*
 AccountsApiService Get transactions for an account. Ordered descending from their posted date.
  * @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param accountId Account ID
+ * @param accountID Account ID
  * @param xUserID Moov User ID header, required in all requests
  * @param optional nil or *GetAccountTransactionsOpts - Optional Parameters:
  * @param "Limit" (optional.Float32) -  Maximum number of transactions to return
@@ -262,7 +262,7 @@ type GetAccountTransactionsOpts struct {
 	XRequestID optional.String
 }
 
-func (a *AccountsApiService) GetAccountTransactions(ctx context.Context, accountId string, xUserID string, localVarOptionals *GetAccountTransactionsOpts) ([]Transaction, *http.Response, error) {
+func (a *AccountsApiService) GetAccountTransactions(ctx context.Context, accountID string, xUserID string, localVarOptionals *GetAccountTransactionsOpts) ([]Transaction, *http.Response, error) {
 	var (
 		localVarHttpMethod   = http.MethodGet
 		localVarPostBody     interface{}
@@ -273,8 +273,8 @@ func (a *AccountsApiService) GetAccountTransactions(ctx context.Context, account
 	)
 
 	// create path and map variables
-	localVarPath := a.client.cfg.BasePath + "/accounts/{account_id}/transactions"
-	localVarPath = strings.Replace(localVarPath, "{"+"account_id"+"}", fmt.Sprintf("%v", accountId), -1)
+	localVarPath := a.client.cfg.BasePath + "/accounts/{accountID}/transactions"
+	localVarPath = strings.Replace(localVarPath, "{"+"accountID"+"}", fmt.Sprintf("%v", accountID), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}

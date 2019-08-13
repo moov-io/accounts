@@ -119,14 +119,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /accounts/{account_id}/transactions:
+  /accounts/{accountID}/transactions:
     get:
       tags:
         - Accounts
       summary: Get transactions for an account. Ordered descending from their posted date.
       operationId: getAccountTransactions
       parameters:
-        - name: account_id
+        - name: accountID
           in: path
           description: Account ID
           required: true
