@@ -169,7 +169,7 @@ func createTransaction(logger log.Logger, accountRepo accountRepository, transac
 		}
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
-		requestID := moovhttp.GetRequestId(r)
+		requestID := moovhttp.GetRequestID(r)
 
 		var req createTransactionRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -211,7 +211,7 @@ func createTransactionReversal(logger log.Logger, accountRepo accountRepository,
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 		// Read our transactionID and do an info log
-		requestID, transactionID := moovhttp.GetRequestId(r), getTransactionID(w, r)
+		requestID, transactionID := moovhttp.GetRequestID(r), getTransactionID(w, r)
 		if transactionID == "" {
 			return
 		}
