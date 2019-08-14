@@ -148,6 +148,7 @@ func TestTransaction__validate(t *testing.T) {
 func TestTransactions_getAccountID(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/foo", nil)
+	req.Header.Set("x-request-id", "request")
 
 	if accountID := getAccountID(w, req); accountID != "" {
 		t.Errorf("expected no accountID, got %q", accountID)
@@ -164,7 +165,11 @@ func TestTransactions_getAccountID(t *testing.T) {
 	router.Methods("GET").Path("/accounts/{accountId}").HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		accountID = getAccountID(w, req)
 	})
-	router.ServeHTTP(w, httptest.NewRequest("GET", "/accounts/bar", nil))
+
+	req = httptest.NewRequest("GET", "/accounts/bar", nil)
+	req.Header.Set("x-request-id", "request")
+
+	router.ServeHTTP(w, req)
 	w.Flush()
 
 	if w.Code != http.StatusOK {
@@ -210,6 +215,7 @@ func TestTransactions_Get(t *testing.T) {
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/accounts/%s/transactions", accountID), nil)
 	req.Header.Set("x-user-id", base.ID())
+	req.Header.Set("x-request-id", "request")
 
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -259,6 +265,7 @@ func TestTransactions_Create(t *testing.T) {
 	})
 	req := httptest.NewRequest("POST", "/accounts/transactions", &body)
 	req.Header.Set("x-user-id", base.ID())
+	req.Header.Set("x-request-id", "request")
 
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -308,6 +315,7 @@ func TestTransactions_CreateInvalid(t *testing.T) {
 	})
 	req := httptest.NewRequest("POST", "/accounts/transactions", &body)
 	req.Header.Set("x-user-id", base.ID())
+	req.Header.Set("x-request-id", "request")
 
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -346,6 +354,7 @@ func TestTransactions__createTransactionReversal(t *testing.T) {
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("/accounts/transactions/%s/reversal", transactionRepo.transactions[0].ID), nil)
 	req.Header.Set("x-user-id", base.ID())
+	req.Header.Set("x-request-id", "request")
 
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -383,6 +392,7 @@ func TestTransactions__createTransactionReversal(t *testing.T) {
 func TestTransactions_getTransactionID(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/foo", nil)
+	req.Header.Set("x-request-id", "request")
 
 	if transactionID := getTransactionID(w, req); transactionID != "" {
 		t.Errorf("expected no transactionID, got %q", transactionID)

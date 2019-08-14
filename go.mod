@@ -23,7 +23,7 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.1.1
 	github.com/mattn/go-sqlite3 v1.10.0
-	github.com/moov-io/base v0.10.0-rc1
+	github.com/moov-io/base v0.10.0
 	github.com/moov-io/qledger-sdk-go v0.0.0-20190327202756-c4bbcd198005
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
