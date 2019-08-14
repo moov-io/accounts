@@ -21,6 +21,7 @@ func TestRouting_ping(t *testing.T) {
 
 	req := httptest.NewRequest("GET", "/ping", nil)
 	req.Header.Set("Origin", "https://moov.io")
+	req.Header.Set("x-request-id", "foo")
 
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -53,6 +54,7 @@ func TestHTTP__idempotency(t *testing.T) {
 	key := base.ID()
 	req := httptest.NewRequest("GET", "/test", nil)
 	req.Header.Set("x-idempotency-key", key)
+	req.Header.Set("x-request-id", "request")
 	req.Header.Set("x-user-id", base.ID())
 
 	// mark the key as seen

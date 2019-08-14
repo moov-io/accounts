@@ -71,6 +71,7 @@ func TestAccounts__CreateAccount(t *testing.T) {
 	body := strings.NewReader(`{"customerID": "customerID", "balance": 1000, "name": "Money", "type": "Savings"}`)
 	req := httptest.NewRequest("POST", "/accounts", body)
 	req.Header.Set("x-user-id", "test")
+	req.Header.Set("x-request-id", "request")
 
 	accountRepo := &testAccountRepository{}
 	transactionRepo := &mockTransactionRepository{}
@@ -97,6 +98,7 @@ func TestAccounts__GetCustomerAccounts(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/accounts/search?customerId=customerID", nil)
 	req.Header.Set("x-user-id", "test")
+	req.Header.Set("x-request-id", "request")
 
 	transactionRepo := &mockTransactionRepository{}
 
@@ -125,6 +127,7 @@ func TestAccounts__SearchAccounts(t *testing.T) {
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/accounts/search?number=1&routingNumber=123&type=Savings", nil)
 	req.Header.Set("x-user-id", "test")
+	req.Header.Set("x-request-id", "request")
 
 	transactionRepo := &mockTransactionRepository{}
 
