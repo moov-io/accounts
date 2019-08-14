@@ -7,19 +7,27 @@ env:
   matrix:
     - GO111MODULE=on
 matrix:
-  # allow_failures:
-  #   - os: windows
+  allow_failures:
+    - go: master
   include:
     - os: linux
       go: 1.12.x
       cache:
         directories:
           - "/home/travis/.cache/go-build" # GOCACHE
+    - os: linux
+      go: master
     - os: osx
       go: 1.12.x
       cache:
         directories:
           - "/Users/travis/Library/Caches/go-build" # GOCACHE
+    - os: windows
+      go: 1.12.x
+      cache:
+        directories:
+          - "C:\\Users\\travis\\AppData\\Local\\go-build"
+
 before_install:
   # Setup directory for binaries
   - mkdir ./bin
@@ -27,7 +35,7 @@ before_install:
   # Misspell
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget -O misspell.tar.gz https://github.com/client9/misspell/releases/download/v0.3.4/misspell_0.3.4_linux_64bit.tar.gz; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget -O misspell.tar.gz https://github.com/client9/misspell/releases/download/v0.3.4/misspell_0.3.4_mac_64bit.tar.gz; fi
-  - tar xf misspell.tar.gz && cp ./misspell ./bin/misspell
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then tar xf misspell.tar.gz && cp ./misspell ./bin/misspell; fi
   # staticcheck
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then wget -O staticcheck.tar.gz https://github.com/dominikh/go-tools/releases/download/2019.2.2/staticcheck_linux_amd64.tar.gz; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then wget -O staticcheck.tar.gz https://github.com/dominikh/go-tools/releases/download/2019.2.2/staticcheck_darwin_amd64.tar.gz; fi
@@ -49,7 +57,7 @@ script:
   # Just check gofmt on linux, it's the fastest builder
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then test -z $(gofmt -s -l $GOFILES); fi
   - go test ./... -race -coverprofile=coverage.txt -covermode=atomic
-  - misspell -error -locale US $GOFILES
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then misspell -error -locale US $GOFILES; fi
   - gocyclo -over 31 $GOFILES
   - golint -set_exit_status $GOFILES
   - staticcheck ./cmd/*/*.go *.go
