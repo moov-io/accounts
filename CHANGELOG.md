@@ -1,4 +1,4 @@
-## v0.4.0 (Unreleased)
+## v0.4.0 (Released 2019-08-16)
 
 ADDITIONS
 
@@ -21,6 +21,8 @@ BUG FIXES
 BUILD
 
 - vendor: update github.com/gorilla/mux to v1.7.2
+- build: download tools used in CI rather than compile
+- build: update github.com/moov-io/base to v0.10.0
 
 ## v0.3.0 (Released 2019-05-20)
 
