@@ -11,12 +11,12 @@ matrix:
   #   - os: windows
   include:
     - os: linux
-      go: 1.12.x
+      go: 1.13.x
       cache:
         directories:
           - "/home/travis/.cache/go-build" # GOCACHE
     - os: osx
-      go: 1.12.x
+      go: 1.13.x
       cache:
         directories:
           - "/Users/travis/Library/Caches/go-build" # GOCACHE
@@ -73,7 +73,7 @@ deploy:
   on:
     repo: moov-io/accounts
     tags: true
-    go: 1.12.x
+    go: 1.13.x
   skip_cleanup: true
 
 after_deploy:
