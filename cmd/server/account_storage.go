@@ -5,7 +5,6 @@
 package main
 
 import (
-	"os"
 	"strings"
 
 	accounts "github.com/moov-io/accounts/client"
@@ -26,8 +25,6 @@ type accountRepository interface {
 
 func initAccountStorage(logger log.Logger, name string) (accountRepository, error) {
 	switch strings.ToLower(name) {
-	case "qledger":
-		return setupQLedgerAccountStorage(os.Getenv("QLEDGER_ENDPOINT"), os.Getenv("QLEDGER_AUTH_TOKEN"))
 	case "sqlite":
 		return setupSqliteAccountStorage(logger, getSqlitePath())
 	}

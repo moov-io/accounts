@@ -5,7 +5,6 @@
 package main
 
 import (
-	"os"
 	"strings"
 
 	"github.com/go-kit/kit/log"
@@ -33,8 +32,6 @@ type createTransactionOpts struct {
 
 func initTransactionStorage(logger log.Logger, name string) (transactionRepository, error) {
 	switch strings.ToLower(name) {
-	case "qledger":
-		return setupQLedgerTransactionStorage(os.Getenv("QLEDGER_ENDPOINT"), os.Getenv("QLEDGER_AUTH_TOKEN"))
 	case "sqlite":
 		return setupSqliteTransactionStorage(logger, getSqlitePath())
 	}
