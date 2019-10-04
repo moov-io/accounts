@@ -345,12 +345,12 @@ components:
         type: Checking
         balancePending: 100
         routingNumber: "073000176"
-        createdAt: 2000-01-23T04:56:07.000+00:00
+        createdAt: 2016-08-29T09:12:33.001Z
         balance: 1000
         customerID: e210a9d6-d755-4455-9bd2-9577ea7e1081
         name: Super Checking
         ID: d290f1ee-6c54-4b01-90e6-d701748f0851
-        lastModified: 2000-01-23T04:56:07.000+00:00
+        lastModified: 2016-08-29T09:12:33.001Z
         closedAt: 2000-01-23T04:56:07.000+00:00
         status: Open
       properties:
@@ -401,6 +401,7 @@ components:
           - FBO
           type: string
         createdAt:
+          example: 2016-08-29T09:12:33.001Z
           format: date-time
           type: string
         closedAt:
@@ -408,6 +409,7 @@ components:
           type: string
         lastModified:
           description: Last time the object was modified except balances
+          example: 2016-08-29T09:12:33.001Z
           format: date-time
           type: string
         balance:

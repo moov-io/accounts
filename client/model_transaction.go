@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+// Transaction struct for Transaction
 type Transaction struct {
 	// Unique ID of a transaction
 	ID        string            `json:"ID,omitempty"`

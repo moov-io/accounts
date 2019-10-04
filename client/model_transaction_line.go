@@ -9,6 +9,7 @@
 
 package openapi
 
+// TransactionLine struct for TransactionLine
 type TransactionLine struct {
 	// Account ID
 	AccountID string `json:"accountID,omitempty"`

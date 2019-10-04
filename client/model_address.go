@@ -9,6 +9,7 @@
 
 package openapi
 
+// Address struct for Address
 type Address struct {
 	Type string `json:"type,omitempty"`
 	// First line of the address

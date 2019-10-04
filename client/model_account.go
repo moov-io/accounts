@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+// Account struct for Account
 type Account struct {
 	// The unique identifier for an account
 	ID string `json:"ID,omitempty"`
