@@ -1,3 +1,14 @@
+## v0.4.1 (Released 2019-10-07)
+
+REMOVALS
+
+- cmd/server: remove QLedger support
+
+BUILD
+
+- Upgrade to Go 1.13 and Debian 10
+- build: update openapi-generator to v4.1.3
+
 ## v0.4.0 (Released 2019-08-16)
 
 ADDITIONS
