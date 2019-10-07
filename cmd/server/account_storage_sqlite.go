@@ -94,7 +94,7 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("sqlite.GetAccounts: commit error=%v rollback=%v", err, tx.Rollback())
 	}
-	return out, tx.Commit()
+	return out, nil
 }
 
 func (r *sqliteAccountRepository) CreateAccount(customerID string, a *accounts.Account) error {
