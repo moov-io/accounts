@@ -230,7 +230,6 @@ func (a *AccountsApiService) CreateTransaction(ctx _context.Context, xUserID str
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
 			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -334,7 +333,6 @@ func (a *AccountsApiService) GetAccountTransactions(ctx _context.Context, accoun
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
 			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -507,7 +505,6 @@ func (a *AccountsApiService) ReverseTransaction(ctx _context.Context, transactio
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
 			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
