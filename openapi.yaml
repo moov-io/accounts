@@ -381,7 +381,7 @@ components:
             - Home
             - Mobile
             - Work
-    CreateAddress:
+    CreateAccountAddress:
       type: object
       properties:
         type:
@@ -416,7 +416,7 @@ components:
         - state
         - postalCode
         - country
-    Address:
+    AccountAddress:
       type: object
       properties:
         type:

@@ -459,7 +459,7 @@ components:
           - Mobile
           - Work
           type: string
-    CreateAddress:
+    CreateAccountAddress:
       properties:
         type:
           enum:
@@ -494,7 +494,7 @@ components:
       - state
       - type
       type: object
-    Address:
+    AccountAddress:
       properties:
         type:
           enum:

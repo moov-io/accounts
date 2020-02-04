@@ -44,9 +44,9 @@ Class | Method | HTTP request | Description
 ## Documentation For Models
 
  - [Account](docs/Account.md)
- - [Address](docs/Address.md)
+ - [AccountAddress](docs/AccountAddress.md)
  - [CreateAccount](docs/CreateAccount.md)
- - [CreateAddress](docs/CreateAddress.md)
+ - [CreateAccountAddress](docs/CreateAccountAddress.md)
  - [CreatePhone](docs/CreatePhone.md)
  - [CreateTransaction](docs/CreateTransaction.md)
  - [Error](docs/Error.md)
