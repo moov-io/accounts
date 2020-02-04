@@ -45,11 +45,11 @@ Class | Method | HTTP request | Description
 
  - [Account](docs/Account.md)
  - [AccountAddress](docs/AccountAddress.md)
+ - [AccountError](docs/AccountError.md)
  - [CreateAccount](docs/CreateAccount.md)
  - [CreateAccountAddress](docs/CreateAccountAddress.md)
  - [CreatePhone](docs/CreatePhone.md)
  - [CreateTransaction](docs/CreateTransaction.md)
- - [Error](docs/Error.md)
  - [Phone](docs/Phone.md)
  - [Transaction](docs/Transaction.md)
  - [TransactionLine](docs/TransactionLine.md)

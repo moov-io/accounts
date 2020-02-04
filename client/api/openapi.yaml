@@ -140,7 +140,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/AccountError'
           description: Transaction was not created, see error(s)
       summary: Post a transaction against multiple accounts. All transaction lines
         must sum to zero. No money is created or destroyed in a transaction - only
@@ -243,7 +243,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/AccountError'
           description: Unable to reverse the specified transaction, check error(s).
       summary: Reverse a transaction by debiting the credited and crediting the debited
         amounts among all accounts involved.
@@ -289,7 +289,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/AccountError'
           description: Invalid user information, check error(s).
         500:
           description: Internal error, check error(s) and report the issue.
@@ -591,7 +591,7 @@ components:
           description: Change in account balance (in USD cents)
           example: 2500
           type: number
-    Error:
+    AccountError:
       properties:
         error:
           description: An error message describing the problem intended for humans.

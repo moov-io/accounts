@@ -118,7 +118,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/AccountError'
   /accounts/{accountID}/transactions:
     get:
       tags:
@@ -198,7 +198,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/AccountError'
   /accounts:
     post:
       tags:
@@ -237,7 +237,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/AccountError'
         '500':
           description: Internal error, check error(s) and report the issue.
 
@@ -492,7 +492,7 @@ components:
           type: number
           description: Change in account balance (in USD cents)
           example: 2500
-    Error:
+    AccountError:
       required:
         - error
       properties:
