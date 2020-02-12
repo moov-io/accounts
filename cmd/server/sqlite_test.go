@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"io/ioutil"
 	"os"
@@ -37,13 +38,8 @@ func createTestSqliteDB() (*testSqliteDB, error) {
 		return nil, err
 	}
 
-	db, err := createSqliteConnection(nil, filepath.Join(dir, "accounts.db"))
+	db, err := sqliteConnection(log.NewNopLogger(), filepath.Join(dir, "accounts.db")).Connect(context.Background())
 	if err != nil {
-		return nil, err
-	}
-
-	logger := log.NewLogfmtLogger(ioutil.Discard)
-	if err := migrate(logger, db); err != nil {
 		return nil, err
 	}
 

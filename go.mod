@@ -4,13 +4,15 @@ require (
 	github.com/VividCortex/gohistogram v1.0.0 // indirect
 	github.com/antihax/optional v1.0.0
 	github.com/go-kit/kit v0.9.0
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gorilla/mux v1.7.3
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
+	github.com/lopezator/migrator v0.2.0
 	github.com/mattn/go-sqlite3 v1.13.0
 	github.com/moov-io/base v0.10.0
+	github.com/ory/dockertest/v3 v3.5.4
 	github.com/prometheus/client_golang v1.2.1
 	github.com/rickar/cal v1.0.1 // indirect
-	golang.org/x/crypto v0.0.0-20200117160349-530e935923ad // indirect
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	google.golang.org/appengine v1.6.5 // indirect
 )

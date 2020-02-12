@@ -5,29 +5,116 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
+	"sync"
+	"testing"
+	"time"
 
 	"github.com/go-kit/kit/log"
-	_ "github.com/mattn/go-sqlite3"
+	kitprom "github.com/go-kit/kit/metrics/prometheus"
+	"github.com/lopezator/migrator"
+	"github.com/mattn/go-sqlite3"
+	stdprom "github.com/prometheus/client_golang/prometheus"
 )
 
 var (
-	// migrations holds all our SQL migrations to be done (in order)
-	migrations = []string{
+	sqliteConnections = kitprom.NewGaugeFrom(stdprom.GaugeOpts{
+		Name: "sqlite_connections",
+		Help: "How many sqlite connections and what status they're in.",
+	}, []string{"state"})
+
+	sqliteVersionLogOnce sync.Once
+
+	sqliteMigrations = migrator.Migrations(
 		// Account tables
-		`create table if not exists accounts(account_id primary key, customer_id, name, account_number, routing_number, status, type, created_at datetime, closed_at datetime, last_modified datetime, deleted_at datetime, unique(account_number, routing_number));`,
+		execsql(
+			"create_accounts",
+			`create table if not exists accounts(account_id primary key, customer_id, name, account_number, routing_number, status, type, created_at datetime, closed_at datetime, last_modified datetime, deleted_at datetime, unique(account_number, routing_number));`,
+		),
 
 		// Transaction tables
-		`create table if not exists transactions(transaction_id primart key, timestamp datetime, created_at datetime, deleted_at datetime);`,
-		`create table if not exists transaction_lines(transaction_id, account_id, purpose, amount integer, created_at datetime, deleted_at datetime, unique(transaction_id, account_id));`,
-	}
+		execsql(
+			"create_transactions",
+			`create table if not exists transactions(transaction_id primary key, timestamp datetime, created_at datetime, deleted_at datetime);`,
+		),
+		execsql(
+			"create_transaction_lines",
+			`create table if not exists transaction_lines(transaction_id, account_id, purpose, amount integer, created_at datetime, deleted_at datetime, unique(transaction_id, account_id));`,
+		),
+	)
 )
 
-// getSqlitePath returns a sqlite database path of either the current
-// working directory or the SQLITE_DB_PATH  env variable value.
+type sqlite struct {
+	path string
+
+	connections *kitprom.Gauge
+	logger      log.Logger
+
+	err error
+}
+
+func (s *sqlite) Connect(ctx context.Context) (*sql.DB, error) {
+	if s.err != nil {
+		return nil, fmt.Errorf("sqlite had error %v", s.err)
+	}
+
+	sqliteVersionLogOnce.Do(func() {
+		if v, _, _ := sqlite3.Version(); v != "" {
+			s.logger.Log("main", fmt.Sprintf("sqlite version %s", v))
+		}
+	})
+
+	db, err := sql.Open("sqlite3", s.path)
+	if err != nil {
+		return nil, err
+	}
+	if err := db.Ping(); err != nil {
+		return db, err
+	}
+
+	// Migrate our database
+	if m, err := migrator.New(sqliteMigrations); err != nil {
+		return db, err
+	} else {
+		if err := m.Migrate(db); err != nil {
+			return db, err
+		}
+	}
+
+	// Spin up metrics only after everything works
+	go func() {
+		t := time.NewTicker(1 * time.Second)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-t.C:
+				stats := db.Stats()
+				s.connections.With("state", "idle").Set(float64(stats.Idle))
+				s.connections.With("state", "inuse").Set(float64(stats.InUse))
+				s.connections.With("state", "open").Set(float64(stats.OpenConnections))
+			}
+
+		}
+	}()
+
+	return db, err
+}
+
+func sqliteConnection(logger log.Logger, path string) *sqlite {
+	return &sqlite{
+		path:        path,
+		logger:      logger,
+		connections: sqliteConnections,
+	}
+}
+
 func getSqlitePath() string {
 	path := os.Getenv("SQLITE_DB_PATH")
 	if path == "" || strings.Contains(path, "..") {
@@ -38,43 +125,58 @@ func getSqlitePath() string {
 	return path
 }
 
-// createSqliteConnection returns a sql.DB associated to a SQLite database file at path.
-func createSqliteConnection(logger log.Logger, path string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", path)
-	if err != nil {
-		err = fmt.Errorf("problem opening sqlite3 file %s: %v", path, err)
-		if logger != nil {
-			logger.Log("sqlite", err)
-		}
-		return nil, err
-	}
-	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("problem with Ping against *sql.DB %s: %v", path, err)
-	}
-	return db, nil
+// TestSQLiteDB is a wrapper around sql.DB for SQLite connections designed for tests to provide
+// a clean database for each testcase.  Callers should cleanup with Close() when finished.
+type TestSQLiteDB struct {
+	DB *sql.DB
+
+	dir string // temp dir created for sqlite files
+
+	shutdown func() // context shutdown func
 }
 
-// migrate runs our database migrations a sql.DB. db should be like any other database/sql driver.
+func (r *TestSQLiteDB) Close() error {
+	r.shutdown()
+
+	// Verify all connections are closed before closing DB
+	if conns := r.DB.Stats().OpenConnections; conns != 0 {
+		panic(fmt.Sprintf("found %d open sqlite connections", conns))
+	}
+	if err := r.DB.Close(); err != nil {
+		return err
+	}
+	return os.RemoveAll(r.dir)
+}
+
+// CreateTestSqliteDB returns a TestSQLiteDB which can be used in tests
+// as a clean sqlite database. All migrations are ran on the db before.
 //
-// https://github.com/mattn/go-sqlite3/blob/master/_example/simple/simple.go
-// https://astaxie.gitbooks.io/build-web-application-with-golang/en/05.3.html
-func migrate(logger log.Logger, db *sql.DB) error {
-	if logger != nil {
-		logger.Log("sqlite", "starting database migrations")
+// Callers should call close on the returned *TestSQLiteDB.
+func CreateTestSqliteDB(t *testing.T) *TestSQLiteDB {
+	dir, err := ioutil.TempDir("", "accounts-sqlite")
+	if err != nil {
+		t.Fatalf("sqlite test: %v", err)
 	}
-	for i := range migrations {
-		row := migrations[i]
-		res, err := db.Exec(row)
-		if err != nil {
-			return fmt.Errorf("migration #%d [%s...] had problem: %v", i, row[:40], err)
-		}
-		n, err := res.RowsAffected()
-		if err == nil && logger != nil {
-			logger.Log("sqlite", fmt.Sprintf("migration #%d [%s...] changed %d rows", i, row[:40], n))
-		}
+
+	ctx, cancelFunc := context.WithCancel(context.Background())
+
+	db, err := sqliteConnection(log.NewNopLogger(), filepath.Join(dir, "accounts.db")).Connect(ctx)
+	if err != nil {
+		t.Fatalf("sqlite test: %v", err)
 	}
-	if logger != nil {
-		logger.Log("sqlite", "finished migrations")
+
+	// Don't allow idle connections so we can verify all are closed at the end of testing
+	db.SetMaxIdleConns(0)
+
+	return &TestSQLiteDB{DB: db, dir: dir, shutdown: cancelFunc}
+}
+
+// SqliteUniqueViolation returns true when the provided error matches the SQLite error
+// for duplicate entries (violating a unique table constraint).
+func SqliteUniqueViolation(err error) bool {
+	match := strings.Contains(err.Error(), "UNIQUE constraint failed")
+	if e, ok := err.(sqlite3.Error); ok {
+		return match || e.Code == sqlite3.ErrConstraint
 	}
-	return nil
+	return match
 }

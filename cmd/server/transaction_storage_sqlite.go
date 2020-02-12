@@ -5,6 +5,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strings"
@@ -23,7 +24,7 @@ type sqliteTransactionRepository struct {
 }
 
 func setupSqliteTransactionStorage(logger log.Logger, path string) (*sqliteTransactionRepository, error) {
-	db, err := createSqliteConnection(logger, path)
+	db, err := sqliteConnection(logger, path).Connect(context.Background()) // TODO(adam):
 	if err != nil {
 		return nil, err
 	}

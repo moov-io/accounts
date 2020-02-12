@@ -5,6 +5,7 @@
 package main
 
 import (
+	"os"
 	"strings"
 
 	accounts "github.com/moov-io/accounts/client"
@@ -25,6 +26,8 @@ type accountRepository interface {
 
 func initAccountStorage(logger log.Logger, name string) (accountRepository, error) {
 	switch strings.ToLower(name) {
+	case "mysql":
+		return setupMySQLAccountStorage(logger, os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASSWORD"), os.Getenv("MYSQL_ADDRESS"), os.Getenv("MYSQL_DATABASE"))
 	case "sqlite":
 		return setupSqliteAccountStorage(logger, getSqlitePath())
 	}

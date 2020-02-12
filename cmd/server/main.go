@@ -69,12 +69,8 @@ func main() {
 	if sqliteVersion, _, _ := sqlite3.Version(); sqliteVersion != "" {
 		logger.Log("main", fmt.Sprintf("sqlite version %s", sqliteVersion))
 	}
-	db, err := createSqliteConnection(logger, getSqlitePath())
+	db, err := sqliteConnection(logger, getSqlitePath()).Connect(context.Background())
 	if err != nil {
-		logger.Log("main", err)
-		os.Exit(1)
-	}
-	if err := migrate(logger, db); err != nil {
 		logger.Log("main", err)
 		os.Exit(1)
 	}
