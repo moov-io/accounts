@@ -61,9 +61,7 @@ func searchAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc 
 			// Grab and return accounts
 			account, err := repo.SearchAccountsByRoutingNumber(reqAcctNumber, reqRoutingNumber, reqAcctType)
 			if err != nil {
-				if requestID := moovhttp.GetRequestID(r); requestID != "" {
-					logger.Log("accounts", fmt.Sprintf("%v", err), "requestID", requestID)
-				}
+				logger.Log("accounts", fmt.Sprintf("error searching accounts: %v", err), "requestID", moovhttp.GetRequestID(r))
 				moovhttp.Problem(w, fmt.Errorf("account not found, err=%v", err))
 				return
 			}
@@ -82,9 +80,7 @@ func searchAccounts(logger log.Logger, repo accountRepository) http.HandlerFunc 
 		if customerID := or(q.Get("customerId"), q.Get("customerID")); customerID != "" {
 			accounts, err := repo.SearchAccountsByCustomerID(customerID)
 			if err != nil {
-				if requestID := moovhttp.GetRequestID(r); requestID != "" {
-					logger.Log("accounts", fmt.Sprintf("%v", err), "requestID", requestID)
-				}
+				logger.Log("accounts", fmt.Sprintf("error getting customer accounts: %v", err), "requestID", moovhttp.GetRequestID(r))
 				moovhttp.Problem(w, fmt.Errorf("account not found, err=%v", err))
 				return
 			}
@@ -171,12 +167,12 @@ func createAccount(logger log.Logger, accountRepo accountRepository, transaction
 		if number, err := generateAccountNumber(account, accountRepo); number != "" {
 			account.AccountNumber = number
 		} else {
-			logger.Log("accounts", err, "requestID", requestID)
+			logger.Log("accounts", fmt.Sprintf("error creating account number: %v", err), "requestID", requestID)
 			moovhttp.Problem(w, err)
 			return
 		}
 		if err := accountRepo.CreateAccount(req.CustomerID, account); err != nil {
-			logger.Log("accounts", err, "requestID", requestID)
+			logger.Log("accounts", fmt.Sprintf("error creating account: %v", err), "requestID", requestID)
 			moovhttp.Problem(w, err)
 			return
 		}

@@ -48,7 +48,7 @@ func main() {
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 	logger = log.With(logger, "caller", log.DefaultCaller)
 
-	logger.Log("startup", fmt.Sprintf("Starting moov/accounts server version %s", app.Version))
+	logger.Log("main", fmt.Sprintf("Starting moov/accounts server version %s", app.Version))
 
 	// Check for default routing number
 	if defaultRoutingNumber == "" { // accounts.go
@@ -158,21 +158,21 @@ func main() {
 	}
 	shutdownServer := func() {
 		if err := serve.Shutdown(context.TODO()); err != nil {
-			logger.Log("shutdown", err)
+			logger.Log("main", err)
 		}
 	}
 
 	// Start business logic HTTP server
 	go func() {
 		if certFile, keyFile := os.Getenv("HTTPS_CERT_FILE"), os.Getenv("HTTPS_KEY_FILE"); certFile != "" && keyFile != "" {
-			logger.Log("startup", fmt.Sprintf("binding to %s for secure HTTP server", *httpAddr))
+			logger.Log("main", fmt.Sprintf("binding to %s for secure HTTP server", *httpAddr))
 			if err := serve.ListenAndServeTLS(certFile, keyFile); err != nil {
-				logger.Log("exit", err)
+				logger.Log("main", err)
 			}
 		} else {
-			logger.Log("startup", fmt.Sprintf("binding to %s for HTTP server", *httpAddr))
+			logger.Log("main", fmt.Sprintf("binding to %s for HTTP server", *httpAddr))
 			if err := serve.ListenAndServe(); err != nil {
-				logger.Log("exit", err)
+				logger.Log("main", err)
 			}
 		}
 	}()
@@ -180,16 +180,16 @@ func main() {
 	// Block/Wait for an error
 	if err := <-errs; err != nil {
 		shutdownServer()
-		logger.Log("exit", err)
+		logger.Log("main", err)
 	}
 }
 
 func addPingRoute(logger log.Logger, r *mux.Router) {
 	r.Methods("GET").Path("/ping").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if requestID := moovhttp.GetRequestID(r); requestID != "" {
-			logger.Log("route", "ping", "requestID", requestID)
-		}
+		logger.Log("route", "ping", "requestID", moovhttp.GetRequestID(r))
+
 		moovhttp.SetAccessControlAllowHeaders(w, r.Header.Get("Origin"))
+
 		w.Header().Set("Content-Type", "text/plain")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("PONG"))
