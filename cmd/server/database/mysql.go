@@ -49,6 +49,10 @@ var (
 			"create_accounts",
 			`create table if not exists accounts(account_id varchar(40) primary key, customer_id varchar(40), name varchar(50), account_number varchar(15), routing_number varchar(10), status varchar(15), type varchar(12), created_at datetime, closed_at datetime, last_modified datetime, deleted_at datetime);`,
 		),
+		execsql(
+			"create_unique_accounts_index",
+			"create unique index accounts_unique_idx on accounts(account_number, routing_number);",
+		),
 
 		// Transaction tables
 		execsql(
@@ -58,6 +62,10 @@ var (
 		execsql(
 			"create_transaction_lines",
 			`create table if not exists transaction_lines(transaction_id varchar(40), account_id varchar(40), purpose varchar(12), amount integer, created_at datetime, deleted_at datetime);`,
+		),
+		execsql(
+			"create_unique_transaction_lines_index",
+			"create unique index transaction_lines_unique_idx on transaction_lines(transaction_id, account_id);",
 		),
 	)
 )

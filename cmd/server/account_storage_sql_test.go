@@ -7,7 +7,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"strings"
 	"testing"
 	"time"
 
@@ -34,31 +33,31 @@ func createTestSqlAccountRepository(t *testing.T, db *sql.DB) *sqlAccountReposit
 }
 
 func TestSqlAccountRepository_Ping(t *testing.T) {
+	t.Parallel()
+
+	check := func(t *testing.T, repo *sqlAccountRepository) {
+		defer repo.Close()
+
+		if err := repo.Ping(); err != nil {
+			t.Fatal(err)
+		}
+	}
+
 	sqliteDB := database.CreateTestSqliteDB(t)
 	defer sqliteDB.Close()
-
-	repo := createTestSqlAccountRepository(t, sqliteDB.DB)
-	defer repo.Close()
-
-	if err := repo.Ping(); err != nil {
-		t.Fatal(err)
-	}
+	check(t, createTestSqlAccountRepository(t, sqliteDB.DB))
 
 	mysqlDB := database.CreateTestMySQLDB(t)
 	defer mysqlDB.Close()
-
-	repo = createTestSqlAccountRepository(t, mysqlDB.DB)
-	defer repo.Close()
-
-	if err := repo.Ping(); err != nil {
-		t.Fatal(err)
-	}
+	check(t, createTestSqlAccountRepository(t, mysqlDB.DB))
 }
 
 func TestSqlAccountRepository(t *testing.T) {
 	t.Parallel()
 
 	check := func(t *testing.T, repo *sqlAccountRepository) {
+		defer repo.Close()
+
 		customerID, now := base.ID(), time.Now()
 		future := now.Add(24 * time.Hour)
 		account := &accounts.Account{
@@ -151,55 +150,71 @@ func TestSqlAccountRepository(t *testing.T) {
 }
 
 func TestSqlAccounts__GetAccounts(t *testing.T) {
+	t.Parallel()
+
+	check := func(t *testing.T, repo *sqlAccountRepository) {
+		defer repo.Close()
+
+		accounts, err := repo.GetAccounts(nil)
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+		if len(accounts) != 0 {
+			t.Errorf("unexpected %d accounts: %v", len(accounts), accounts)
+		}
+	}
+
 	sqliteDB := database.CreateTestSqliteDB(t)
 	defer sqliteDB.Close()
+	check(t, createTestSqlAccountRepository(t, sqliteDB.DB))
 
-	repo := createTestSqlAccountRepository(t, sqliteDB.DB)
-	defer repo.Close()
-
-	accounts, err := repo.GetAccounts(nil)
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-	if len(accounts) != 0 {
-		t.Errorf("unexpected %d accounts: %v", len(accounts), accounts)
-	}
+	mysqlDB := database.CreateTestMySQLDB(t)
+	defer mysqlDB.Close()
+	check(t, createTestSqlAccountRepository(t, mysqlDB.DB))
 }
 
 // TestSqlAccountRepository_unique will ensure we can't insert multiple accounts
 // with the same account and routing numbers.
 func TestSqlAccountRepository_unique(t *testing.T) {
-	sqliteDB := database.CreateTestSqliteDB(t)
-	defer sqliteDB.Close()
+	t.Parallel()
 
-	repo := createTestSqlAccountRepository(t, sqliteDB.DB)
-	defer repo.Close()
+	check := func(t *testing.T, repo *sqlAccountRepository) {
+		defer repo.Close()
 
-	customerID, now := base.ID(), time.Now()
-	future := now.Add(24 * time.Hour)
-	account := &accounts.Account{
-		ID:            base.ID(),
-		CustomerID:    customerID,
-		Name:          "test account",
-		AccountNumber: "12411",
-		RoutingNumber: "219871289",
-		Status:        "open",
-		Type:          "Savings",
-		CreatedAt:     time.Now(),
-		ClosedAt:      future,
-		LastModified:  now,
-	}
-	if err := repo.CreateAccount(customerID, account); err != nil {
-		t.Fatal(err)
-	}
+		customerID, now := base.ID(), time.Now()
+		future := now.Add(24 * time.Hour)
+		account := &accounts.Account{
+			ID:            base.ID(),
+			CustomerID:    customerID,
+			Name:          "test account",
+			AccountNumber: "12411",
+			RoutingNumber: "219871289",
+			Status:        "open",
+			Type:          "Savings",
+			CreatedAt:     time.Now(),
+			ClosedAt:      future,
+			LastModified:  now,
+		}
+		if err := repo.CreateAccount(customerID, account); err != nil {
+			t.Fatal(err)
+		}
 
-	// attempt again
-	account.ID = base.ID()
-	if err := repo.CreateAccount(customerID, account); err == nil {
-		t.Error("expected error")
-	} else {
-		if !strings.Contains(err.Error(), "UNIQUE constraint failed") {
-			t.Errorf("unknown error: %v", err)
+		// attempt again
+		account.ID = base.ID()
+		if err := repo.CreateAccount(customerID, account); err == nil {
+			t.Error("expected error")
+		} else {
+			if !database.UniqueViolation(err) {
+				t.Errorf("unknown error: %v", err)
+			}
 		}
 	}
+
+	sqliteDB := database.CreateTestSqliteDB(t)
+	defer sqliteDB.Close()
+	check(t, createTestSqlAccountRepository(t, sqliteDB.DB))
+
+	mysqlDB := database.CreateTestMySQLDB(t)
+	defer mysqlDB.Close()
+	check(t, createTestSqlAccountRepository(t, mysqlDB.DB))
 }
