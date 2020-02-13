@@ -145,9 +145,9 @@ func TestSqlAccountRepository(t *testing.T) {
 	defer sqliteDB.Close()
 	check(t, createTestSqlAccountRepository(t, sqliteDB.DB))
 
-	// mysqlDB := database.CreateTestMySQLDB(t)
-	// defer mysqlDB.Close()
-	// check(t, createTestSqlAccountRepository(t, mysqlDB.DB))
+	mysqlDB := database.CreateTestMySQLDB(t)
+	defer mysqlDB.Close()
+	check(t, createTestSqlAccountRepository(t, mysqlDB.DB))
 }
 
 func TestSqlAccounts__GetAccounts(t *testing.T) {
