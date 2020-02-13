@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	accounts "github.com/moov-io/accounts/client"
+	"github.com/moov-io/accounts/cmd/server/database"
 
 	"github.com/go-kit/kit/log"
 )
@@ -29,7 +30,7 @@ func initAccountStorage(logger log.Logger, name string) (accountRepository, erro
 	case "mysql":
 		return setupMySQLAccountStorage(logger, os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASSWORD"), os.Getenv("MYSQL_ADDRESS"), os.Getenv("MYSQL_DATABASE"))
 	case "sqlite":
-		return setupSqliteAccountStorage(logger, getSqlitePath())
+		return setupSqliteAccountStorage(logger, database.SQLitePath())
 	}
 	return nil, nil
 }

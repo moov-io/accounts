@@ -17,6 +17,7 @@ import (
 	"time"
 
 	app "github.com/moov-io/accounts"
+	"github.com/moov-io/accounts/cmd/server/database"
 	"github.com/moov-io/base/admin"
 	moovhttp "github.com/moov-io/base/http"
 	"github.com/moov-io/base/http/bind"
@@ -69,7 +70,7 @@ func main() {
 	if sqliteVersion, _, _ := sqlite3.Version(); sqliteVersion != "" {
 		logger.Log("main", fmt.Sprintf("sqlite version %s", sqliteVersion))
 	}
-	db, err := sqliteConnection(logger, getSqlitePath()).Connect(context.Background())
+	db, err := database.SQLiteConnection(logger, database.SQLitePath()).Connect(context.Background())
 	if err != nil {
 		logger.Log("main", err)
 		os.Exit(1)

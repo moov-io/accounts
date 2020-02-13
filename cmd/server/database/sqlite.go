@@ -2,7 +2,7 @@
 // Use of this source code is governed by an Apache License
 // license that can be found in the LICENSE file.
 
-package main
+package database
 
 import (
 	"context"
@@ -107,7 +107,7 @@ func (s *sqlite) Connect(ctx context.Context) (*sql.DB, error) {
 	return db, err
 }
 
-func sqliteConnection(logger log.Logger, path string) *sqlite {
+func SQLiteConnection(logger log.Logger, path string) *sqlite {
 	return &sqlite{
 		path:        path,
 		logger:      logger,
@@ -115,7 +115,7 @@ func sqliteConnection(logger log.Logger, path string) *sqlite {
 	}
 }
 
-func getSqlitePath() string {
+func SQLitePath() string {
 	path := os.Getenv("SQLITE_DB_PATH")
 	if path == "" || strings.Contains(path, "..") {
 		// set default if empty or trying to escape
@@ -130,7 +130,7 @@ func getSqlitePath() string {
 type TestSQLiteDB struct {
 	DB *sql.DB
 
-	dir string // temp dir created for sqlite files
+	Dir string // temp dir created for sqlite files
 
 	shutdown func() // context shutdown func
 }
@@ -145,7 +145,7 @@ func (r *TestSQLiteDB) Close() error {
 	if err := r.DB.Close(); err != nil {
 		return err
 	}
-	return os.RemoveAll(r.dir)
+	return os.RemoveAll(r.Dir)
 }
 
 // CreateTestSqliteDB returns a TestSQLiteDB which can be used in tests
@@ -160,7 +160,7 @@ func CreateTestSqliteDB(t *testing.T) *TestSQLiteDB {
 
 	ctx, cancelFunc := context.WithCancel(context.Background())
 
-	db, err := sqliteConnection(log.NewNopLogger(), filepath.Join(dir, "accounts.db")).Connect(ctx)
+	db, err := SQLiteConnection(log.NewNopLogger(), filepath.Join(dir, "accounts.db")).Connect(ctx)
 	if err != nil {
 		t.Fatalf("sqlite test: %v", err)
 	}
@@ -168,7 +168,7 @@ func CreateTestSqliteDB(t *testing.T) *TestSQLiteDB {
 	// Don't allow idle connections so we can verify all are closed at the end of testing
 	db.SetMaxIdleConns(0)
 
-	return &TestSQLiteDB{DB: db, dir: dir, shutdown: cancelFunc}
+	return &TestSQLiteDB{DB: db, Dir: dir, shutdown: cancelFunc}
 }
 
 // SqliteUniqueViolation returns true when the provided error matches the SQLite error

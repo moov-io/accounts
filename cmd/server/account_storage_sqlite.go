@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	accounts "github.com/moov-io/accounts/client"
+	"github.com/moov-io/accounts/cmd/server/database"
 
 	"github.com/go-kit/kit/log"
 )
@@ -23,7 +24,7 @@ type sqliteAccountRepository struct {
 }
 
 func setupSqliteAccountStorage(logger log.Logger, path string) (*sqliteAccountRepository, error) {
-	db, err := sqliteConnection(logger, path).Connect(context.Background()) // TODO(adam):
+	db, err := database.SQLiteConnection(logger, path).Connect(context.Background()) // TODO(adam):
 	if err != nil {
 		return nil, err
 	}

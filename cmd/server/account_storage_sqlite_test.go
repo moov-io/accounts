@@ -11,6 +11,7 @@ import (
 	"time"
 
 	accounts "github.com/moov-io/accounts/client"
+	"github.com/moov-io/accounts/cmd/server/database"
 	"github.com/moov-io/base"
 
 	"github.com/go-kit/kit/log"
@@ -19,22 +20,19 @@ import (
 type testSqliteAccountRepository struct {
 	*sqliteAccountRepository
 
-	db *testSqliteDB
+	db *database.TestSQLiteDB
 }
 
 func (r *testSqliteAccountRepository) Close() error {
-	r.db.close()
+	r.db.Close()
 	return r.sqliteAccountRepository.Close()
 }
 
 func createTestSqliteAccountRepository(t *testing.T) *testSqliteAccountRepository {
 	t.Helper()
 
-	db, err := createTestSqliteDB()
-	if err != nil {
-		t.Fatal(err)
-	}
-	repo, err := setupSqliteAccountStorage(log.NewNopLogger(), filepath.Join(db.dir, "accounts.db"))
+	db := database.CreateTestSqliteDB(t)
+	repo, err := setupSqliteAccountStorage(log.NewNopLogger(), filepath.Join(db.Dir, "accounts.db"))
 	if err != nil {
 		t.Fatal(err)
 	}

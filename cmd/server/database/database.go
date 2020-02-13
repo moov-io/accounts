@@ -2,7 +2,7 @@
 // Use of this source code is governed by an Apache License
 // license that can be found in the LICENSE file.
 
-package main
+package database
 
 import (
 	"database/sql"
@@ -18,4 +18,10 @@ func execsql(name, raw string) *migrator.MigrationNoTx {
 			return err
 		},
 	}
+}
+
+// UniqueViolation returns true when the provided error matches a database error
+// for duplicate entries (violating a unique table constraint).
+func UniqueViolation(err error) bool {
+	return MySQLUniqueViolation(err) || SqliteUniqueViolation(err)
 }

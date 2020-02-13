@@ -12,6 +12,7 @@ import (
 	"time"
 
 	accounts "github.com/moov-io/accounts/client"
+	"github.com/moov-io/accounts/cmd/server/database"
 
 	"github.com/go-kit/kit/log"
 )
@@ -24,7 +25,7 @@ type sqliteTransactionRepository struct {
 }
 
 func setupSqliteTransactionStorage(logger log.Logger, path string) (*sqliteTransactionRepository, error) {
-	db, err := sqliteConnection(logger, path).Connect(context.Background()) // TODO(adam):
+	db, err := database.SQLiteConnection(logger, path).Connect(context.Background()) // TODO(adam):
 	if err != nil {
 		return nil, err
 	}

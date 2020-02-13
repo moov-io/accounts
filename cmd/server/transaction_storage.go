@@ -7,6 +7,8 @@ package main
 import (
 	"strings"
 
+	"github.com/moov-io/accounts/cmd/server/database"
+
 	"github.com/go-kit/kit/log"
 )
 
@@ -33,7 +35,7 @@ type createTransactionOpts struct {
 func initTransactionStorage(logger log.Logger, name string) (transactionRepository, error) {
 	switch strings.ToLower(name) {
 	case "sqlite":
-		return setupSqliteTransactionStorage(logger, getSqlitePath())
+		return setupSqliteTransactionStorage(logger, database.SQLitePath())
 	}
 	return nil, nil
 }

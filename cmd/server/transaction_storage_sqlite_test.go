@@ -11,6 +11,7 @@ import (
 	"time"
 
 	accounts "github.com/moov-io/accounts/client"
+	"github.com/moov-io/accounts/cmd/server/database"
 	"github.com/moov-io/base"
 
 	"github.com/go-kit/kit/log"
@@ -19,22 +20,19 @@ import (
 type testSqliteTransactionRepository struct {
 	*sqliteTransactionRepository
 
-	db *testSqliteDB
+	db *database.TestSQLiteDB
 }
 
 func (r *testSqliteTransactionRepository) Close() error {
-	r.db.close()
-	return r.sqliteTransactionRepository.Close()
+	r.sqliteTransactionRepository.Close()
+	return r.db.Close()
 }
 
 func createTestSqliteTransactionRepository(t *testing.T) *testSqliteTransactionRepository {
 	t.Helper()
 
-	db, err := createTestSqliteDB()
-	if err != nil {
-		t.Fatal(err)
-	}
-	repo, err := setupSqliteTransactionStorage(log.NewNopLogger(), filepath.Join(db.dir, "accounts.db"))
+	db := database.CreateTestSqliteDB(t)
+	repo, err := setupSqliteTransactionStorage(log.NewNopLogger(), filepath.Join(db.Dir, "accounts.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,7 +87,8 @@ func TestSqliteTransactionRepository(t *testing.T) {
 		t.Errorf("%#v", transactions[0])
 	}
 
-	dbtx, _ := repo.db.db.Begin()
+	dbtx, _ := repo.db.DB.Begin()
+	defer dbtx.Rollback()
 
 	bal, err := repo.getAccountBalance(dbtx, account1)
 	if err != nil || bal != -500 {
@@ -136,7 +135,7 @@ func TestSqliteTransactionRepository__Internal(t *testing.T) {
 	if err := repo.createTransaction(tx, createTransactionOpts{InitialDeposit: true}); err != nil {
 		t.Fatal(err)
 	}
-	dbtx, _ := repo.db.db.Begin()
+	dbtx, _ := repo.db.DB.Begin()
 	if bal, _ := repo.getAccountBalance(dbtx, account1); bal != 1000 {
 		t.Fatalf("account1=%s has unexpected balance of %d", account1, bal)
 	}
@@ -171,7 +170,7 @@ func TestSqliteTransactionRepository__Internal(t *testing.T) {
 		t.Errorf("%#v", transactions[0])
 	}
 
-	dbtx, _ = repo.db.db.Begin()
+	dbtx, _ = repo.db.DB.Begin()
 	bal, err := repo.getAccountBalance(dbtx, account1)
 	if err != nil || bal != 600 {
 		t.Errorf("got balance of %d", bal)
@@ -223,7 +222,8 @@ func TestSqliteTransactionRepository__AllowOverdraft(t *testing.T) {
 		t.Errorf("%#v", transactions[0])
 	}
 
-	dbtx, _ := repo.db.db.Begin()
+	dbtx, _ := repo.db.DB.Begin()
+	defer dbtx.Rollback()
 
 	bal, err := repo.getAccountBalance(dbtx, account1)
 	if err != nil || bal != -500 {
