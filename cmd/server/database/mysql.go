@@ -206,6 +206,10 @@ func CreateTestMySQLDB(t *testing.T) *TestMySQLDB {
 		t.Fatal(err)
 	}
 
+	if err := db.Ping(); err != nil {
+		t.Fatal(err)
+	}
+
 	// Don't allow idle connections so we can verify all are closed at the end of testing
 	db.SetMaxIdleConns(0)
 

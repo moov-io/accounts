@@ -5,7 +5,8 @@
 package main
 
 import (
-	"path/filepath"
+	"context"
+	"database/sql"
 	"strings"
 	"testing"
 	"time"
@@ -17,30 +18,26 @@ import (
 	"github.com/go-kit/kit/log"
 )
 
-type testSqliteTransactionRepository struct {
-	*sqliteTransactionRepository
-
-	db *database.TestSQLiteDB
-}
-
-func (r *testSqliteTransactionRepository) Close() error {
-	r.sqliteTransactionRepository.Close()
-	return r.db.Close()
-}
-
-func createTestSqliteTransactionRepository(t *testing.T) *testSqliteTransactionRepository {
+func createTestSqlTransactionRepository(t *testing.T, db *sql.DB) *sqlTransactionRepository {
 	t.Helper()
 
-	db := database.CreateTestSqliteDB(t)
-	repo, err := setupSqliteTransactionStorage(log.NewNopLogger(), filepath.Join(db.Dir, "accounts.db"))
+	repo, err := setupSqlTransactionStorage(context.Background(), log.NewNopLogger(), "sqlite")
 	if err != nil {
 		t.Fatal(err)
 	}
-	return &testSqliteTransactionRepository{repo, db}
+	repo.Close()
+	repo.db = db
+	if r, ok := repo.accountRepo.(*sqlAccountRepository); ok {
+		r.db = db
+	}
+	return repo
 }
 
-func TestSqliteTransactionRepository__Ping(t *testing.T) {
-	repo := createTestSqliteTransactionRepository(t)
+func TestSqlTransactionRepository__Ping(t *testing.T) {
+	sqliteDB := database.CreateTestSqliteDB(t)
+	defer sqliteDB.Close()
+
+	repo := createTestSqlTransactionRepository(t, sqliteDB.DB)
 	defer repo.Close()
 
 	if err := repo.Ping(); err != nil {
@@ -48,13 +45,16 @@ func TestSqliteTransactionRepository__Ping(t *testing.T) {
 	}
 }
 
-func TestSqliteTransactionRepository(t *testing.T) {
-	repo := createTestSqliteTransactionRepository(t)
+func TestSqlTransactionRepository(t *testing.T) {
+	sqliteDB := database.CreateTestSqliteDB(t)
+	defer sqliteDB.Close()
+
+	repo := createTestSqlTransactionRepository(t, sqliteDB.DB)
 	defer repo.Close()
 
 	// Override the accountRepository and write our accounts
 	account1, account2 := base.ID(), base.ID()
-	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
+	repo.accountRepo = &testAccountRepository{
 		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'remote' (routing number we don't manage)
 			// so we can send the ACH file and possibly get a return.
@@ -87,7 +87,7 @@ func TestSqliteTransactionRepository(t *testing.T) {
 		t.Errorf("%#v", transactions[0])
 	}
 
-	dbtx, _ := repo.db.DB.Begin()
+	dbtx, _ := repo.db.Begin()
 	defer dbtx.Rollback()
 
 	bal, err := repo.getAccountBalance(dbtx, account1)
@@ -109,14 +109,17 @@ func TestSqliteTransactionRepository(t *testing.T) {
 	}
 }
 
-// TestSqliteTransactionRepository__Internal will create an internal transfer
-func TestSqliteTransactionRepository__Internal(t *testing.T) {
-	repo := createTestSqliteTransactionRepository(t)
+// TestSqlTransactionRepository__Internal will create an internal transfer
+func TestSqlTransactionRepository__Internal(t *testing.T) {
+	sqliteDB := database.CreateTestSqliteDB(t)
+	defer sqliteDB.Close()
+
+	repo := createTestSqlTransactionRepository(t, sqliteDB.DB)
 	defer repo.Close()
 
 	// Override the accountRepository and write our accounts
 	account1, account2 := base.ID(), base.ID()
-	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
+	repo.accountRepo = &testAccountRepository{
 		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'internal' (routing number we manage).
 			{ID: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
@@ -135,7 +138,7 @@ func TestSqliteTransactionRepository__Internal(t *testing.T) {
 	if err := repo.createTransaction(tx, createTransactionOpts{InitialDeposit: true}); err != nil {
 		t.Fatal(err)
 	}
-	dbtx, _ := repo.db.DB.Begin()
+	dbtx, _ := repo.db.Begin()
 	if bal, _ := repo.getAccountBalance(dbtx, account1); bal != 1000 {
 		t.Fatalf("account1=%s has unexpected balance of %d", account1, bal)
 	}
@@ -170,7 +173,7 @@ func TestSqliteTransactionRepository__Internal(t *testing.T) {
 		t.Errorf("%#v", transactions[0])
 	}
 
-	dbtx, _ = repo.db.DB.Begin()
+	dbtx, _ = repo.db.Begin()
 	bal, err := repo.getAccountBalance(dbtx, account1)
 	if err != nil || bal != 600 {
 		t.Errorf("got balance of %d", bal)
@@ -182,14 +185,17 @@ func TestSqliteTransactionRepository__Internal(t *testing.T) {
 	dbtx.Rollback()
 }
 
-// TestSqliteTransactionRepository__AllowOverdraft will create an internal transfer, but allow an overdraft to occur
-func TestSqliteTransactionRepository__AllowOverdraft(t *testing.T) {
-	repo := createTestSqliteTransactionRepository(t)
+// TestSqlTransactionRepository__AllowOverdraft will create an internal transfer, but allow an overdraft to occur
+func TestSqlTransactionRepository__AllowOverdraft(t *testing.T) {
+	sqliteDB := database.CreateTestSqliteDB(t)
+	defer sqliteDB.Close()
+
+	repo := createTestSqlTransactionRepository(t, sqliteDB.DB)
 	defer repo.Close()
 
 	// Override the accountRepository and write our accounts
 	account1, account2 := base.ID(), base.ID()
-	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
+	repo.accountRepo = &testAccountRepository{
 		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'internal' (routing number we manage).
 			{ID: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
@@ -222,7 +228,7 @@ func TestSqliteTransactionRepository__AllowOverdraft(t *testing.T) {
 		t.Errorf("%#v", transactions[0])
 	}
 
-	dbtx, _ := repo.db.DB.Begin()
+	dbtx, _ := repo.db.Begin()
 	defer dbtx.Rollback()
 
 	bal, err := repo.getAccountBalance(dbtx, account1)
@@ -235,14 +241,17 @@ func TestSqliteTransactionRepository__AllowOverdraft(t *testing.T) {
 	}
 }
 
-// TestSqliteTransactionRepository__DisallowOverdraft will attempt an internal transfer, but be rejected on an overdraft error
-func TestSqliteTransactionRepository__DisallowOverdraft(t *testing.T) {
-	repo := createTestSqliteTransactionRepository(t)
+// TestSqlTransactionRepository__DisallowOverdraft will attempt an internal transfer, but be rejected on an overdraft error
+func TestSqlTransactionRepository__DisallowOverdraft(t *testing.T) {
+	sqliteDB := database.CreateTestSqliteDB(t)
+	defer sqliteDB.Close()
+
+	repo := createTestSqlTransactionRepository(t, sqliteDB.DB)
 	defer repo.Close()
 
 	// Override the accountRepository and write our accounts
 	account1, account2 := base.ID(), base.ID()
-	repo.sqliteTransactionRepository.accountRepo = &testAccountRepository{
+	repo.accountRepo = &testAccountRepository{
 		accounts: []*accounts.Account{
 			// Setup the account being debited from as 'internal' (routing number we manage).
 			{ID: account1, AccountNumber: "123", RoutingNumber: defaultRoutingNumber},
@@ -300,9 +309,12 @@ func TestTransactions__isInternalDebit(t *testing.T) {
 	}
 }
 
-// TestSqliteTransactions_unique ensures we can't insert a transaction with multiple lines for the same accountID
-func TestSqliteTransactions_unique(t *testing.T) {
-	repo := createTestSqliteTransactionRepository(t)
+// TestSqlTransactions_unique ensures we can't insert a transaction with multiple lines for the same accountID
+func TestSqlTransactions_unique(t *testing.T) {
+	sqliteDB := database.CreateTestSqliteDB(t)
+	defer sqliteDB.Close()
+
+	repo := createTestSqlTransactionRepository(t, sqliteDB.DB)
 	defer repo.Close()
 
 	account1, account2 := base.ID(), base.ID()

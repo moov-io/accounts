@@ -103,7 +103,8 @@ func main() {
 	if accountStorageType == "" {
 		accountStorageType = "sqlite"
 	}
-	accountRepo, err := initAccountStorage(logger, accountStorageType)
+
+	accountRepo, err := setupSqlAccountStorage(context.Background(), logger, accountStorageType)
 	if err != nil {
 		panic(fmt.Sprintf("account storage: %v", err))
 	}
@@ -116,7 +117,8 @@ func main() {
 	if transactionStorageType == "" {
 		transactionStorageType = "sqlite"
 	}
-	transactionRepo, err := initTransactionStorage(logger, transactionStorageType)
+
+	transactionRepo, err := setupSqlTransactionStorage(context.Background(), logger, transactionStorageType)
 	if err != nil {
 		panic(fmt.Sprintf("transaction storage: %v", err))
 	}

@@ -17,30 +17,30 @@ import (
 	"github.com/go-kit/kit/log"
 )
 
-type sqliteTransactionRepository struct {
+type sqlTransactionRepository struct {
 	db     *sql.DB
 	logger log.Logger
 
 	accountRepo accountRepository
 }
 
-func setupSqliteTransactionStorage(logger log.Logger, path string) (*sqliteTransactionRepository, error) {
-	db, err := database.SQLiteConnection(logger, path).Connect(context.Background()) // TODO(adam):
+func setupSqlTransactionStorage(ctx context.Context, logger log.Logger, _type string) (*sqlTransactionRepository, error) {
+	db, err := database.New(ctx, logger, _type)
 	if err != nil {
 		return nil, err
 	}
 	// Break the cyclic dependency between account and transaction repositories
-	repo := &sqliteTransactionRepository{db: db, logger: logger}
-	accountRepo := &sqliteAccountRepository{db, logger, repo}
+	repo := &sqlTransactionRepository{db: db, logger: logger}
+	accountRepo := &sqlAccountRepository{db, logger, repo}
 	repo.accountRepo = accountRepo
 	return repo, nil
 }
 
-func (r *sqliteTransactionRepository) Ping() error {
+func (r *sqlTransactionRepository) Ping() error {
 	return r.db.Ping()
 }
 
-func (r *sqliteTransactionRepository) Close() error {
+func (r *sqlTransactionRepository) Close() error {
 	return r.db.Close()
 }
 
@@ -61,7 +61,7 @@ func isInternalDebit(accounts []*accounts.Account, lines []transactionLine, rout
 	return true // default to assuming we need to check/prevent an overdraft
 }
 
-func (r *sqliteTransactionRepository) createTransaction(t transaction, opts createTransactionOpts) error {
+func (r *sqlTransactionRepository) createTransaction(t transaction, opts createTransactionOpts) error {
 	if err := t.validate(); err != nil && !opts.InitialDeposit {
 		return fmt.Errorf("transaction=%q is invalid: %v", t.ID, err)
 	}
@@ -140,7 +140,7 @@ func (r *sqliteTransactionRepository) createTransaction(t transaction, opts crea
 	return nil
 }
 
-func (r *sqliteTransactionRepository) getAccountTransactions(accountID string) ([]transaction, error) {
+func (r *sqlTransactionRepository) getAccountTransactions(accountID string) ([]transaction, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
 		return nil, fmt.Errorf("getAccountTransactions: %v", err)
@@ -186,7 +186,7 @@ func (r *sqliteTransactionRepository) getAccountTransactions(accountID string) (
 	return transactions, nil
 }
 
-func (r *sqliteTransactionRepository) getTransaction(transactionID string) (*transaction, error) {
+func (r *sqlTransactionRepository) getTransaction(transactionID string) (*transaction, error) {
 	tx, err := r.db.Begin()
 	if err != nil {
 		return nil, fmt.Errorf("getTransaction: %v", err)
@@ -198,7 +198,7 @@ func (r *sqliteTransactionRepository) getTransaction(transactionID string) (*tra
 	return transaction, tx.Commit()
 }
 
-func (r *sqliteTransactionRepository) loadTransaction(tx *sql.Tx, transactionID string) (*transaction, error) {
+func (r *sqlTransactionRepository) loadTransaction(tx *sql.Tx, transactionID string) (*transaction, error) {
 	query := `select timestamp from transactions where transaction_id = ? and deleted_at is null limit 1;`
 	stmt, err := tx.Prepare(query)
 	if err != nil {
@@ -239,7 +239,7 @@ func (r *sqliteTransactionRepository) loadTransaction(tx *sql.Tx, transactionID 
 	}, rows.Err()
 }
 
-func (r *sqliteTransactionRepository) getAccountBalance(tx *sql.Tx, accountID string) (int32, error) {
+func (r *sqlTransactionRepository) getAccountBalance(tx *sql.Tx, accountID string) (int32, error) {
 	// TODO(adam): At some point we should probably checkpoint balances so we avoid an entire index scan on an account_id
 	query := `select amount, purpose from transaction_lines where account_id = ? and deleted_at is null;`
 	stmt, err := tx.Prepare(query)

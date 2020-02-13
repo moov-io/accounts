@@ -5,13 +5,7 @@
 package main
 
 import (
-	"os"
-	"strings"
-
 	accounts "github.com/moov-io/accounts/client"
-	"github.com/moov-io/accounts/cmd/server/database"
-
-	"github.com/go-kit/kit/log"
 )
 
 type accountRepository interface {
@@ -23,14 +17,4 @@ type accountRepository interface {
 
 	SearchAccountsByCustomerID(customerID string) ([]*accounts.Account, error)
 	SearchAccountsByRoutingNumber(accountNumber, routingNumber, acctType string) (*accounts.Account, error)
-}
-
-func initAccountStorage(logger log.Logger, name string) (accountRepository, error) {
-	switch strings.ToLower(name) {
-	case "mysql":
-		return setupMySQLAccountStorage(logger, os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASSWORD"), os.Getenv("MYSQL_ADDRESS"), os.Getenv("MYSQL_DATABASE"))
-	case "sqlite":
-		return setupSqliteAccountStorage(logger, database.SQLitePath())
-	}
-	return nil, nil
 }

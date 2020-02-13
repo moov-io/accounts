@@ -5,10 +5,26 @@
 package database
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
+	"os"
+	"strings"
 
+	"github.com/go-kit/kit/log"
 	"github.com/lopezator/migrator"
 )
+
+func New(ctx context.Context, logger log.Logger, _type string) (*sql.DB, error) {
+	logger.Log("database", fmt.Sprintf("looking for %s database provider", _type))
+	switch strings.ToLower(_type) {
+	case "sqlite", "":
+		return SQLiteConnection(logger, SQLitePath()).Connect(ctx)
+	case "mysql":
+		return mysqlConnection(logger, os.Getenv("MYSQL_USER"), os.Getenv("MYSQL_PASSWORD"), os.Getenv("MYSQL_ADDRESS"), os.Getenv("MYSQL_DATABASE")).Connect(ctx)
+	}
+	return nil, fmt.Errorf("unknown database type %q", _type)
+}
 
 func execsql(name, raw string) *migrator.MigrationNoTx {
 	return &migrator.MigrationNoTx{
