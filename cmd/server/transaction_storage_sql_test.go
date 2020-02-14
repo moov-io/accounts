@@ -153,6 +153,8 @@ func TestSqlTransactionRepository__Internal(t *testing.T) {
 		if err := repo.createTransaction(tx, createTransactionOpts{InitialDeposit: true}); err != nil {
 			t.Fatal(err)
 		}
+		t.Logf("created transaction=%s", tx.ID)
+
 		dbtx, _ := repo.db.Begin()
 		if bal, _ := repo.getAccountBalance(dbtx, account1); bal != 1000 {
 			t.Fatalf("account1=%s has unexpected balance of %d", account1, bal)
@@ -176,6 +178,7 @@ func TestSqlTransactionRepository__Internal(t *testing.T) {
 			t.Logf("account1=%s account2=%s", account1, account2)
 			t.Fatal(err)
 		}
+		t.Logf("created transaction=%s", tx.ID)
 
 		transactions, err := repo.getAccountTransactions(account1)
 		if err != nil {
@@ -184,8 +187,21 @@ func TestSqlTransactionRepository__Internal(t *testing.T) {
 		if len(transactions) != 2 {
 			t.Errorf("got %d transactions: %v", len(transactions), transactions)
 		}
-		if transactions[0].ID != tx.ID || len(transactions[0].Lines) != 2 {
-			t.Errorf("%#v", transactions[0])
+		found := false
+		for i := range transactions {
+			if tx.ID == transactions[i].ID {
+				found = true
+				if n := len(transactions[i].Lines); n != 2 {
+					t.Errorf("got %d lines\n  %#v", n, transactions[i])
+				}
+			} else {
+				if n := len(transactions[i].Lines); n != 1 {
+					t.Errorf("got %d lines from initial deposit\n  %#v", n, transactions[i])
+				}
+			}
+		}
+		if !found {
+			t.Errorf("unable to find transaction=%s", tx.ID)
 		}
 
 		dbtx, _ = repo.db.Begin()

@@ -70,7 +70,6 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 	if err != nil {
 		return nil, fmt.Errorf("GetAccounts: stmt query error=%v rollback=%v", err, tx.Rollback())
 	}
-	rows.Close()
 
 	var out []*accounts.Account
 	for rows.Next() {
@@ -80,20 +79,25 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 			if err == sql.ErrNoRows {
 				continue
 			}
+			rows.Close()
 			return nil, fmt.Errorf("GetAccounts: account=%q error=%v rollback=%v", a.ID, err, tx.Rollback())
 		}
-
-		balance, err := r.transactionRepo.getAccountBalance(tx, a.ID)
-		if err != nil {
-			return nil, fmt.Errorf("GetAccounts: getAccountBalance: account=%q error=%v rollback=%v", a.ID, err, tx.Rollback())
-		}
-		// TODO(adam): need Balance, BalanceAvailable, and BalancePending
-		a.Balance = balance
 		out = append(out, &a)
 	}
+	rows.Close()
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("GetAccounts: scan error=%v rollback=%v", err, tx.Rollback())
 	}
+
+	for i := range out {
+		balance, err := r.transactionRepo.getAccountBalance(tx, out[i].ID)
+		if err != nil {
+			return nil, fmt.Errorf("GetAccounts: getAccountBalance: account=%q error=%v rollback=%v", out[i].ID, err, tx.Rollback())
+		}
+		// TODO(adam): need Balance, BalanceAvailable, and BalancePending
+		out[i].Balance = balance
+	}
+
 	if err := tx.Commit(); err != nil {
 		return nil, fmt.Errorf("GetAccounts: commit error=%v rollback=%v", err, tx.Rollback())
 	}
