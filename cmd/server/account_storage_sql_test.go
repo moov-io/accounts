@@ -90,13 +90,6 @@ func TestSqlAccountRepository(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		t.Logf("A: %#v", repo.Ping())
-		t.Logf("B: %#v", repo.transactionRepo.Ping())
-		if rr, ok := repo.transactionRepo.accountRepo.(*sqlAccountRepository); ok {
-			t.Logf("C: %#v", rr.Ping())
-			t.Logf("D: %#v", rr.transactionRepo.Ping())
-		}
-
 		// read via one method
 		accounts, err := repo.GetAccounts([]string{account.ID})
 		if err != nil {

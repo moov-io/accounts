@@ -70,7 +70,7 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 	if err != nil {
 		return nil, fmt.Errorf("GetAccounts: stmt query error=%v rollback=%v", err, tx.Rollback())
 	}
-	defer rows.Close()
+	rows.Close()
 
 	var out []*accounts.Account
 	for rows.Next() {
@@ -82,6 +82,7 @@ from accounts where account_id in (?%s) and deleted_at is null;`, strings.Repeat
 			}
 			return nil, fmt.Errorf("GetAccounts: account=%q error=%v rollback=%v", a.ID, err, tx.Rollback())
 		}
+
 		balance, err := r.transactionRepo.getAccountBalance(tx, a.ID)
 		if err != nil {
 			return nil, fmt.Errorf("GetAccounts: getAccountBalance: account=%q error=%v rollback=%v", a.ID, err, tx.Rollback())

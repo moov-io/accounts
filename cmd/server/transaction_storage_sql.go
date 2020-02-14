@@ -248,11 +248,13 @@ func (r *sqlTransactionRepository) getAccountBalance(tx *sql.Tx, accountID strin
 	}
 	defer stmt.Close()
 
-	var amount int32
 	rows, err := stmt.Query(accountID)
 	if err != nil {
 		return 0, fmt.Errorf("problem querying account=%s balance: %v", accountID, err)
 	}
+	defer rows.Close()
+
+	var amount int32
 	for rows.Next() {
 		var amt int32
 		var purpose string
@@ -265,8 +267,10 @@ func (r *sqlTransactionRepository) getAccountBalance(tx *sql.Tx, accountID strin
 			amount += amt
 		}
 	}
+
 	if err := rows.Err(); err != nil {
 		return 0, fmt.Errorf("problem getting account=%s balance: %v", accountID, err)
 	}
+
 	return amount, nil
 }
