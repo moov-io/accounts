@@ -95,10 +95,7 @@ func (s *sqlite) Connect(ctx context.Context) (*sql.DB, error) {
 			case <-ctx.Done():
 				return
 			case <-t.C:
-				stats := db.Stats()
-				s.connections.With("state", "idle").Set(float64(stats.Idle))
-				s.connections.With("state", "inuse").Set(float64(stats.InUse))
-				s.connections.With("state", "open").Set(float64(stats.OpenConnections))
+				recordStatus(s.connections, db)
 			}
 
 		}

@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/go-kit/kit/log"
+	kitprom "github.com/go-kit/kit/metrics/prometheus"
 	"github.com/lopezator/migrator"
 )
 
@@ -40,4 +41,11 @@ func execsql(name, raw string) *migrator.MigrationNoTx {
 // for duplicate entries (violating a unique table constraint).
 func UniqueViolation(err error) bool {
 	return MySQLUniqueViolation(err) || SqliteUniqueViolation(err)
+}
+
+func recordStatus(metric *kitprom.Gauge, db *sql.DB) {
+	stats := db.Stats()
+	metric.With("state", "idle").Set(float64(stats.Idle))
+	metric.With("state", "inuse").Set(float64(stats.InUse))
+	metric.With("state", "open").Set(float64(stats.OpenConnections))
 }

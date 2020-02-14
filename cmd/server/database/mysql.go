@@ -114,10 +114,7 @@ func (my *mysql) Connect(ctx context.Context) (*sql.DB, error) {
 			case <-ctx.Done():
 				return
 			case <-t.C:
-				stats := db.Stats()
-				my.connections.With("state", "idle").Set(float64(stats.Idle))
-				my.connections.With("state", "inuse").Set(float64(stats.InUse))
-				my.connections.With("state", "open").Set(float64(stats.OpenConnections))
+				recordStatus(my.connections, db)
 			}
 		}
 	}()
