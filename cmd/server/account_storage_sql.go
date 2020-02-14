@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	accounts "github.com/moov-io/accounts/client"
-	"github.com/moov-io/accounts/cmd/server/database"
 
 	"github.com/go-kit/kit/log"
 )
@@ -23,12 +22,8 @@ type sqlAccountRepository struct {
 	transactionRepo *sqlTransactionRepository
 }
 
-func setupSqlAccountStorage(ctx context.Context, logger log.Logger, _type string) (*sqlAccountRepository, error) {
-	db, err := database.New(ctx, logger, _type)
-	if err != nil {
-		return nil, err
-	}
-	transactionRepo, err := setupSqlTransactionStorage(ctx, logger, _type)
+func setupSqlAccountStorage(ctx context.Context, logger log.Logger, db *sql.DB) (*sqlAccountRepository, error) {
+	transactionRepo, err := setupSqlTransactionStorage(ctx, logger, db)
 	if err != nil {
 		return nil, fmt.Errorf("setupSqlTransactionStorage: transactions: %v", err)
 	}

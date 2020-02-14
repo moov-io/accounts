@@ -12,7 +12,6 @@ import (
 	"time"
 
 	accounts "github.com/moov-io/accounts/client"
-	"github.com/moov-io/accounts/cmd/server/database"
 
 	"github.com/go-kit/kit/log"
 )
@@ -24,11 +23,7 @@ type sqlTransactionRepository struct {
 	accountRepo accountRepository
 }
 
-func setupSqlTransactionStorage(ctx context.Context, logger log.Logger, _type string) (*sqlTransactionRepository, error) {
-	db, err := database.New(ctx, logger, _type)
-	if err != nil {
-		return nil, err
-	}
+func setupSqlTransactionStorage(ctx context.Context, logger log.Logger, db *sql.DB) (*sqlTransactionRepository, error) {
 	// Break the cyclic dependency between account and transaction repositories
 	repo := &sqlTransactionRepository{db: db, logger: logger}
 	accountRepo := &sqlAccountRepository{db, logger, repo}

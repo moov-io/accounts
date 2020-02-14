@@ -21,15 +21,11 @@ import (
 func createTestSqlTransactionRepository(t *testing.T, db *sql.DB) *sqlTransactionRepository {
 	t.Helper()
 
-	repo, err := setupSqlTransactionStorage(context.Background(), log.NewNopLogger(), "sqlite")
+	repo, err := setupSqlTransactionStorage(context.Background(), log.NewNopLogger(), db)
 	if err != nil {
 		t.Fatal(err)
 	}
-	repo.Close()
-	repo.db = db
-	if r, ok := repo.accountRepo.(*sqlAccountRepository); ok {
-		r.db = db
-	}
+
 	return repo
 }
 
