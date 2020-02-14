@@ -5,11 +5,7 @@
 package main
 
 import (
-	"strings"
-
 	accounts "github.com/moov-io/accounts/client"
-
-	"github.com/go-kit/kit/log"
 )
 
 type accountRepository interface {
@@ -21,12 +17,4 @@ type accountRepository interface {
 
 	SearchAccountsByCustomerID(customerID string) ([]*accounts.Account, error)
 	SearchAccountsByRoutingNumber(accountNumber, routingNumber, acctType string) (*accounts.Account, error)
-}
-
-func initAccountStorage(logger log.Logger, name string) (accountRepository, error) {
-	switch strings.ToLower(name) {
-	case "sqlite":
-		return setupSqliteAccountStorage(logger, getSqlitePath())
-	}
-	return nil, nil
 }

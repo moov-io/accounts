@@ -17,13 +17,13 @@ import (
 	"time"
 
 	app "github.com/moov-io/accounts"
+	"github.com/moov-io/accounts/cmd/server/database"
 	"github.com/moov-io/base/admin"
 	moovhttp "github.com/moov-io/base/http"
 	"github.com/moov-io/base/http/bind"
 
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
-	"github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -56,32 +56,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Shutdown context
+	ctx, cancelFunc := context.WithCancel(context.Background())
+	defer cancelFunc()
+
 	// Channel for errors
 	errs := make(chan error)
-
 	go func() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		errs <- fmt.Errorf("%s", <-c)
-	}()
-
-	// Setup SQLite database
-	if sqliteVersion, _, _ := sqlite3.Version(); sqliteVersion != "" {
-		logger.Log("main", fmt.Sprintf("sqlite version %s", sqliteVersion))
-	}
-	db, err := createSqliteConnection(logger, getSqlitePath())
-	if err != nil {
-		logger.Log("main", err)
-		os.Exit(1)
-	}
-	if err := migrate(logger, db); err != nil {
-		logger.Log("main", err)
-		os.Exit(1)
-	}
-	defer func() {
-		if err := db.Close(); err != nil {
-			logger.Log("main", err)
-		}
 	}()
 
 	// Check to see if our -admin.addr flag has been overridden
@@ -102,30 +86,30 @@ func main() {
 	defer adminServer.Shutdown()
 
 	// Setup Account storage
-	accountStorageType := os.Getenv("ACCOUNT_STORAGE_TYPE")
-	if accountStorageType == "" {
-		accountStorageType = "sqlite"
+	accountsDB, err := database.New(ctx, logger, or(os.Getenv("ACCOUNT_STORAGE_TYPE"), "sqlite"))
+	if err != nil {
+		panic(fmt.Sprintf("error connecting to accounts database: %v", err))
 	}
-	accountRepo, err := initAccountStorage(logger, accountStorageType)
+	accountRepo, err := setupSqlAccountStorage(context.Background(), logger, accountsDB)
 	if err != nil {
 		panic(fmt.Sprintf("account storage: %v", err))
 	}
 	defer accountRepo.Close()
 	logger.Log("main", fmt.Sprintf("using %T for account storage", accountRepo))
-	adminServer.AddLivenessCheck(fmt.Sprintf("%s-accounts", accountStorageType), accountRepo.Ping)
+	adminServer.AddLivenessCheck("accounts", accountRepo.Ping)
 
 	// Setup Transaction storage
-	transactionStorageType := os.Getenv("TRANSACTION_STORAGE_TYPE")
-	if transactionStorageType == "" {
-		transactionStorageType = "sqlite"
+	transactionsDB, err := database.New(ctx, logger, or(os.Getenv("TRANSACTION_STORAGE_TYPE"), "sqlite"))
+	if err != nil {
+		panic(fmt.Sprintf("error connecting to transactions database: %v", err))
 	}
-	transactionRepo, err := initTransactionStorage(logger, transactionStorageType)
+	transactionRepo, err := setupSqlTransactionStorage(context.Background(), logger, transactionsDB)
 	if err != nil {
 		panic(fmt.Sprintf("transaction storage: %v", err))
 	}
 	defer transactionRepo.Close()
 	logger.Log("main", fmt.Sprintf("using %T for transaction storage", transactionRepo))
-	adminServer.AddLivenessCheck(fmt.Sprintf("%s-transactions", transactionStorageType), transactionRepo.Ping)
+	adminServer.AddLivenessCheck("transactions", transactionRepo.Ping)
 
 	// Setup business HTTP routes
 	router := mux.NewRouter()

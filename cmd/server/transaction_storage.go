@@ -4,12 +4,6 @@
 
 package main
 
-import (
-	"strings"
-
-	"github.com/go-kit/kit/log"
-)
-
 type transactionRepository interface {
 	Ping() error
 	Close() error
@@ -28,14 +22,6 @@ type createTransactionOpts struct {
 	// to onboard on account. This is done to initially add funds into an account, but we don't track where the
 	// funds come from on the transaction level.
 	InitialDeposit bool
-}
-
-func initTransactionStorage(logger log.Logger, name string) (transactionRepository, error) {
-	switch strings.ToLower(name) {
-	case "sqlite":
-		return setupSqliteTransactionStorage(logger, getSqlitePath())
-	}
-	return nil, nil
 }
 
 // grabAccountIDs returns an []string of each accountID from an array of transactionLines.

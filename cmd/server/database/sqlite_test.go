@@ -1,0 +1,54 @@
+// Copyright 2020 The Moov Authors
+// Use of this source code is governed by an Apache License
+// license that can be found in the LICENSE file.
+
+package database
+
+import (
+	"context"
+	"errors"
+	"runtime"
+	"testing"
+
+	"github.com/go-kit/kit/log"
+)
+
+func TestSQLite__basic(t *testing.T) {
+	db := CreateTestSqliteDB(t)
+	defer db.Close()
+
+	if err := db.DB.Ping(); err != nil {
+		t.Fatal(err)
+	}
+
+	if runtime.GOOS == "windows" {
+		t.Skip("/dev/null doesn't exist on Windows")
+	}
+
+	// error case
+	s := SQLiteConnection(log.NewNopLogger(), "/tmp/path/doesnt/exist")
+
+	ctx, cancelFunc := context.WithCancel(context.Background())
+
+	conn, _ := s.Connect(ctx)
+	if err := conn.Ping(); err == nil {
+		t.Error("expected error")
+	}
+
+	cancelFunc()
+
+	conn.Close()
+}
+
+func TestSQLite__SQLitePath(t *testing.T) {
+	if v := SQLitePath(); v != "accounts.db" {
+		t.Errorf("got %s", v)
+	}
+}
+
+func TestSqliteUniqueViolation(t *testing.T) {
+	err := errors.New(`problem upserting account="7d676c65eccd48090ff238a0d5e35eb6126c23f2", userId="80cfe1311d9eb7659d02cba9ee6cb04ed3739a85": UNIQUE constraint failed: accounts.account_id`)
+	if !UniqueViolation(err) {
+		t.Error("should have matched unique violation")
+	}
+}
