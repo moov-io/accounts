@@ -240,6 +240,10 @@ func (r *sqlTransactionRepository) loadTransaction(tx *sql.Tx, transactionID str
 }
 
 func (r *sqlTransactionRepository) getAccountBalance(tx *sql.Tx, accountID string) (int32, error) {
+	if accountID == "" {
+		return 0, nil
+	}
+
 	// TODO(adam): At some point we should probably checkpoint balances so we avoid an entire index scan on an account_id
 	query := `select amount, purpose from transaction_lines where account_id = ? and deleted_at is null;`
 	stmt, err := tx.Prepare(query)
