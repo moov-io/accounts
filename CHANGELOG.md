@@ -1,3 +1,22 @@
+## v0.5.0 (Unreleased)
+
+ADDITIONS
+
+- cmd/server: setup mysql storage
+
+IMPROVEMENTS
+
+- cmd/server: early return on empty call of getAccountBalance
+- api: use shared Error model
+- api,client: rename models whose name is shared across projects
+
+BUILD
+
+- build: run sonatype-nexus-community/nancy in CI
+- build: upgrade openapi-generator to 4.2.0
+- chore(deps): update module mattn/go-sqlite3 to v1.13.0
+- build: update copyright headers to 2020
+
 ## v0.4.1 (Released 2019-10-07)
 
 REMOVALS
