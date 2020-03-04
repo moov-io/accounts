@@ -125,9 +125,9 @@ func addTransactionRoutes(logger log.Logger, router *mux.Router, accountRepo acc
 }
 
 func getAccountID(w http.ResponseWriter, r *http.Request) string {
-	v, _ := mux.Vars(r)["accountId"]
+	v := mux.Vars(r)["accountId"]
 	if v == "" {
-		if v, _ = mux.Vars(r)["accountID"]; v == "" {
+		if v = mux.Vars(r)["accountID"]; v == "" {
 			moovhttp.Problem(w, errNoAccountID)
 			return ""
 		}
@@ -192,9 +192,9 @@ func createTransaction(logger log.Logger, accountRepo accountRepository, transac
 }
 
 func getTransactionID(w http.ResponseWriter, r *http.Request) string {
-	v, _ := mux.Vars(r)["transactionId"]
+	v := mux.Vars(r)["transactionId"]
 	if v == "" {
-		if v, _ = mux.Vars(r)["transactionID"]; v == "" {
+		if v = mux.Vars(r)["transactionID"]; v == "" {
 			moovhttp.Problem(w, errNoTransactionID)
 			return ""
 		}
