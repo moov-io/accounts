@@ -25,9 +25,7 @@ client:
 	go test ./client
 
 clean:
-	@rm -rf client/
-	@rm -rf tmp/
-	@rm -rf bin/
+	@rm -rf ./bin/ ./tmp/
 	@rm -f openapi-generator-cli-*.jar
 
 dist: clean client build
