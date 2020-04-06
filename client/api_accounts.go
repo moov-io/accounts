@@ -1,5 +1,5 @@
 /*
- * Simple Core System API
+ * Accounts API
  *
  * Moov Accounts is an HTTP service which represents both a general ledger and chart of accounts for customers. The service is designed to abstract over various core systems and provide a uniform API for developers.
  *
@@ -33,7 +33,8 @@ type CreateAccountOpts struct {
 }
 
 /*
-CreateAccount Create a new account for a Customer
+CreateAccount Create Account
+Create an account for a Customer. Leaving the number blank will generate a random value.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param xUserID Moov User ID header, required in all requests
  * @param createAccount
@@ -143,7 +144,8 @@ type CreateTransactionOpts struct {
 }
 
 /*
-CreateTransaction Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
+CreateTransaction Create Transaction
+Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param xUserID Moov User ID header, required in all requests
  * @param createTransaction
@@ -253,7 +255,8 @@ type GetAccountTransactionsOpts struct {
 }
 
 /*
-GetAccountTransactions Get transactions for an account. Ordered descending from their posted date.
+GetAccountTransactions Get Account transactions
+Get transactions for an account. Ordered descending from their posted date.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param accountID Account ID
  * @param xUserID Moov User ID header, required in all requests
@@ -350,7 +353,8 @@ func (a *AccountsApiService) GetAccountTransactions(ctx _context.Context, accoun
 }
 
 /*
-Ping Ping the Accounts service to check if running
+Ping Ping Accounts service
+Check the Accounts service to check if running
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 */
 func (a *AccountsApiService) Ping(ctx _context.Context) (*_nethttp.Response, error) {
@@ -419,15 +423,16 @@ type ReverseTransactionOpts struct {
 }
 
 /*
-ReverseTransaction Reverse a transaction by debiting the credited and crediting the debited amounts among all accounts involved.
+ReverseTransaction Reverse a transaction
+Reverse a transaction by debiting the credited and crediting the debited amounts among all accounts involved.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- * @param transactionId Transaction ID
+ * @param transactionID Transaction ID
  * @param xUserID Moov User ID header, required in all requests
  * @param optional nil or *ReverseTransactionOpts - Optional Parameters:
  * @param "XRequestID" (optional.String) -  Optional Request ID allows application developer to trace requests through the systems logs
 @return Transaction
 */
-func (a *AccountsApiService) ReverseTransaction(ctx _context.Context, transactionId string, xUserID string, localVarOptionals *ReverseTransactionOpts) (Transaction, *_nethttp.Response, error) {
+func (a *AccountsApiService) ReverseTransaction(ctx _context.Context, transactionID string, xUserID string, localVarOptionals *ReverseTransactionOpts) (Transaction, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodPost
 		localVarPostBody     interface{}
@@ -438,8 +443,8 @@ func (a *AccountsApiService) ReverseTransaction(ctx _context.Context, transactio
 	)
 
 	// create path and map variables
-	localVarPath := a.client.cfg.BasePath + "/accounts/transactions/{transaction_id}/reversal"
-	localVarPath = strings.Replace(localVarPath, "{"+"transaction_id"+"}", _neturl.QueryEscape(fmt.Sprintf("%v", transactionId)), -1)
+	localVarPath := a.client.cfg.BasePath + "/accounts/transactions/{transactionID}/reversal"
+	localVarPath = strings.Replace(localVarPath, "{"+"transactionID"+"}", _neturl.QueryEscape(fmt.Sprintf("%v", transactionID)), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := _neturl.Values{}
@@ -531,7 +536,8 @@ type SearchAccountsOpts struct {
 }
 
 /*
-SearchAccounts Search for account which matches all query parameters
+SearchAccounts Search for Accounts
+Find accounts which match all specified query parameters
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param xUserID Moov User ID header, required in all requests
  * @param optional nil or *SearchAccountsOpts - Optional Parameters:

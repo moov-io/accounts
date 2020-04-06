@@ -1,5 +1,5 @@
 /*
- * Simple Core System API
+ * Accounts API
  *
  * Moov Accounts is an HTTP service which represents both a general ledger and chart of accounts for customers. The service is designed to abstract over various core systems and provide a uniform API for developers.
  *
@@ -37,7 +37,7 @@ var (
 	xmlCheck  = regexp.MustCompile(`(?i:(?:application|text)/xml)`)
 )
 
-// APIClient manages communication with the Simple Core System API API v1.0.0
+// APIClient manages communication with the Accounts API API v1.0.0
 // In most cases there should be only one, shared, APIClient.
 type APIClient struct {
 	cfg    *Configuration

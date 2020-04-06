@@ -22,7 +22,8 @@ paths:
     get:
       tags:
         - Accounts
-      summary: Ping the Accounts service to check if running
+      summary: Ping Accounts service
+      description: Check the Accounts service to check if running
       operationId: ping
       responses:
         '200':
@@ -31,7 +32,8 @@ paths:
     get:
       tags:
         - Accounts
-      summary: Search for account which matches all query parameters
+      summary: Search for Accounts
+      description: Find accounts which match all specified query parameters
       operationId: searchAccounts
       parameters:
         - name: number
@@ -84,7 +86,9 @@ paths:
     post:
       tags:
         - Accounts
-      summary: Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
+      summary: Create Transaction
+      description: |
+        Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
       operationId: createTransaction
       parameters:
         - name: X-Request-ID
@@ -123,7 +127,8 @@ paths:
     get:
       tags:
         - Accounts
-      summary: Get transactions for an account. Ordered descending from their posted date.
+      summary: Get Account transactions
+      description: Get transactions for an account. Ordered descending from their posted date.
       operationId: getAccountTransactions
       parameters:
         - name: accountID
@@ -159,14 +164,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Transactions'
-  /accounts/transactions/{transaction_id}/reversal:
+  /accounts/transactions/{transactionID}/reversal:
     post:
       tags:
         - Accounts
-      summary: Reverse a transaction by debiting the credited and crediting the debited amounts among all accounts involved.
+      summary: Reverse a transaction
+      description: Reverse a transaction by debiting the credited and crediting the debited amounts among all accounts involved.
       operationId: reverseTransaction
       parameters:
-        - name: transaction_id
+        - name: transactionID
           in: path
           description: Transaction ID
           required: true
@@ -203,7 +209,8 @@ paths:
     post:
       tags:
         - Accounts
-      summary: Create a new account for a Customer
+      summary: Create Account
+      description: Create an account for a Customer. Leaving the number blank will generate a random value.
       operationId: createAccount
       parameters:
         - name: X-Request-ID
