@@ -4,12 +4,12 @@ All URIs are relative to *http://localhost:8085*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**CreateAccount**](AccountsApi.md#CreateAccount) | **Post** /accounts | Create a new account for a Customer
-[**CreateTransaction**](AccountsApi.md#CreateTransaction) | **Post** /accounts/transactions | Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
-[**GetAccountTransactions**](AccountsApi.md#GetAccountTransactions) | **Get** /accounts/{accountID}/transactions | Get transactions for an account. Ordered descending from their posted date.
+[**CreateAccount**](AccountsApi.md#CreateAccount) | **Post** /accounts | Create Account
+[**CreateTransaction**](AccountsApi.md#CreateTransaction) | **Post** /accounts/transactions | Create Transaction
+[**GetAccountTransactions**](AccountsApi.md#GetAccountTransactions) | **Get** /accounts/{accountID}/transactions | Get Account transactions
 [**Ping**](AccountsApi.md#Ping) | **Get** /ping | Ping the Accounts service to check if running
-[**ReverseTransaction**](AccountsApi.md#ReverseTransaction) | **Post** /accounts/transactions/{transaction_id}/reversal | Reverse a transaction by debiting the credited and crediting the debited amounts among all accounts involved.
-[**SearchAccounts**](AccountsApi.md#SearchAccounts) | **Get** /accounts/search | Search for account which matches all query parameters
+[**ReverseTransaction**](AccountsApi.md#ReverseTransaction) | **Post** /accounts/transactions/{transactionID}/reversal | Reverse a transaction
+[**SearchAccounts**](AccountsApi.md#SearchAccounts) | **Get** /accounts/search | Search for Accounts
 
 
 
@@ -17,7 +17,9 @@ Method | HTTP request | Description
 
 > Account CreateAccount(ctx, xUserID, createAccount, optional)
 
-Create a new account for a Customer
+Create Account
+
+Create an account for a Customer. Leaving the number blank will generate a random value.
 
 ### Required Parameters
 
@@ -62,7 +64,9 @@ No authorization required
 
 > Transaction CreateTransaction(ctx, xUserID, createTransaction, optional)
 
-Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
+Create Transaction
+
+Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first. 
 
 ### Required Parameters
 
@@ -106,6 +110,8 @@ No authorization required
 ## GetAccountTransactions
 
 > []Transaction GetAccountTransactions(ctx, accountID, xUserID, optional)
+
+Get Account transactions
 
 Get transactions for an account. Ordered descending from their posted date.
 
@@ -179,7 +185,9 @@ No authorization required
 
 ## ReverseTransaction
 
-> Transaction ReverseTransaction(ctx, transactionId, xUserID, optional)
+> Transaction ReverseTransaction(ctx, transactionID, xUserID, optional)
+
+Reverse a transaction
 
 Reverse a transaction by debiting the credited and crediting the debited amounts among all accounts involved.
 
@@ -189,7 +197,7 @@ Reverse a transaction by debiting the credited and crediting the debited amounts
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**transactionId** | **string**| Transaction ID | 
+**transactionID** | **string**| Transaction ID | 
 **xUserID** | **string**| Moov User ID header, required in all requests | 
  **optional** | ***ReverseTransactionOpts** | optional parameters | nil if no parameters
 
@@ -226,7 +234,9 @@ No authorization required
 
 > []Account SearchAccounts(ctx, xUserID, optional)
 
-Search for account which matches all query parameters
+Search for Accounts
+
+Find accounts which match all specified query parameters
 
 ### Required Parameters
 

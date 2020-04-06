@@ -1,5 +1,5 @@
 /*
- * Simple Core System API
+ * Accounts API
  *
  * Moov Accounts is an HTTP service which represents both a general ledger and chart of accounts for customers. The service is designed to abstract over various core systems and provide a uniform API for developers.
  *

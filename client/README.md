@@ -33,12 +33,12 @@ All URIs are relative to *http://localhost:8085*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*AccountsApi* | [**CreateAccount**](docs/AccountsApi.md#createaccount) | **Post** /accounts | Create a new account for a Customer
-*AccountsApi* | [**CreateTransaction**](docs/AccountsApi.md#createtransaction) | **Post** /accounts/transactions | Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
-*AccountsApi* | [**GetAccountTransactions**](docs/AccountsApi.md#getaccounttransactions) | **Get** /accounts/{accountID}/transactions | Get transactions for an account. Ordered descending from their posted date.
+*AccountsApi* | [**CreateAccount**](docs/AccountsApi.md#createaccount) | **Post** /accounts | Create Account
+*AccountsApi* | [**CreateTransaction**](docs/AccountsApi.md#createtransaction) | **Post** /accounts/transactions | Create Transaction
+*AccountsApi* | [**GetAccountTransactions**](docs/AccountsApi.md#getaccounttransactions) | **Get** /accounts/{accountID}/transactions | Get Account transactions
 *AccountsApi* | [**Ping**](docs/AccountsApi.md#ping) | **Get** /ping | Ping the Accounts service to check if running
-*AccountsApi* | [**ReverseTransaction**](docs/AccountsApi.md#reversetransaction) | **Post** /accounts/transactions/{transaction_id}/reversal | Reverse a transaction by debiting the credited and crediting the debited amounts among all accounts involved.
-*AccountsApi* | [**SearchAccounts**](docs/AccountsApi.md#searchaccounts) | **Get** /accounts/search | Search for account which matches all query parameters
+*AccountsApi* | [**ReverseTransaction**](docs/AccountsApi.md#reversetransaction) | **Post** /accounts/transactions/{transactionID}/reversal | Reverse a transaction
+*AccountsApi* | [**SearchAccounts**](docs/AccountsApi.md#searchaccounts) | **Get** /accounts/search | Search for Accounts
 
 
 ## Documentation For Models

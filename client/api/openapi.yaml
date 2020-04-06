@@ -8,7 +8,7 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  title: Simple Core System API
+  title: Accounts API
   version: 1.0.0
 servers:
 - description: Local development
@@ -31,6 +31,7 @@ paths:
       - Accounts
   /accounts/search:
     get:
+      description: Find accounts which match all specified query parameters
       operationId: searchAccounts
       parameters:
       - description: Account number
@@ -97,11 +98,13 @@ paths:
           description: An Account object that matches all query parameters
         404:
           description: No account found for provided query parameters
-      summary: Search for account which matches all query parameters
+      summary: Search for Accounts
       tags:
       - Accounts
   /accounts/transactions:
     post:
+      description: |
+        Post a transaction against multiple accounts. All transaction lines must sum to zero. No money is created or destroyed in a transaction - only moved from account to account. Accounts can be referred to in a Transaction without creating them first.
       operationId: createTransaction
       parameters:
       - description: Optional Request ID allows application developer to trace requests
@@ -142,14 +145,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Transaction was not created, see error(s)
-      summary: Post a transaction against multiple accounts. All transaction lines
-        must sum to zero. No money is created or destroyed in a transaction - only
-        moved from account to account. Accounts can be referred to in a Transaction
-        without creating them first.
+      summary: Create Transaction
       tags:
       - Accounts
   /accounts/{accountID}/transactions:
     get:
+      description: Get transactions for an account. Ordered descending from their
+        posted date.
       operationId: getAccountTransactions
       parameters:
       - description: Account ID
@@ -196,18 +198,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/Transactions'
           description: List of transactions
-      summary: Get transactions for an account. Ordered descending from their posted
-        date.
+      summary: Get Account transactions
       tags:
       - Accounts
-  /accounts/transactions/{transaction_id}/reversal:
+  /accounts/transactions/{transactionID}/reversal:
     post:
+      description: Reverse a transaction by debiting the credited and crediting the
+        debited amounts among all accounts involved.
       operationId: reverseTransaction
       parameters:
       - description: Transaction ID
         explode: false
         in: path
-        name: transaction_id
+        name: transactionID
         required: true
         schema:
           example: 3e2f66e2
@@ -245,12 +248,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unable to reverse the specified transaction, check error(s).
-      summary: Reverse a transaction by debiting the credited and crediting the debited
-        amounts among all accounts involved.
+      summary: Reverse a transaction
       tags:
       - Accounts
   /accounts:
     post:
+      description: Create an account for a Customer. Leaving the number blank will
+        generate a random value.
       operationId: createAccount
       parameters:
       - description: Optional Request ID allows application developer to trace requests
@@ -293,7 +297,7 @@ paths:
           description: Invalid user information, check error(s).
         500:
           description: Internal error, check error(s) and report the issue.
-      summary: Create a new account for a Customer
+      summary: Create Account
       tags:
       - Accounts
 components:
