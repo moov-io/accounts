@@ -22,7 +22,8 @@ paths:
     get:
       tags:
         - Accounts
-      summary: Ping the Accounts service to check if running
+      summary: Ping Accounts service
+      description: Check the Accounts service to check if running
       operationId: ping
       responses:
         '200':

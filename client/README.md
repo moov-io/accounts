@@ -36,7 +36,7 @@ Class | Method | HTTP request | Description
 *AccountsApi* | [**CreateAccount**](docs/AccountsApi.md#createaccount) | **Post** /accounts | Create Account
 *AccountsApi* | [**CreateTransaction**](docs/AccountsApi.md#createtransaction) | **Post** /accounts/transactions | Create Transaction
 *AccountsApi* | [**GetAccountTransactions**](docs/AccountsApi.md#getaccounttransactions) | **Get** /accounts/{accountID}/transactions | Get Account transactions
-*AccountsApi* | [**Ping**](docs/AccountsApi.md#ping) | **Get** /ping | Ping the Accounts service to check if running
+*AccountsApi* | [**Ping**](docs/AccountsApi.md#ping) | **Get** /ping | Ping Accounts service
 *AccountsApi* | [**ReverseTransaction**](docs/AccountsApi.md#reversetransaction) | **Post** /accounts/transactions/{transactionID}/reversal | Reverse a transaction
 *AccountsApi* | [**SearchAccounts**](docs/AccountsApi.md#searchaccounts) | **Get** /accounts/search | Search for Accounts
 

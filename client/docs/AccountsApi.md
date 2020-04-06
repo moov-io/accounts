@@ -7,7 +7,7 @@ Method | HTTP request | Description
 [**CreateAccount**](AccountsApi.md#CreateAccount) | **Post** /accounts | Create Account
 [**CreateTransaction**](AccountsApi.md#CreateTransaction) | **Post** /accounts/transactions | Create Transaction
 [**GetAccountTransactions**](AccountsApi.md#GetAccountTransactions) | **Get** /accounts/{accountID}/transactions | Get Account transactions
-[**Ping**](AccountsApi.md#Ping) | **Get** /ping | Ping the Accounts service to check if running
+[**Ping**](AccountsApi.md#Ping) | **Get** /ping | Ping Accounts service
 [**ReverseTransaction**](AccountsApi.md#ReverseTransaction) | **Post** /accounts/transactions/{transactionID}/reversal | Reverse a transaction
 [**SearchAccounts**](AccountsApi.md#SearchAccounts) | **Get** /accounts/search | Search for Accounts
 
@@ -159,7 +159,9 @@ No authorization required
 
 > Ping(ctx, )
 
-Ping the Accounts service to check if running
+Ping Accounts service
+
+Check the Accounts service to check if running
 
 ### Required Parameters
 

@@ -353,7 +353,8 @@ func (a *AccountsApiService) GetAccountTransactions(ctx _context.Context, accoun
 }
 
 /*
-Ping Ping the Accounts service to check if running
+Ping Ping Accounts service
+Check the Accounts service to check if running
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 */
 func (a *AccountsApiService) Ping(ctx _context.Context) (*_nethttp.Response, error) {
