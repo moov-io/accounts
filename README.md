@@ -11,7 +11,7 @@ Moov Accounts is a [general ledger](https://en.wikipedia.org/wiki/General_ledger
 
 This project is currently under development and could introduce breaking changes to reach a stable status. We are looking for community feedback so please try out our code or give us feedback!
 
-Docs: [docs.moov.io](https://docs.moov.io/) | [api docs](https://api.moov.io/apps/accounts/)
+Docs: [docs.moov.io](https://docs.moov.io/) | [api docs](https://moov-io.github.io/accounts/)
 
 ### Reading
 
