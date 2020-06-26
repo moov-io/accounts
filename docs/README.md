@@ -6,7 +6,7 @@
 
 Moov Accounts is a [general ledger](https://en.wikipedia.org/wiki/General_ledger) accounting system designed to support the handling of Customer funds deposited at a bank or credit union. Implemented as an RESTful API and Moov Accounts can be leveraged by a financial institution to provide modern banking services to its customers. Moov Accounts can be utilized by a technology company to manage Customer assets that are in a single For Benefit of Account at a financial institution. Moov's primary use is with [PayGate](https://github.com/moov-io/paygate). (A full implementation of ACH origination)
 
-Docs: [Project](https://docs.moov.io/accounts/) | [API Endpoints](https://moov-io.github.io/accounts/)
+Docs: [Project](https://moov-io.github.io/accounts/) | [API Endpoints](https://moov-io.github.io/accounts/api/)
 
 ## Running Moov Accounts Server
 
@@ -77,7 +77,7 @@ The port `:9095` is bound by Accounts for our admin service. This HTTP server ha
 
 ### API documentation
 
-See our [API documentation](https://moov-io.github.io/accounts/) for Moov Accounts endpoints.
+See our [API documentation](https://moov-io.github.io/accounts/api/) for Moov Accounts endpoints.
 
 ## Getting Help
 
