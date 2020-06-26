@@ -110,6 +110,14 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateTransaction'
+            example:
+              lines:
+                - accountID: entity1
+                  purpose: ACHDebit
+                  amount: 2500
+                - accountID: entity2
+                  purpose: ACHCredit
+                  amount: 2500
       responses:
         '200':
           description: Transaction successfully created against the account(s)
@@ -164,7 +172,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Transactions'
-  /accounts/transactions/{transactionID}/reversal:
+              example:
+                lines:
+                  - accountID: entity1
+                    purpose: ACHDebit
+                    amount: 2500
+                  - accountID: entity2
+                    purpose: ACHCredit
+                    amount: 2500
+  '/accounts/transactions/{transactionID}/reversal':
     post:
       tags:
         - Accounts
@@ -199,6 +215,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Transaction'
+              example:
+                lines:
+                  - accountID: entity1
+                    purpose: ACHDebit
+                    amount: 2500
+                  - accountID: entity2
+                    purpose: ACHCredit
+                    amount: 2500
         '400':
           description: Unable to reverse the specified transaction, check error(s).
           content:
@@ -246,8 +270,7 @@ paths:
               schema:
                 $ref: 'https://raw.githubusercontent.com/moov-io/api/master/openapi-common.yaml#/components/schemas/Error'
         '500':
-          description: Internal error, check error(s) and report the issue.
-
+          description: 'Internal error, check error(s) and report the issue.'
 components:
   schemas:
     CreateAccount:
