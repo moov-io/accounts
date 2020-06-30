@@ -32,13 +32,10 @@ var (
 	sqliteVersionLogOnce sync.Once
 
 	sqliteMigrations = migrator.Migrations(
-		// Account tables
 		execsql(
 			"create_accounts",
 			`create table if not exists accounts(account_id primary key, customer_id, name, account_number, routing_number, status, type, created_at datetime, closed_at datetime, last_modified datetime, deleted_at datetime, unique(account_number, routing_number));`,
 		),
-
-		// Transaction tables
 		execsql(
 			"create_transactions",
 			`create table if not exists transactions(transaction_id primary key, timestamp datetime, created_at datetime, deleted_at datetime);`,
@@ -46,6 +43,14 @@ var (
 		execsql(
 			"create_transaction_lines",
 			`create table if not exists transaction_lines(transaction_id, account_id, purpose, amount integer, created_at datetime, deleted_at datetime, unique(transaction_id, account_id));`,
+		),
+		execsql(
+			"create_transaction_lines_id_index",
+			`create index transaction_lines_id_index on transaction_lines(transaction_id);`,
+		),
+		execsql(
+			"create_transaction_lines_account_index",
+			`create index transaction_lines_account_index on transaction_lines(account_id);`,
 		),
 	)
 )
