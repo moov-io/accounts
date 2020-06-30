@@ -44,7 +44,6 @@ var (
 	}()
 
 	mysqlMigrations = migrator.Migrations(
-		// Account tables
 		execsql(
 			"create_accounts",
 			`create table if not exists accounts(account_id varchar(40) primary key, customer_id varchar(40), name varchar(50), account_number varchar(15), routing_number varchar(10), status varchar(15), type varchar(12), created_at datetime, closed_at datetime, last_modified datetime, deleted_at datetime);`,
@@ -53,8 +52,6 @@ var (
 			"create_unique_accounts_index",
 			"create unique index accounts_unique_idx on accounts(account_number, routing_number);",
 		),
-
-		// Transaction tables
 		execsql(
 			"create_transactions",
 			`create table if not exists transactions(transaction_id varchar(40) primary key, timestamp datetime, created_at datetime, deleted_at datetime);`,
@@ -66,6 +63,14 @@ var (
 		execsql(
 			"create_unique_transaction_lines_index",
 			"create unique index transaction_lines_unique_idx on transaction_lines(transaction_id, account_id);",
+		),
+		execsql(
+			"create_transaction_lines_id_index",
+			`create index transaction_lines_id_index on transaction_lines(transaction_id);`,
+		),
+		execsql(
+			"create_transaction_lines_account_index",
+			`create index transaction_lines_account_index on transaction_lines(account_id);`,
 		),
 	)
 )
