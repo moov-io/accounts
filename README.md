@@ -2,7 +2,7 @@ moov-io/accounts
 ===
 
 [![GoDoc](https://godoc.org/github.com/moov-io/accounts?status.svg)](https://godoc.org/github.com/moov-io/accounts)
-[![Build Status](https://travis-ci.com/moov-io/accounts.svg?branch=master)](https://travis-ci.com/moov-io/accounts)
+[![Build Status](https://github.com/moov-io/accounts/workflows/Go/badge.svg)](https://github.com/moov-io/accounts/actions)
 [![Coverage Status](https://codecov.io/gh/moov-io/accounts/branch/master/graph/badge.svg)](https://codecov.io/gh/moov-io/accounts)
 [![Go Report Card](https://goreportcard.com/badge/github.com/moov-io/accounts)](https://goreportcard.com/report/github.com/moov-io/accounts)
 [![Apache 2 licensed](https://img.shields.io/badge/license-Apache2-blue.svg)](https://raw.githubusercontent.com/moov-io/accounts/master/LICENSE)
