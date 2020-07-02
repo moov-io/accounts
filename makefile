@@ -9,6 +9,16 @@ build:
 	go build github.com/moov-io/accounts
 	CGO_ENABLED=1 go build -o ./bin/server github.com/moov-io/accounts/cmd/server
 
+.PHONY: check
+check:
+ifeq ($(OS),Windows_NT)
+	@echo "Skipping checks on Windows, currently unsupported."
+else
+	@wget -O lint-project.sh https://raw.githubusercontent.com/moov-io/infra/master/go/lint-project.sh
+	@chmod +x ./lint-project.sh
+	./lint-project.sh
+endif
+
 docker:
 	docker build --pull -t moov/accounts:$(VERSION) -f Dockerfile .
 	docker tag moov/accounts:$(VERSION) moov/accounts:latest
