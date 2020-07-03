@@ -39,8 +39,7 @@ client:
 	go test ./client
 
 clean:
-	@rm -rf ./bin/ ./tmp/
-	@rm -f openapi-generator-cli-*.jar
+	@rm -rf ./bin/ cover.out coverage.txt openapi-generator-cli-*.jar misspell* staticcheck* lint-project.sh
 
 dist: clean client build
 ifeq ($(OS),Windows_NT)
