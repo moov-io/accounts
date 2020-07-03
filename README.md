@@ -19,7 +19,7 @@ Accounting for Developers [Part 1](https://docs.google.com/document/d/1HDLRa6vKp
 
 ### Deployment
 
-You can download [our docker image `moov/accounts`](https://hub.docker.com/r/moov/accounts/) from Docker Hub or use this repository. No configuration is required to serve on `:8085` and metrics at `:9095/metrics` in Prometheus format.
+You can download [our docker image `moov/accounts`](https://hub.docker.com/r/moov/accounts/) from Docker Hub or use this repository. No configuration is required to serve on `:8085` and metrics at `:9095/metrics` in Prometheus format. We also have docker images for [OpenShift](https://quay.io/repository/moov/accounts?tab=tags).
 
 ### Configuration
 

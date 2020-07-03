@@ -19,9 +19,13 @@ else
 	./lint-project.sh
 endif
 
-docker:
+docker: clean
+# Docker image
 	docker build --pull -t moov/accounts:$(VERSION) -f Dockerfile .
 	docker tag moov/accounts:$(VERSION) moov/accounts:latest
+# OpenShift Docker image
+	docker build --pull -t quay.io/moov/accounts:$(VERSION) -f Dockerfile-openshift --build-arg VERSION=$(VERSION) .
+	docker tag quay.io/moov/accounts:$(VERSION) quay.io/moov/accounts:latest
 
 .PHONY: client
 client:
