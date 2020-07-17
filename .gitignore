@@ -14,5 +14,12 @@
 openapi-generator-cli-*.jar
 
 /bin/
+/lint-project.sh
+misspell*
+staticcheck*
+
+/coverage.txt
+/cover.out
+
 *.dbopenapi-generator-cli-*.jar
 *.db
